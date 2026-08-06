@@ -1,0 +1,44 @@
+MenuBar=Disabled
+
+[ContentDisplay]
+UsePermissionsFormat=NumericFormat
+
+[ContextMenu]
+ShowAddToPlaces=false
+ShowOpenInSplitView=false
+ShowViewMode=false
+
+[DetailsMode]
+IconSize=48
+PreviewSize=32
+
+[General]
+BrowseThroughArchives=true
+GlobalViewProps=false
+HideXTrashFile=true
+RememberOpenedTabs=false
+ShowStatusBar=FullWidth
+TerminalApplication=kitty
+
+[IconsMode]
+IconSize=96
+PreviewSize=80
+
+[InformationPanel]
+previewsShown=false
+
+[KFileDialog Settings]
+Places Icons Auto-resize=false
+Places Icons Static Size=16
+
+[MainWindow]
+MenuBar=Disabled
+
+[MainWindow][Toolbar mainToolBar]
+ToolButtonStyle=IconOnly
+
+[PlacesPanel]
+IconSize=16
+
+[PreviewSettings]
+Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,windowsexethumbnail,windowsimagethumbnail,mobithumbnail,gsthumbnail,rawthumbnail,svgthumbnail,ffmpegthumbs
