@@ -1,13 +1,18 @@
-- **QuickShell**: Qt6-based desktop shell with Clean Design
-- **Dynamic Theming**: Automatic color palette generation from wallpapers via matugen and kde-material-you-colors
-- **Complete UI**: Menubar, sidebars, lock screen, logout menu
-- **Power Management**: hypridle, hyprlock, hyprsunset
-- **Tools**: fuzzel launcher, wlogout, hyprshot, hyprpicker, and more
-- **Python Environment**: Pre-configured for wallpaper analysis scripts
-- **Qt/QML Modules**: Complete Qt6 setup including QtPositioning
+<!-- markdownlint-disable MD033 MD041 -->
 
-## Prerequisites
+<div id="doc-begin" align="center">
+  <h1 id="header">
+    <pre>aether</pre>
+  </h1>
+</div>
 
+
+## Installation
+
+<details>
+  
+  <summary>Prerequisites</summary>
+  
 Configure these at the system level in `configuration.nix`:
 
 ```nix
@@ -47,10 +52,11 @@ services.udev.extraRules = ''
 '';
 ```
 
-## Installation
+</details>
 
-### Minimal Setup
-
+<details>
+  <summary>Minimal Setup</summary>
+  
 ```nix
 {
   inputs = {
@@ -80,8 +86,10 @@ services.udev.extraRules = ''
   };
 }
 ```
+</details>
 
-### Using Your Own Dotfiles Fork
+<details>
+<summary>Using Your Own Dotfiles Fork</summary>
 
 Override the `dotfiles` input to use your own fork:
 
@@ -96,12 +104,12 @@ Override the `dotfiles` input to use your own fork:
     };
 
     dotfiles = {
-      url = "git+https://github.com/yourusername/aether?submodules=1";
+      url = "github:yourusername/aether";
       flake = false;
     };
 
-    illogical-flake = {
-      url = "github:soymou/illogical-flake";
+    aether = {
+      url = "github:strtab/aether";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.dotfiles.follows = "dotfiles";
     };
@@ -120,24 +128,17 @@ Override the `dotfiles` input to use your own fork:
   };
 }
 ```
+</details>
 
-> **Note**: The dotfiles repository uses git submodules for some components (like Material shapes).
-> You **must** include `?submodules=1` in the URL to fetch them properly.
-
-Supported flake URL formats:
-
-- GitHub with submodules: `url = "git+https://github.com/owner/repo?submodules=1";`
-- Arbitrary git: `url = "git+https://example.com/repo.git?submodules=1";`
-- Local path: `url = "path:/home/user/dotfiles";` — ensure submodules are initialized with `git submodule update --init --recursive`
-
-## Configuration Options
+<details>
+  <summary>Configuration Options</summary>
 
 ### `programs.aether.enable`
 
 **Type**: boolean  
 **Default**: `false`
 
-Enables the Illogical Impulse configuration. Must be set to `true` for any other option to take effect.
+Enables the aether. Must be set to `true` for any other option to take effect.
 
 ---
 
@@ -182,6 +183,7 @@ programs.aether.icons = {
   package = pkgs.papirus-icon-theme;
 };
 ```
+</details>
 
 ## Credits
 
