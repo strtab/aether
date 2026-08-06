@@ -198,21 +198,21 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ tog
 --# Focusing
 hl.bind("SUPER + mouse:272", function()
   local win = hl.get_active_window()
-  if win ~= nil and win.floating == true then
+  if win ~= nil and win.floating == true and win.fullscreen == false then
     hl.dispatch(hl.dsp.window.drag())
   end
 end, { mouse = true, description = "Window: Move" })
 
 hl.bind("SUPER + mouse:274", function ()
   local win = hl.get_active_window()
-  if win ~= nil and win.floating == true then
+  if win ~= nil and win.floating == true and win.fullscreen == false then
     hl.dispatch(hl.dsp.window.drag())
   end
 end, { mouse = true })
 
 hl.bind("SUPER + mouse:273", function ()
    local win = hl.get_active_window()
-  if win ~= nil and win.floating == true then
+  if win ~= nil and win.floating == true and win.fullscreen == false then
     hl.dispatch(hl.dsp.window.resize())
   end
 end, { mouse = true, description = "Window: Resize" })
