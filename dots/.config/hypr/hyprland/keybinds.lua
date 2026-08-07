@@ -185,7 +185,8 @@ hl.bind("SUPER + code:86", function()
 end, { repeating = true })
 
 --##! Media
-local mediaNextCommand = 'playerctl next || playerctl position `bc <<< "100 * $(playerctl metadata mpris:length) / 1000000 / 100"`'
+local mediaNextCommand =
+'playerctl next || playerctl position `bc <<< "100 * $(playerctl metadata mpris:length) / 1000000 / 100"`'
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd(mediaNextCommand), { locked = true })
 hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
@@ -198,21 +199,21 @@ hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ tog
 --# Focusing
 hl.bind("SUPER + mouse:272", function()
   local win = hl.get_active_window()
-  if win ~= nil and win.floating == true and win.fullscreen == false then
+  if (win ~= nil and win.floating == true and (win.fullscreen == false or win.fullscreen_client == 0)) then
     hl.dispatch(hl.dsp.window.drag())
   end
 end, { mouse = true, description = "Window: Move" })
 
-hl.bind("SUPER + mouse:274", function ()
+hl.bind("SUPER + mouse:274", function()
   local win = hl.get_active_window()
-  if win ~= nil and win.floating == true and win.fullscreen == false then
+  if (win ~= nil and win.floating == true and (win.fullscreen == false or win.fullscreen_client == 0)) then
     hl.dispatch(hl.dsp.window.drag())
   end
 end, { mouse = true })
 
-hl.bind("SUPER + mouse:273", function ()
-   local win = hl.get_active_window()
-  if win ~= nil and win.floating == true and win.fullscreen == false then
+hl.bind("SUPER + mouse:273", function()
+  local win = hl.get_active_window()
+  if (win ~= nil and win.floating == true and (win.fullscreen == false or win.fullscreen_client == 0)) then
     hl.dispatch(hl.dsp.window.resize())
   end
 end, { mouse = true, description = "Window: Resize" })
@@ -363,7 +364,7 @@ hl.define_submap("virtual-machine", function()
     end
   end, { submap_universal = true })
 
-  -- TODO: fix the mouse unbind in the virtual-machine submap. 
+  -- TODO: fix the mouse unbind in the virtual-machine submap.
   -- unbind mouse drag/resize to no-op while in this submap
   -- hl.unbind("SUPER + mouse:272")
   -- hl.unbind("SUPER + mouse:274")
