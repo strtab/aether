@@ -194,14 +194,6 @@ Button {
         y: -ripple.height / 2
       }
     }
-
-    // Aether: hairline + soft sheen, shown on the resting glass state (not
-    // on the solid ink "toggled" chip, which is a different material).
-    GlassBevel {
-      anchors.fill: parent
-      radius: root.buttonEffectiveRadius
-      visible: !root.toggled && (root.hovered || root.down)
-    }
   }
 
   contentItem: StyledText {
