@@ -29,86 +29,74 @@ RowLayout {
     DefaultSearch
   }
 
-  property var searchPrefixType: SearchBar.SearchPrefixType.DefaultSearch
+  property var searchPrefixType: SearchInputField.SearchPrefixType.DefaultSearch
 
   Connections {
     target: searchInput
     function onTextChanged() {
       const t = searchInput.text;
       if (t.startsWith(Config.options.search.prefix.action))
-        root.searchPrefixType = SearchBar.SearchPrefixType.Action;
+        root.searchPrefixType = SearchInputField.SearchPrefixType.Action;
       else if (t.startsWith(Config.options.search.prefix.app))
-        root.searchPrefixType = SearchBar.SearchPrefixType.App;
+        root.searchPrefixType = SearchInputField.SearchPrefixType.App;
       else if (t.startsWith(Config.options.search.prefix.clipboard))
-        root.searchPrefixType = SearchBar.SearchPrefixType.Clipboard;
+        root.searchPrefixType = SearchInputField.SearchPrefixType.Clipboard;
       else if (t.startsWith(Config.options.search.prefix.math))
-        root.searchPrefixType = SearchBar.SearchPrefixType.Math;
+        root.searchPrefixType = SearchInputField.SearchPrefixType.Math;
       else if (t.startsWith(Config.options.search.prefix.shellCommand))
-        root.searchPrefixType = SearchBar.SearchPrefixType.ShellCommand;
+        root.searchPrefixType = SearchInputField.SearchPrefixType.ShellCommand;
       else if (t.startsWith(Config.options.search.prefix.webSearch))
-        root.searchPrefixType = SearchBar.SearchPrefixType.WebSearch;
+        root.searchPrefixType = SearchInputField.SearchPrefixType.WebSearch;
       else
-        root.searchPrefixType = SearchBar.SearchPrefixType.DefaultSearch;
+        root.searchPrefixType = SearchInputField.SearchPrefixType.DefaultSearch;
     }
   }
 
-  property var activeModeType: SearchBar.SearchPrefixType.DefaultSearch
+  property var activeModeType: SearchInputField.SearchPrefixType.DefaultSearch
 
   Connections {
     target: LauncherSearch
     function onModeChanged() {
       const mode = LauncherSearch.mode;
       if (mode === Config.options.search.prefix.action)
-        root.activeModeType = SearchBar.SearchPrefixType.Action;
+        root.activeModeType = SearchInputField.SearchPrefixType.Action;
       else if (mode === Config.options.search.prefix.app)
-        root.activeModeType = SearchBar.SearchPrefixType.App;
+        root.activeModeType = SearchInputField.SearchPrefixType.App;
       else if (mode === Config.options.search.prefix.clipboard)
-        root.activeModeType = SearchBar.SearchPrefixType.Clipboard;
+        root.activeModeType = SearchInputField.SearchPrefixType.Clipboard;
       else if (mode === Config.options.search.prefix.math)
-        root.activeModeType = SearchBar.SearchPrefixType.Math;
+        root.activeModeType = SearchInputField.SearchPrefixType.Math;
       else if (mode === Config.options.search.prefix.shellCommand)
-        root.activeModeType = SearchBar.SearchPrefixType.ShellCommand;
+        root.activeModeType = SearchInputField.SearchPrefixType.ShellCommand;
       else if (mode === Config.options.search.prefix.webSearch)
-        root.activeModeType = SearchBar.SearchPrefixType.WebSearch;
+        root.activeModeType = SearchInputField.SearchPrefixType.WebSearch;
       else
-        root.activeModeType = SearchBar.SearchPrefixType.DefaultSearch;
+        root.activeModeType = SearchInputField.SearchPrefixType.DefaultSearch;
     }
   }
 
-  MaterialShapeWrappedMaterialSymbol {
+  MaterialSymbol {
     id: searchIcon
-    Layout.alignment: Qt.AlignVCenter
-    iconSize: (Config.options.search.fontSize + 5) ?? Appearance.font.pixelSize.huge
-    shape: switch (root.activeModeType) {
-    case SearchBar.SearchPrefixType.Action:
-      return MaterialShape.Shape.Pill;
-    case SearchBar.SearchPrefixType.App:
-      return MaterialShape.Shape.Clover4Leaf;
-    case SearchBar.SearchPrefixType.Clipboard:
-      return MaterialShape.Shape.Gem;
-    case SearchBar.SearchPrefixType.Math:
-      return MaterialShape.Shape.PuffyDiamond;
-    case SearchBar.SearchPrefixType.ShellCommand:
-      return MaterialShape.Shape.PixelCircle;
-    case SearchBar.SearchPrefixType.WebSearch:
-      return MaterialShape.Shape.SoftBurst;
-    default:
-      return MaterialShape.Shape.Cookie7Sided;
-    }
+    color: Appearance.colors.colOnSurfaceVariant
+    Layout.leftMargin: 10
+    Layout.rightMargin: 0
+    Layout.fillWidth: true
+    Layout.fillHeight: true
+    iconSize: Appearance.font.pixelSize.hugeass + 5
     text: switch (root.activeModeType) {
-    case SearchBar.SearchPrefixType.Action:
+    case SearchInputField.SearchPrefixType.Action:
       return "action_key";
-    case SearchBar.SearchPrefixType.App:
+    case SearchInputField.SearchPrefixType.App:
       return "apps";
-    case SearchBar.SearchPrefixType.Clipboard:
+    case SearchInputField.SearchPrefixType.Clipboard:
       return "content_paste_search";
-    case SearchBar.SearchPrefixType.Math:
+    case SearchInputField.SearchPrefixType.Math:
       return "calculate";
-    case SearchBar.SearchPrefixType.ShellCommand:
+    case SearchInputField.SearchPrefixType.ShellCommand:
       return "terminal";
-    case SearchBar.SearchPrefixType.WebSearch:
+    case SearchInputField.SearchPrefixType.WebSearch:
       return "travel_explore";
-    case SearchBar.SearchPrefixType.DefaultSearch:
+    case SearchInputField.SearchPrefixType.DefaultSearch:
       return "search";
     default:
       return "search";
@@ -117,56 +105,45 @@ RowLayout {
 
   // Change mode if prefix is used
   onSearchPrefixTypeChanged: {
-    if (LauncherSearch.mode === "" && root.searchPrefixType !== SearchBar.SearchPrefixType.DefaultSearch) {
+    if (LauncherSearch.mode === "" && root.searchPrefixType !== SearchInputField.SearchPrefixType.DefaultSearch) {
       LauncherSearch.mode = searchInput.text.slice(0, 1);
       searchInput.text = searchInput.text.slice(1);
     }
   }
 
-  ToolbarTextField { // Search box
+  ToolbarTextField { // Input box
     id: searchInput
 
-    Layout.topMargin: (searchInput.font.pixelSize / 3)
-    Layout.bottomMargin: (searchInput.font.pixelSize / 3)
-    Layout.leftMargin: (searchInput.font.pixelSize / 8)
-    Layout.rightMargin: (searchInput.font.pixelSize / 8)
+    Layout.topMargin: 2
+    Layout.bottomMargin: 2
+    Layout.leftMargin: 0
     Layout.fillWidth: true
 
     // Hide TextField background
     background: Item {}
 
-    implicitHeight: 40
-    implicitWidth: Config.options.search.collapsed ? (root.searchingText == "" ? Appearance.sizes.searchWidthCollapsed : Appearance.sizes.searchWidth) : Appearance.sizes.searchWidth
-    font.pixelSize: Config.options.search.fontSize ?? Appearance.font.pixelSize.large
+    Layout.fillHeight: true
+    implicitWidth: Appearance.sizes.searchWidth
+    font.pixelSize: Appearance.font.pixelSize.huge
 
     focus: GlobalStates.searchOpen
 
     placeholderText: {
       shape: switch (root.activeModeType) {
-      case SearchBar.SearchPrefixType.Action:
+      case SearchInputField.SearchPrefixType.Action:
         return Translation.tr("Actions");
-      case SearchBar.SearchPrefixType.App:
+      case SearchInputField.SearchPrefixType.App:
         return Translation.tr("Applications");
-      case SearchBar.SearchPrefixType.Clipboard:
+      case SearchInputField.SearchPrefixType.Clipboard:
         return Translation.tr("Clipboard");
-      case SearchBar.SearchPrefixType.Math:
+      case SearchInputField.SearchPrefixType.Math:
         return Translation.tr("Calculate");
-      case SearchBar.SearchPrefixType.ShellCommand:
+      case SearchInputField.SearchPrefixType.ShellCommand:
         return Translation.tr("Shell Command");
-      case SearchBar.SearchPrefixType.WebSearch:
+      case SearchInputField.SearchPrefixType.WebSearch:
         return Translation.tr("Web Search");
       default:
-        return Translation.tr("Search for anything...");
-      }
-    }
-
-    Behavior on implicitWidth {
-      id: searchWidthBehavior
-      enabled: root.animateWidth
-      NumberAnimation {
-        duration: 300
-        easing.type: Appearance.animation.elementMove.type
-        easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
+        return Translation.tr("Type a command or search...");
       }
     }
 
@@ -176,56 +153,6 @@ RowLayout {
       id: inputMetrics
       font: searchInput.font
       text: searchInput.text
-    }
-
-    // Auto suggestion
-    Rectangle {
-      visible: Config.options?.search?.autocomplete?.enable ? (suggestionText.suggestion.length > 0) : false
-      anchors.verticalCenter: parent.verticalCenter
-      x: searchInput.leftPadding + inputMetrics.advanceWidth
-      height: suggestionText.implicitHeight + 4
-      width: suggestionText.implicitWidth + 8
-
-      // Show background if it is not autocomplete
-      radius: !suggestionText.isAutocomplete ? 0 : 8
-      color: Config.options?.search?.autocomplete?.showBackground ? (!suggestionText.isAutocomplete ? "transparent" : Appearance.colors.colSurfaceContainerHigh) : "transparent"
-      border.color: Config.options?.search?.autocomplete?.showBorder ? (!suggestionText.isAutocomplete ? "transparent" : Appearance.colors.colOutlineVariant) : ""
-      border.width: Config.options?.search?.autocomplete?.showBorder ? (!suggestionText.isAutocomplete ? 0 : 1) : ""
-
-      Text {
-        id: suggestionText
-        property bool isAutocomplete: {
-          if (LauncherSearch.results.length === 0 || searchInput.text.length === 0)
-            return false;
-          const res = LauncherSearch.results[LauncherSearch.selectedIndex];
-          if (!res)
-            return false;
-          const name = res.name.toLowerCase();
-          const query = searchInput.text.toLowerCase();
-          return (name.startsWith(query) && name !== query) || (name.includes(query) && name !== query);
-        }
-        property string suggestion: {
-          if (LauncherSearch.results.length === 0 || searchInput.text.length === 0)
-            return "";
-          const res = LauncherSearch.results[LauncherSearch.selectedIndex];
-          if (!res)
-            return "";
-          const name = res.name.toLowerCase();
-          const query = searchInput.text.toLowerCase();
-          const verb = res.verb ?? "";
-          const suffix = verb !== "" ? " — " + verb : "";
-          if (isAutocomplete) {
-            if (name.startsWith(query))
-              return res.name.slice(searchInput.text.length).toLowerCase() + suffix;
-            return " — " + res.name;
-          }
-          return verb !== "" ? " — " + verb : "";
-        }
-        text: suggestion
-        font: searchInput.font
-        color: Appearance.colors.colOnSurfaceVariant
-        opacity: 0.4
-      }
     }
 
     onAccepted: {
@@ -263,6 +190,61 @@ RowLayout {
       if (event.key === Qt.Key_Backspace && searchInput.activeFocus && searchInput.text.length === 0 && LauncherSearch.mode !== "") {
         LauncherSearch.mode = "";
         event.accepted = true;
+      }
+    }
+
+    // Auto suggestion
+    Rectangle {
+      visible: Config.options?.search?.autocomplete?.enable ? (suggestionText.suggestion.length > 0) : false
+      x: searchInput.leftPadding + inputMetrics.advanceWidth
+      // Height must be bound explicitly - Rectangle does not size itself to children,
+      // so without this the anchor below centers a 0-height box instead of the text
+      height: suggestionText.implicitHeight
+      width: suggestionText.implicitWidth
+      anchors.verticalCenter: searchInput.verticalCenter
+      radius: 8
+
+      // Show background if it is not autocomplete
+      color: Config.options?.search?.autocomplete?.showBackground ? (!suggestionText.isAutocomplete ? "transparent" : Appearance.colors.colSurfaceContainerHigh) : "transparent"
+      border.color: Config.options?.search?.autocomplete?.showBorder ? (!suggestionText.isAutocomplete ? "transparent" : Appearance.colors.colOutlineVariant) : ""
+      border.width: Config.options?.search?.autocomplete?.showBorder ? (!suggestionText.isAutocomplete ? 0 : 1) : ""
+
+      Text {
+        id: suggestionText
+        // Centers the text within the now-correctly-sized Rectangle
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        property bool isAutocomplete: {
+          if (LauncherSearch.results.length === 0 || searchInput.text.length === 0)
+            return false;
+          const res = LauncherSearch.results[LauncherSearch.selectedIndex];
+          if (!res)
+            return false;
+          const name = res.name.toLowerCase();
+          const query = searchInput.text.toLowerCase();
+          return (name.startsWith(query) && name !== query) || (name.includes(query) && name !== query);
+        }
+        property string suggestion: {
+          if (LauncherSearch.results.length === 0 || searchInput.text.length === 0)
+            return "";
+          const res = LauncherSearch.results[LauncherSearch.selectedIndex];
+          if (!res)
+            return "";
+          const name = res.name.toLowerCase();
+          const query = searchInput.text.toLowerCase();
+          const verb = res.verb ?? "";
+          const suffix = verb !== "" ? " — " + verb : "";
+          if (isAutocomplete) {
+            if (name.startsWith(query))
+              return res.name.slice(searchInput.text.length).toLowerCase() + suffix;
+            return " — " + res.name;
+          }
+          return verb !== "" ? " — " + verb : "";
+        }
+        text: suggestion
+        font: searchInput.font
+        color: Appearance.colors.colOnSurfaceVariant
+        opacity: 0.4
       }
     }
   }

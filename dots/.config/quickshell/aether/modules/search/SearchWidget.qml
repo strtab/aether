@@ -27,6 +27,9 @@ Item { // Wrapper
   property bool showResults: _resultsReady && (searchingText != "" || LauncherSearch.mode != "")
   property bool _resultsReady: false
 
+  implicitWidth: searchWidgetContent.implicitWidth + Appearance.sizes.elevationMargin * 2
+  implicitHeight: searchWidgetContent.implicitHeight + searchBar.verticalPadding * 2 + Appearance.sizes.elevationMargin * 2
+
   Timer {
     id: showResultsTimer
     interval: 10
@@ -45,9 +48,6 @@ Item { // Wrapper
       }
     }
   }
-
-  implicitWidth: searchWidgetContent.implicitWidth + Appearance.sizes.elevationMargin * 2
-  implicitHeight: searchWidgetContent.implicitHeight + searchBar.verticalPadding * 2 + Appearance.sizes.elevationMargin * 2
 
   function focusFirstItem() {
     appResults.currentIndex = 0;
@@ -127,21 +127,21 @@ Item { // Wrapper
     }
   }
 
-  StyledRectangularShadow {
-    target: searchWidgetContent
-  }
   Rectangle { // Background
     id: searchWidgetContent
     anchors {
       top: parent.top
       horizontalCenter: parent.horizontalCenter
-      topMargin: GlobalStates.searchOpen && Screen.height * 0.20
+      topMargin: GlobalStates.searchOpen && Screen.height * 0.25
     }
     clip: true
     implicitWidth: columnLayout.implicitWidth
     implicitHeight: columnLayout.implicitHeight
-    radius: searchBar.height / 2 + searchBar.verticalPadding
+    radius: Appearance.rounding.normal
     color: Appearance.colors.colBackgroundSurfaceContainer
+
+    border.width: 1
+    border.color: "#373737"
 
     Behavior on implicitHeight {
       id: searchHeightBehavior
@@ -167,7 +167,7 @@ Item { // Wrapper
         }
       }
 
-      SearchBar {
+      SearchInputField {
         id: searchBar
         property real verticalPadding: 4
         Layout.fillWidth: true
