@@ -214,7 +214,7 @@ Singleton {
     property color colOnSuccessContainer: m3colors.m3onSuccessContainer
     // Menubar
     property color colMenubarBackground: (Config.options.bar?.background?.style === 0 ? (Appearance.colors.colLayer0) : Config.options.bar?.background?.style === 1 ? (Config.options.bar?.background?.color) : ColorUtils.transparentize(Appearance.colors.colLayer0, 0.8)) ?? Appearance.colors.colLayer0
-    property color onMenubarBackground: Config.options.bar?.background?.enable ? (Config.options.bar?.background?.style === 0 ? (Appearance.m3colors.m3onBackground) : Config.options.bar?.background?.style === 1 ? ColorUtils.adaptColor(Config.options.bar?.background?.color) : Appearance.m3colors.m3onBackground) : Appearance.m3colors.m3onBackground
+    property color onMenubarBackground: Config.options.bar?.foreground?.style === 1 ? (Config.options.bar?.foreground?.color) : (Config.options.bar?.background?.enable ? (Config.options.bar?.background?.style === 0 ? (Appearance.m3colors.m3onBackground) : Config.options.bar?.background?.style === 1 ? ColorUtils.adaptColor(Config.options.bar?.background?.color) : Appearance.m3colors.m3onBackground) : Appearance.m3colors.m3onBackground)
   }
 
   rounding: QtObject {
@@ -222,7 +222,7 @@ Singleton {
     property int unsharpenmore: 6
     property int verysmall: 8
     property int small: 12
-    property int normal: 17
+    property int normal: 16
     property int large: 24
     property int verylarge: 30
     property int full: 9999
@@ -472,8 +472,7 @@ Singleton {
     property real mediaControlsHeight: 160
     property real notificationPopupWidth: 410
     property real osdWidth: 180
-    property real searchWidthCollapsed: 210
-    property real searchWidth: Config.options.search.width ?? 400
+    property real searchWidth: 700
     property real sidebarWidth: 450
     property real sidebarWidthExtended: 750
     property real baseVerticalBarWidth: 46

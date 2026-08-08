@@ -267,8 +267,12 @@ Singleton {
             property int delay: 140
           }
         }
+        property JsonObject foreground: JsonObject {
+          property int style: 1 // 0: Auto color | 1: Plain color
+          property color color: "#000000"
+        }
         property JsonObject background: JsonObject {
-          property bool enable: true
+          property bool enable: false
           property int style: 0 // 0: Auto color | 1: Plain color | 2: Transparent
           property color color: "#000000"
         }
@@ -485,7 +489,6 @@ Singleton {
       property JsonObject search: JsonObject {
         property bool enable: true
         property bool collapsed: false
-        property int width: 550
         property int fontSize: 20
         property int nonAppResultDelay: 30 // This prevents lagging when typing
         property string engineBaseUrl: "https://www.google.com/search?q="
