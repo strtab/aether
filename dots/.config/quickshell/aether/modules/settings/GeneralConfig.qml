@@ -135,7 +135,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Interface Language")
-      tooltip: Translation.tr("Select the language for the user interface.\n\"Auto\" will use your system's locale.")
+      description: Translation.tr("Select the language for the user interface.\n\"Auto\" will use your system's locale.")
 
       StyledComboBox {
         id: languageSelector
@@ -208,7 +208,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Format")
-      tooltip: ""
+      description: ""
 
       ConfigSelectionArray {
         currentValue: Config.options.time.format

@@ -1,7 +1,6 @@
 import qs.modules.common
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Effects
 
 Switch {
   id: root
@@ -42,15 +41,6 @@ Switch {
     anchors.verticalCenter: parent.verticalCenter
     anchors.left: parent.left
     anchors.leftMargin: root.checked ? root.width - width - pad : pad
-
-    layer.enabled: true
-    layer.effect: MultiEffect {
-      shadowEnabled: true
-      shadowColor: Qt.rgba(0, 0, 0, 0.55)
-      shadowVerticalOffset: 2
-      shadowHorizontalOffset: 0
-      shadowBlur: 0.4
-    }
 
     Behavior on anchors.leftMargin {
       NumberAnimation {

@@ -15,14 +15,10 @@ ColumnLayout {
 
   RowLayout {
     spacing: 6
-    OptionalMaterialSymbol {
-      icon: root.icon
-      iconSize: Appearance.font.pixelSize.hugeass
-    }
+    Layout.leftMargin: 10
     StyledText {
       text: root.title
       font.pixelSize: Appearance.font.pixelSize.larger
-      font.weight: Font.Medium
       color: Appearance.colors.colOnSecondaryContainer
     }
   }
@@ -33,8 +29,7 @@ ColumnLayout {
     implicitHeight: sectionContent.implicitHeight + sectionContent.anchors.margins * 2
 
     anchors {
-      leftMargin: 16
-      rightMargin: 16
+      margins: 10
     }
 
     StyledRectangularShadow {
@@ -44,13 +39,8 @@ ColumnLayout {
     Rectangle {
       id: card
       anchors.fill: parent
-      radius: Appearance.rounding.large
-      color: Appearance.colors.colSurfaceRaised
-
-      GlassBevel {
-        anchors.fill: parent
-        radius: card.radius
-      }
+      radius: Appearance.rounding.small
+      color: Appearance.colors.colBackgroundSurfaceContainer
 
       ColumnLayout {
         id: sectionContent
@@ -58,7 +48,7 @@ ColumnLayout {
           left: parent.left
           right: parent.right
           top: parent.top
-          margins: 8
+          margins: 15
         }
         spacing: 8
       }

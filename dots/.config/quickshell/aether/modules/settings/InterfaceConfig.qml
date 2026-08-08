@@ -13,7 +13,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Super key symbol")
-      tooltip: Translation.tr("You can also manually edit cheatsheet.superKey")
+      description: Translation.tr("You can also manually edit cheatsheet.superKey")
       ConfigSelectionArray {
         currentValue: Config.options.cheatsheet.superKey
         onSelected: newValue => {
@@ -36,9 +36,7 @@ ContentPage {
       onCheckedChanged: {
         Config.options.cheatsheet.useMacSymbol = checked;
       }
-      StyledToolTip {
-        text: Translation.tr("e.g. 󰘴  for Ctrl, 󰘵  for Alt, 󰘶  for Shift, etc")
-      }
+      description: Translation.tr("e.g. 󰘴  for Ctrl, 󰘵  for Alt, 󰘶  for Shift, etc")
     }
 
     ConfigSwitch {
@@ -623,7 +621,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Main font")
-      tooltip: Translation.tr("Used for general UI text")
+      description: Translation.tr("Used for general UI text")
 
       FontSelector {
         id: mainFontSelector
@@ -643,7 +641,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Numbers font")
-      tooltip: Translation.tr("Used for displaying numbers")
+      description: Translation.tr("Used for displaying numbers")
 
       FontSelector {
         id: numbersFontSelector
@@ -663,7 +661,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Title font")
-      tooltip: Translation.tr("Used for headings and titles")
+      description: Translation.tr("Used for headings and titles")
 
       FontSelector {
         id: titleFontSelector
@@ -683,7 +681,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Monospace font")
-      tooltip: Translation.tr("Used for code and terminal")
+      description: Translation.tr("Used for code and terminal")
 
       FontSelector {
         id: monospaceFontSelector
@@ -703,7 +701,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Nerd font icons")
-      tooltip: Translation.tr("Font used for Nerd Font icons")
+      description: Translation.tr("Font used for Nerd Font icons")
 
       FontSelector {
         id: nerdFontSelector
@@ -723,7 +721,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Reading font")
-      tooltip: Translation.tr("Used for reading large blocks of text")
+      description: Translation.tr("Used for reading large blocks of text")
 
       FontSelector {
         id: readingFontSelector
@@ -743,7 +741,7 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Expressive font")
-      tooltip: Translation.tr("Used for decorative/expressive text")
+      description: Translation.tr("Used for decorative/expressive text")
 
       FontSelector {
         id: expressiveFontSelector

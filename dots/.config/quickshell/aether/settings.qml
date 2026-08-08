@@ -34,7 +34,6 @@ ApplicationWindow {
     {
       name: Translation.tr("Bar"),
       icon: "toast",
-      iconRotation: 180,
       component: "modules/settings/BarConfig.qml"
     },
     {
@@ -69,254 +68,167 @@ ApplicationWindow {
     Config.readWriteDelay = 0; // Settings app always only sets one var at a time so delay isn't needed
   }
 
-  maximumWidth: 1000
-  maximumHeight: 800
-  minimumWidth: 750
-  minimumHeight: 660
-  width: 1100
-  height: 750
+  maximumWidth: 1100
+  minimumWidth: 900
+  maximumHeight: 900
+  minimumHeight: 600
+  height: 800
   color: Appearance.m3colors.m3background
 
   ColumnLayout {
-    anchors {
-      fill: parent
-      margins: contentPadding
-    }
+    anchors.fill: parent
 
-    Keys.onPressed: event => {
-      if (event.modifiers === Qt.ControlModifier) {
-        if (event.key === Qt.Key_PageDown) {
-          root.currentPage = Math.min(root.currentPage + 1, root.pages.length - 1);
-          event.accepted = true;
-        } else if (event.key === Qt.Key_PageUp) {
-          root.currentPage = Math.max(root.currentPage - 1, 0);
-          event.accepted = true;
-        } else if (event.key === Qt.Key_Tab) {
-          root.currentPage = (root.currentPage + 1) % root.pages.length;
-          event.accepted = true;
-        } else if (event.key === Qt.Key_Backtab) {
-          root.currentPage = (root.currentPage - 1 + root.pages.length) % root.pages.length;
-          event.accepted = true;
-        }
-      }
-    }
-
-    Item { // Titlebar
-      visible: Config.options?.windows.showTitlebar
+    RowLayout { // Window content with sidebar and content pane
       Layout.fillWidth: true
-      Layout.fillHeight: false
-      implicitHeight: Math.max(titleText.implicitHeight, windowControlsRow.implicitHeight)
-      StyledText {
-        id: titleText
-        anchors {
-          left: Config.options.windows.centerTitle ? undefined : parent.left
-          horizontalCenter: Config.options.windows.centerTitle ? parent.horizontalCenter : undefined
-          verticalCenter: parent.verticalCenter
-          leftMargin: 12
-        }
-        color: Appearance.colors.colOnLayer0
-        text: Translation.tr("Settings")
-        font {
-          family: Appearance.font.family.title
-          pixelSize: Appearance.font.pixelSize.title
-          variableAxes: Appearance.font.variableAxes.title
-        }
-      }
-      RowLayout { // Window controls row
-        id: windowControlsRow
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.right: parent.right
-        RippleButton {
-          buttonRadius: Appearance.rounding.full
-          implicitWidth: 35
-          implicitHeight: 35
-          onClicked: root.close()
-          contentItem: MaterialSymbol {
-            anchors.centerIn: parent
-            horizontalAlignment: Text.AlignHCenter
-            text: "close"
-            iconSize: 20
+      Layout.fillHeight: true
+
+      Rectangle { // sideBar background
+        Layout.fillHeight: true
+
+        border.width: 1
+        border.color: Appearance.colors.colLayer0Border
+
+        implicitWidth: sideBar.implicitWidth
+        implicitHeight: sideBar.implicitHeight
+
+        color: Appearance.colors.colLayer1
+
+        ColumnLayout {
+          id: sideBar
+          anchors.fill: parent
+          Layout.margins: 15
+
+          StyledText {
+            Layout.margins: 25
+            Layout.topMargin: 30
+            Layout.bottomMargin: 0
+            font.pixelSize: Appearance.font.pixelSize.smaller
+            font.bold: true
+            color: Appearance.colors.colSubtext
+            text: Translation.tr("Options")
           }
-        }
-      }
-    }
 
-        RowLayout { // Window content with navigation rail and content pane
-            Layout.fillWidth: true
+          ListView {
             Layout.fillHeight: true
-            spacing: contentPadding
-            Item {
-                id: navRailWrapper
-                Layout.fillHeight: true
-                Layout.margins: 5
-                implicitWidth: navRail.expanded ? 150 : fab.baseSize
-                Behavior on implicitWidth {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            Layout.margins: 4
+            Layout.leftMargin: 15
+            Layout.rightMargin: 15
+            implicitWidth: 180
+            clip: true
+            model: root.pages
+            delegate: RippleButton {
+              id: sideBarButton
+              required property var modelData
+              required property var index
+
+              anchors {
+                left: parent.left
+                right: parent.right
+              }
+
+              rippleEnabled: false
+
+              toggled: root.currentPage === index
+              onPressed: root.currentPage = index
+
+              colBackgroundToggled: Appearance.colors.colSecondaryContainer
+              colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
+              colRippleToggled: Appearance.colors.colSecondaryContainerActive
+
+              contentItem: RowLayout {
+                MaterialSymbol {
+                  color: sideBarButton.toggled ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnLayer1
+                  iconSize: Appearance.font.pixelSize.larger
+                  text: sideBarButton.modelData.icon
+                  fill: sideBarButton.toggled ? 1 : 0
                 }
-                NavigationRail { // Window content with navigation rail and content pane
-                    id: navRail
-                    anchors {
-                        left: parent.left
-                        top: parent.top
-                        bottom: parent.bottom
-                    }
-                    spacing: 10
-                    expanded: root.width >= 900
-                    
-                    NavigationRailExpandButton {
-                        focus: root.visible
-                    }
-
-                    FloatingActionButton {
-                        id: fab
-                        property bool justCopied: false
-                        iconText: justCopied ? "check" : "edit"
-                        buttonText: justCopied ? Translation.tr("Path copied") : Translation.tr("Config file")
-                        expanded: navRail.expanded
-                        downAction: () => {
-                            Qt.openUrlExternally(`${Directories.config}/aether/config.json`);
-                        }
-                        altAction: () => {
-                            Quickshell.clipboardText = CF.FileUtils.trimFileProtocol(`${Directories.config}/aether/config.json`);
-                            fab.justCopied = true;
-                            revertTextTimer.restart()
-                        }
-
-                        Timer {
-                            id: revertTextTimer
-                            interval: 1500
-                            onTriggered: {
-                                fab.justCopied = false;
-                            }
-                        }
-
-                        StyledToolTip {
-                            text: Translation.tr("Open the shell config file\nAlternatively right-click to copy path")
-                        }
-                    }
-
-                    NavigationRailTabArray {
-                        currentIndex: root.currentPage
-                        expanded: navRail.expanded
-                        Repeater {
-                            model: root.pages
-                            NavigationRailButton {
-                                required property var index
-                                required property var modelData
-                                toggled: root.currentPage === index
-                                onPressed: root.currentPage = index;
-                                expanded: navRail.expanded
-                                buttonIcon: modelData.icon
-                                buttonIconRotation: modelData.iconRotation || 0
-                                buttonText: modelData.name
-                                showToggledHighlight: false
-                            }
-                        }
-                    }
-
-                    Item {
-                        Layout.fillHeight: true
-                    }
-          RowLayout {
-            visible: navRail.expanded
-            spacing: 10
-            Layout.fillWidth: true
-            Layout.margins: 5
-            Layout.topMargin: 15
-
-            ColumnLayout {
-              spacing: 2
-              Layout.fillWidth: true
-
-              StyledText {
-                id: distroText
-                font.pixelSize: Appearance.font.pixelSize.smaller
-                color: Appearance.colors.colSubtext
-
-                Process {
-                  id: distroProc
-                  command: ["bash", "-c", "source /etc/os-release && echo $PRETTY_NAME"]
-                  running: true
-                  stdout: SplitParser {
-                      onRead: data => distroText.text = data.trim()
-                  }
+                StyledText {
+                  Layout.fillWidth: true
+                  horizontalAlignment: Text.AlignLeft
+                  color: sideBarButton.toggled ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnLayer1
+                  text: sideBarButton.modelData.name
                 }
               }
             }
           }
+          Item { // filler
+            Layout.fillHeight: true
+          }
+          StyledText {
+            id: distroDescription
 
-                }
+            Layout.margins: 20
+            Layout.bottomMargin: 10
+            font.pixelSize: Appearance.font.pixelSize.smaller
+            color: Appearance.colors.colSubtext
+
+            Process {
+              command: ["bash", "-c", "source /etc/os-release && echo $PRETTY_NAME"]
+              running: true
+              stdout: SplitParser {
+                onRead: data => distroDescription.text = data.trim()
+              }
             }
-            Rectangle { // Content container
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                color: Appearance.m3colors.m3surfaceContainerLow
-                radius: Appearance.rounding.windowRounding - root.contentPadding
-
-                Loader {
-                    id: pageLoader
-                    anchors.fill: parent
-                    opacity: 1.0
-
-                    active: Config.ready
-                    Component.onCompleted: {
-                        source = root.pages[0].component
-                    }
-
-                    Connections {
-                        target: root
-                        function onCurrentPageChanged() {
-                            switchAnim.complete();
-                            switchAnim.start();
-                        }
-                    }
-
-                    SequentialAnimation {
-                        id: switchAnim
-
-                        NumberAnimation {
-                            target: pageLoader
-                            properties: "opacity"
-                            from: 1
-                            to: 0
-                            duration: 100
-                            easing.type: Appearance.animation.elementMoveExit.type
-                            easing.bezierCurve: Appearance.animationCurves.emphasizedFirstHalf
-                        }
-                        ParallelAnimation {
-                            PropertyAction {
-                                target: pageLoader
-                                property: "source"
-                                value: root.pages[root.currentPage].component
-                            }
-                            PropertyAction {
-                                target: pageLoader
-                                property: "anchors.topMargin"
-                                value: 20
-                            }
-                        }
-                        ParallelAnimation {
-                            NumberAnimation {
-                                target: pageLoader
-                                properties: "opacity"
-                                from: 0
-                                to: 1
-                                duration: 200
-                                easing.type: Appearance.animation.elementMoveEnter.type
-                                easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
-                            }
-                            NumberAnimation {
-                                target: pageLoader
-                                properties: "anchors.topMargin"
-                                to: 0
-                                duration: 200
-                                easing.type: Appearance.animation.elementMoveEnter.type
-                                easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
-                            }
-                        }
-                    }
-                }
-            }
+          }
         }
+      }
+
+      Rectangle { // Content container
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        color: Appearance.m3colors.m3background
+
+        Loader {
+          id: pageLoader
+          anchors.fill: parent
+          opacity: 1.0
+
+          active: Config.ready
+          Component.onCompleted: {
+            source = root.pages[0].component;
+          }
+
+          Connections {
+            target: root
+            function onCurrentPageChanged() {
+              switchAnim.complete();
+              switchAnim.start();
+            }
+          }
+
+          SequentialAnimation {
+            id: switchAnim
+
+            NumberAnimation {
+              target: pageLoader
+              properties: "opacity"
+              from: 1
+              to: 0
+              duration: 100
+              easing.type: Appearance.animation.elementMoveExit.type
+              easing.bezierCurve: Appearance.animationCurves.emphasizedFirstHalf
+            }
+            ParallelAnimation {
+              PropertyAction {
+                target: pageLoader
+                property: "source"
+                value: root.pages[root.currentPage].component
+              }
+            }
+            ParallelAnimation {
+              NumberAnimation {
+                target: pageLoader
+                properties: "opacity"
+                from: 0
+                to: 1
+                duration: 200
+                easing.type: Appearance.animation.elementMoveEnter.type
+                easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
