@@ -8,7 +8,7 @@ Rectangle {
   property real horizontalPadding: 6
   property real verticalPadding: 1
   property real borderWidth: 1
-  property real borderRadius: 8
+  property real borderRadius: Appearance.rounding.verysmall
   property real pixelSize: Appearance.font.pixelSize.smaller
 
   property color borderColor: Appearance.m3colors.m3onSecondaryFixedVariant
