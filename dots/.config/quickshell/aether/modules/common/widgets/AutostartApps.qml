@@ -218,7 +218,7 @@ ColumnLayout {
         }
       }
 
-      MaterialTextArea {
+      Input {
         id: cmdArea
         anchors.left: parent.left
         anchors.right: rightGroup.left

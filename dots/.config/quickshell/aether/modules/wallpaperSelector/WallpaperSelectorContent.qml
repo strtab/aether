@@ -353,7 +353,7 @@ MouseArea {
                             }
                         }
 
-                        ToolbarTextField {
+                        Input {
                             id: filterField
                             placeholderText: focus ? Translation.tr("Search wallpapers") : Translation.tr("Hit \"/\" to search")
 

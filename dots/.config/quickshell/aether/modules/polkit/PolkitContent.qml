@@ -69,7 +69,7 @@ Item {
             text: PolkitService.cleanMessage
         }
 
-        MaterialTextField {
+        Input {
             id: inputField
             Layout.fillWidth: true
             focus: true

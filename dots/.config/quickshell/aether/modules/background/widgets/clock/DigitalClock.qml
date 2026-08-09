@@ -28,6 +28,12 @@ ColumnLayout {
           "ROND": Config.options.background.widgets.clock.digital.font.roundness
         })
     }
+    Behavior on font.weight {
+      animation: Appearance.animation.smooth.numberAnimation.createObject(this)
+    }
+    Behavior on font.pixelSize {
+      animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+    }
   }
 
   Loader {

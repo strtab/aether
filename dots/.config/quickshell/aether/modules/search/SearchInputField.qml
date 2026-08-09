@@ -111,7 +111,7 @@ RowLayout {
     }
   }
 
-  ToolbarTextField { // Input box
+  Input { // Input box
     id: searchInput
 
     Layout.topMargin: 2

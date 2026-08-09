@@ -46,9 +46,7 @@ ContentPage {
       onCheckedChanged: {
         Config.options.cheatsheet.useFnSymbol = checked;
       }
-      StyledToolTip {
-        text: Translation.tr("e.g. 󱊫 for F1, 󱊶  for F12")
-      }
+      description: Translation.tr("e.g. 󱊫 for F1, 󱊶  for F12")
     }
     ConfigSwitch {
       buttonIcon: "󰍽"
@@ -57,9 +55,7 @@ ContentPage {
       onCheckedChanged: {
         Config.options.cheatsheet.useMouseSymbol = checked;
       }
-      StyledToolTip {
-        text: Translation.tr("Replace 󱕐   for \"Scroll ↓\", 󱕑   \"Scroll ↑\", L󰍽   \"LMB\", R󰍽   \"RMB\", 󱕒   \"Scroll ↑/↓\" and ⇞/⇟ for \"Page_↑/↓\"")
-      }
+      description: Translation.tr("Replace 󱕐   for \"Scroll ↓\", 󱕑   \"Scroll ↑\", L󰍽   \"LMB\", R󰍽   \"RMB\", 󱕒   \"Scroll ↑/↓\" and ⇞/⇟ for \"Page_↑/↓\"")
     }
 
     ConfigSpinBox {
@@ -96,60 +92,57 @@ ContentPage {
       }
     }
 
-    ConfigRow {
-      uniform: true
-      ConfigSwitch {
-        buttonIcon: "keep"
-        text: Translation.tr("Pinned on startup")
-        checked: Config.options.dock.pinnedOnStartup
-        onCheckedChanged: {
-          Config.options.dock.pinnedOnStartup = checked;
-        }
-      }
-      ConfigSwitch {
-        buttonIcon: "keep"
-        text: Translation.tr("Show pin button")
-        checked: Config.options.dock.showPinButton
-        onCheckedChanged: {
-          Config.options.dock.showPinButton = checked;
-        }
+    ConfigSwitch {
+      buttonIcon: "keep"
+      text: Translation.tr("Pinned on startup")
+      checked: Config.options.dock.pinnedOnStartup
+      onCheckedChanged: {
+        Config.options.dock.pinnedOnStartup = checked;
       }
     }
     ConfigSwitch {
-      buttonIcon: "highlight_mouse_cursor"
-      text: Translation.tr("Show overview button")
-      checked: Config.options.dock.showOverviewButton
+      buttonIcon: "keep"
+      text: Translation.tr("Show pin button")
+      checked: Config.options.dock.showPinButton
       onCheckedChanged: {
-        Config.options.dock.showOverviewButton = checked;
+        Config.options.dock.showPinButton = checked;
       }
     }
+  }
+  ConfigSwitch {
+    buttonIcon: "highlight_mouse_cursor"
+    text: Translation.tr("Show overview button")
+    checked: Config.options.dock.showOverviewButton
+    onCheckedChanged: {
+      Config.options.dock.showOverviewButton = checked;
+    }
+  }
 
-    ConfigSpinBox {
-      icon: "aspect_ratio"
-      text: Translation.tr("Icon size (px)")
-      value: Config.options.dock.iconSize ?? 40
-      from: 55
-      to: 100
-      stepSize: 1
-      onValueChanged: {
-        Config.setNestedValue("dock.iconSize", value);
-      }
+  ConfigSpinBox {
+    icon: "aspect_ratio"
+    text: Translation.tr("Icon size (px)")
+    value: Config.options.dock.iconSize ?? 40
+    from: 55
+    to: 100
+    stepSize: 1
+    onValueChanged: {
+      Config.setNestedValue("dock.iconSize", value);
     }
-    ConfigSwitch {
-      buttonIcon: "highlight_mouse_cursor"
-      text: Translation.tr("Hover to reveal")
-      checked: Config.options.dock.hoverToReveal
-      onCheckedChanged: {
-        Config.options.dock.hoverToReveal = checked;
-      }
+  }
+  ConfigSwitch {
+    buttonIcon: "highlight_mouse_cursor"
+    text: Translation.tr("Hover to reveal")
+    checked: Config.options.dock.hoverToReveal
+    onCheckedChanged: {
+      Config.options.dock.hoverToReveal = checked;
     }
-    ConfigSwitch {
-      buttonIcon: "colors"
-      text: Translation.tr("Tint app icons")
-      checked: Config.options.dock.monochromeIcons
-      onCheckedChanged: {
-        Config.options.dock.monochromeIcons = checked;
-      }
+  }
+  ConfigSwitch {
+    buttonIcon: "colors"
+    text: Translation.tr("Tint app icons")
+    checked: Config.options.dock.monochromeIcons
+    onCheckedChanged: {
+      Config.options.dock.monochromeIcons = checked;
     }
   }
 
@@ -164,9 +157,7 @@ ContentPage {
       onCheckedChanged: {
         Config.options.lock.useHyprlock = checked;
       }
-      StyledToolTip {
-        text: Translation.tr("If you want to somehow use fingerprint unlock...")
-      }
+      description: Translation.tr("If you want to somehow use fingerprint unlock...")
     }
 
     ConfigSwitch {
@@ -188,9 +179,7 @@ ContentPage {
         onCheckedChanged: {
           Config.options.lock.security.requirePasswordToPower = checked;
         }
-        StyledToolTip {
-          text: Translation.tr("Remember that on most devices one can always hold the power button to force shutdown\nThis only makes it a tiny bit harder for accidents to happen")
-        }
+        description: Translation.tr("Remember that on most devices one can always hold the power button to force shutdown\nThis only makes it a tiny bit harder for accidents to happen")
       }
 
       ConfigSwitch {
@@ -300,37 +289,30 @@ ContentPage {
     icon: "screenshot_frame_2"
     title: Translation.tr("Region selector (screen snipping/Google Lens)")
 
-    ContentSubsection {
-      title: Translation.tr("Hint target regions")
-      ConfigRow {
-        ConfigSwitch {
-          buttonIcon: "select_window"
-          text: Translation.tr('Windows')
-          checked: Config.options.regionSelector.targetRegions.windows
-          onCheckedChanged: {
-            Config.options.regionSelector.targetRegions.windows = checked;
-          }
-        }
-        ConfigSwitch {
-          buttonIcon: "right_panel_open"
-          text: Translation.tr('Layers')
-          checked: Config.options.regionSelector.targetRegions.layers
-          onCheckedChanged: {
-            Config.options.regionSelector.targetRegions.layers = checked;
-          }
-        }
-        ConfigSwitch {
-          buttonIcon: "nearby"
-          text: Translation.tr('Content')
-          checked: Config.options.regionSelector.targetRegions.content
-          onCheckedChanged: {
-            Config.options.regionSelector.targetRegions.content = checked;
-          }
-          StyledToolTip {
-            text: Translation.tr("Could be images or parts of the screen that have some containment.\nMight not always be accurate.\nThis is done with an image processing algorithm run locally and no AI is used.")
-          }
-        }
+    ConfigSwitch {
+      buttonIcon: "select_window"
+      text: Translation.tr('Windows hint')
+      checked: Config.options.regionSelector.targetRegions.windows
+      onCheckedChanged: {
+        Config.options.regionSelector.targetRegions.windows = checked;
       }
+    }
+    ConfigSwitch {
+      buttonIcon: "right_panel_open"
+      text: Translation.tr('Layers hint')
+      checked: Config.options.regionSelector.targetRegions.layers
+      onCheckedChanged: {
+        Config.options.regionSelector.targetRegions.layers = checked;
+      }
+    }
+    ConfigSwitch {
+      buttonIcon: "nearby"
+      text: Translation.tr('Content hint')
+      checked: Config.options.regionSelector.targetRegions.content
+      onCheckedChanged: {
+        Config.options.regionSelector.targetRegions.content = checked;
+      }
+      description: Translation.tr("Could be images or parts of the screen that have some containment.\nMight not always be accurate.\nThis is done with an image processing algorithm run locally and no AI is used.")
     }
 
     ContentSubsection {
@@ -409,9 +391,7 @@ ContentPage {
       onCheckedChanged: {
         Config.options.sidebar.keepRightSidebarLoaded = checked;
       }
-      StyledToolTip {
-        text: Translation.tr("When enabled keeps the content of the right sidebar loaded to reduce the delay when opening,\nat the cost of around 15MB of consistent RAM usage. Delay significance depends on your system's performance.\nUsing a custom kernel like linux-cachyos might help")
-      }
+      description: Translation.tr("When enabled keeps the content of the right sidebar loaded to reduce the delay when opening,\nat the cost of around 15MB of consistent RAM usage. Delay significance depends on your system's performance.\nUsing a custom kernel like linux-cachyos might help")
     }
 
     // ConfigSwitch {
@@ -778,9 +758,7 @@ ContentPage {
       onCheckedChanged: {
         Config.options.appearance.wallpaperTheming.enableQtApps = checked;
       }
-      StyledToolTip {
-        text: Translation.tr("Shell & utilities theming must also be enabled")
-      }
+      description: Translation.tr("Shell & utilities theming must also be enabled")
     }
     // ConfigSwitch {
     //   buttonIcon: "terminal"

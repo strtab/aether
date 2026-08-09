@@ -12,19 +12,19 @@ RippleButton {
   colBackgroundHover: "transparent"
 
   Layout.fillWidth: true
-  implicitHeight: contentItem.implicitHeight + 8
+  implicitHeight: contentItem.implicitHeight + 15
   font.pixelSize: Appearance.font.pixelSize.small
 
   onClicked: checked = !checked
 
   contentItem: RowLayout {
-    spacing: 10
+    spacing: 0
     OptionalMaterialSymbol {
       id: iconWidget
       icon: root.buttonIcon
       opacity: root.enabled ? 1 : 0.4
       iconSize: Appearance.font.pixelSize.larger
-      Layout.rightMargin: 5
+      Layout.rightMargin: 20
     }
     ColumnLayout {
       Layout.fillWidth: true

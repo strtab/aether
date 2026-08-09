@@ -39,7 +39,7 @@ ContentPage {
     icon: "cell_tower"
     title: Translation.tr("Networking")
 
-    MaterialTextArea {
+    Input {
       Layout.fillWidth: true
       placeholderText: Translation.tr("User agent (for services that require it)")
       text: Config.options.networking.userAgent
@@ -71,7 +71,7 @@ ContentPage {
     icon: "file_open"
     title: Translation.tr("Save paths")
 
-    MaterialTextArea {
+    Input {
       Layout.fillWidth: true
       placeholderText: Translation.tr("Video Recording Path")
       text: Config.options.screenRecord.savePath
@@ -81,7 +81,7 @@ ContentPage {
       }
     }
 
-    MaterialTextArea {
+    Input {
       Layout.fillWidth: true
       placeholderText: Translation.tr("Screenshot Path (leave empty to just copy)")
       text: Config.options.screenSnip.savePath
@@ -109,62 +109,56 @@ ContentPage {
 
     ContentSubsection {
       title: Translation.tr("Prefixes")
-      ConfigRow {
-        uniform: true
-        MaterialTextArea {
-          Layout.fillWidth: true
-          placeholderText: Translation.tr("Action")
-          text: Config.options.search.prefix.action
-          wrapMode: TextEdit.Wrap
-          onTextChanged: {
-            Config.options.search.prefix.action = text;
-          }
+      Input {
+        Layout.fillWidth: true
+        placeholderText: Translation.tr("Action")
+        text: Config.options.search.prefix.action
+        wrapMode: TextEdit.Wrap
+        onTextChanged: {
+          Config.options.search.prefix.action = text;
         }
-        MaterialTextArea {
-          Layout.fillWidth: true
-          placeholderText: Translation.tr("Clipboard")
-          text: Config.options.search.prefix.clipboard
-          wrapMode: TextEdit.Wrap
-          onTextChanged: {
-            Config.options.search.prefix.clipboard = text;
-          }
+      }
+      Input {
+        Layout.fillWidth: true
+        placeholderText: Translation.tr("Clipboard")
+        text: Config.options.search.prefix.clipboard
+        wrapMode: TextEdit.Wrap
+        onTextChanged: {
+          Config.options.search.prefix.clipboard = text;
         }
       }
 
-      ConfigRow {
-        uniform: true
-        MaterialTextArea {
-          Layout.fillWidth: true
-          placeholderText: Translation.tr("Math")
-          text: Config.options.search.prefix.math
-          wrapMode: TextEdit.Wrap
-          onTextChanged: {
-            Config.options.search.prefix.math = text;
-          }
+      Input {
+        Layout.fillWidth: true
+        placeholderText: Translation.tr("Math")
+        text: Config.options.search.prefix.math
+        wrapMode: TextEdit.Wrap
+        onTextChanged: {
+          Config.options.search.prefix.math = text;
         }
-        MaterialTextArea {
-          Layout.fillWidth: true
-          placeholderText: Translation.tr("Shell command")
-          text: Config.options.search.prefix.shellCommand
-          wrapMode: TextEdit.Wrap
-          onTextChanged: {
-            Config.options.search.prefix.shellCommand = text;
-          }
+      }
+      Input {
+        Layout.fillWidth: true
+        placeholderText: Translation.tr("Shell command")
+        text: Config.options.search.prefix.shellCommand
+        wrapMode: TextEdit.Wrap
+        onTextChanged: {
+          Config.options.search.prefix.shellCommand = text;
         }
-        MaterialTextArea {
-          Layout.fillWidth: true
-          placeholderText: Translation.tr("Web search")
-          text: Config.options.search.prefix.webSearch
-          wrapMode: TextEdit.Wrap
-          onTextChanged: {
-            Config.options.search.prefix.webSearch = text;
-          }
+      }
+      Input {
+        Layout.fillWidth: true
+        placeholderText: Translation.tr("Web search")
+        text: Config.options.search.prefix.webSearch
+        wrapMode: TextEdit.Wrap
+        onTextChanged: {
+          Config.options.search.prefix.webSearch = text;
         }
       }
     }
     ContentSubsection {
       title: Translation.tr("Web search")
-      MaterialTextArea {
+      Input {
         Layout.fillWidth: true
         placeholderText: Translation.tr("Base URL")
         text: Config.options.search.engineBaseUrl
@@ -179,29 +173,27 @@ ContentPage {
   ContentSection {
     icon: "weather_mix"
     title: Translation.tr("Weather")
-    ConfigRow {
-      ConfigSwitch {
-        buttonIcon: "assistant_navigation"
-        text: Translation.tr("Enable GPS based location")
-        checked: Config.options.bar.weather.enableGPS
-        onCheckedChanged: {
-          Config.options.bar.weather.enableGPS = checked;
-        }
+    ConfigSwitch {
+      buttonIcon: "assistant_navigation"
+      text: Translation.tr("Enable GPS based location")
+      checked: Config.options.bar.weather.enableGPS
+      onCheckedChanged: {
+        Config.options.bar.weather.enableGPS = checked;
       }
-      ConfigSwitch {
-        buttonIcon: "thermometer"
-        text: Translation.tr("Fahrenheit unit")
-        checked: Config.options.bar.weather.useUSCS
-        onCheckedChanged: {
-          Config.options.bar.weather.useUSCS = checked;
-        }
-        StyledToolTip {
-          text: Translation.tr("It may take a few seconds to update")
-        }
+    }
+    ConfigSwitch {
+      buttonIcon: "thermometer"
+      text: Translation.tr("Fahrenheit unit")
+      checked: Config.options.bar.weather.useUSCS
+      onCheckedChanged: {
+        Config.options.bar.weather.useUSCS = checked;
+      }
+      StyledToolTip {
+        text: Translation.tr("It may take a few seconds to update")
       }
     }
 
-    MaterialTextArea {
+    Input {
       Layout.fillWidth: true
       placeholderText: Translation.tr("City name")
       text: Config.options.bar.weather.city

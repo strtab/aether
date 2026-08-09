@@ -128,7 +128,7 @@ MouseArea {
       }
     }
 
-    ToolbarTextField {
+    Input {
       id: passwordBox
       Layout.rightMargin: -Layout.leftMargin
       placeholderText: GlobalStates.screenUnlockFailed ? Translation.tr("Incorrect password") : Translation.tr("Enter password")

@@ -54,7 +54,7 @@ DialogListItem {
             Layout.topMargin: 8
             visible: root.wifiNetwork?.askingPassword ?? false
 
-            MaterialTextField {
+            Input {
                 id: passwordField
                 Layout.fillWidth: true
                 placeholderText: Translation.tr("Password")

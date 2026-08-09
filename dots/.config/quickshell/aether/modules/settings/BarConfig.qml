@@ -11,29 +11,27 @@ ContentPage {
     icon: "spoke"
     title: Translation.tr("Positioning")
 
-    ConfigRow {
-      ContentSubsection {
-        title: Translation.tr("Automatically hide")
-        Layout.fillWidth: false
+    ContentSubsection {
+      title: Translation.tr("Automatically hide")
+      Layout.fillWidth: false
 
-        ConfigSelectionArray {
-          currentValue: Config.options.bar.autoHide.enable
-          onSelected: newValue => {
-            Config.options.bar.autoHide.enable = newValue; // Update local copy
-          }
-          options: [
-            {
-              displayName: Translation.tr("No"),
-              icon: "close",
-              value: false
-            },
-            {
-              displayName: Translation.tr("Yes"),
-              icon: "check",
-              value: true
-            }
-          ]
+      ConfigSelectionArray {
+        currentValue: Config.options.bar.autoHide.enable
+        onSelected: newValue => {
+          Config.options.bar.autoHide.enable = newValue; // Update local copy
         }
+        options: [
+          {
+            displayName: Translation.tr("No"),
+            icon: "close",
+            value: false
+          },
+          {
+            displayName: Translation.tr("Yes"),
+            icon: "check",
+            value: true
+          }
+        ]
       }
 
       ContentSubsection {
@@ -106,7 +104,7 @@ ContentPage {
         ]
       }
     }
-    MaterialTextArea {
+    Input {
       Layout.fillWidth: true
       visible: Config.options.bar.background.style === 1 ?? false
       placeholderText: Translation.tr("Color")

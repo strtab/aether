@@ -249,7 +249,7 @@ ContentPage {
       ContentSubsection {
         title: Translation.tr("Keyboard")
 
-        MaterialTextArea {
+        Input {
           id: kbLayoutTextArea
           Layout.fillWidth: true
           placeholderText: Translation.tr("Keyboard layout (e.g., us, es, latam)")

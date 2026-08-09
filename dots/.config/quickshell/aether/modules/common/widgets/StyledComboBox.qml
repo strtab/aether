@@ -66,22 +66,6 @@ ComboBox {
       anchors.fill: parent
       spacing: 6
 
-      Loader {
-        Layout.alignment: Qt.AlignVCenter
-        active: root.buttonIcon.length > 0 || (root.currentIndex >= 0 && typeof root.model[root.currentIndex] === 'object' && root.model[root.currentIndex]?.icon)
-        visible: active
-        sourceComponent: MaterialSymbol {
-          text: {
-            if (root.currentIndex >= 0 && typeof root.model[root.currentIndex] === 'object' && root.model[root.currentIndex]?.icon) {
-              return root.model[root.currentIndex].icon;
-            }
-            return root.buttonIcon;
-          }
-          iconSize: Appearance.font.pixelSize.normal
-          color: Appearance.colors.colOnSecondaryContainer
-        }
-      }
-
       StyledText {
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignVCenter
@@ -160,18 +144,16 @@ ComboBox {
 
       StyledText {
         Layout.fillWidth: true
-        Layout.preferredHeight: Appearance.font.pixelSize.larger
         color: itemDelegate.colText
         text: itemDelegate.model[root.textRole]
         elide: Text.ElideRight
-        verticalAlignment: Text.AlignVCenter
       }
     }
   }
 
   popup: Popup {
     y: root.height + 4
-    width: Math.max(root.width, 220)
+    width: root.width
     height: Math.min(listView.contentHeight + topPadding + bottomPadding, 300)
     padding: 6
 
