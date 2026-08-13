@@ -17,7 +17,7 @@ Item { // Bar content region
 
   // Background shadow
   Loader {
-    active: Config.options.bar.background.enable && Config.options.bar.cornerStyle === 1 && Config.options.bar.floatStyleShadow
+    active: Config.options.bar.background.enable && Config.options.bar.background.style != 2
     anchors.fill: barBackground
     sourceComponent: StyledRectangularShadow {
       anchors.fill: undefined // The loader's anchors act on this, and this should not have any anchor
@@ -30,12 +30,9 @@ Item { // Bar content region
     id: barBackground
     anchors {
       fill: parent
-      margins: Config.options.bar.cornerStyle === 1 ? (Appearance.sizes.hyprlandGapsOut) : 0 // idk why but +1 is needed
+      margins: 0 
     }
     color: Config.options.bar.background.enable ? Appearance.colors.colMenubarBackground : "transparent"
-    radius: Config.options.bar.cornerStyle === 1 ? Appearance.rounding.normal : 0
-    border.width: Config.options.bar.cornerStyle === 1 ? 1 : 0
-    border.color: Appearance.colors.colLayer0Border
   }
 
   FocusedScrollMouseArea { // Left side

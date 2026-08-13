@@ -486,6 +486,7 @@ Singleton {
     property real background: WlrLayer.Background
     property real lockscreen: WlrLayer.Overlay
     property real bar: WlrLayer.Bottom
+    property real overlay: WlrLayer.Overlay
     property real dock: WlrLayer.Bottom
   }
 }

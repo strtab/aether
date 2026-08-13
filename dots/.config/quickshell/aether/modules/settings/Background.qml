@@ -1,11 +1,79 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
+import Quickshell
+import Quickshell.Io
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.common.functions
 
 ContentPage {
   forceWidth: true
+
+  // Wallpaper selection
+  ContentSection {
+    icon: "format_paint"
+    title: Translation.tr("Wallpaper & Colors")
+    Layout.fillWidth: true
+
+    RowLayout {
+      Layout.fillWidth: true
+
+      Item {
+        implicitWidth: 260
+        implicitHeight: 160
+
+        StyledImage {
+          id: wallpaperPreview
+          anchors.fill: parent
+          sourceSize.width: parent.implicitWidth
+          sourceSize.height: parent.implicitHeight
+          fillMode: Image.PreserveAspectCrop
+          source: Config.options.background.wallpaperPath
+          cache: false
+          layer.enabled: true
+          layer.effect: OpacityMask {
+            maskSource: Rectangle {
+              width: 360
+              height: 200
+              radius: Appearance.rounding.normal
+            }
+          }
+        }
+      }
+
+      ColumnLayout {
+        StyledText {
+          id: wallpaperName
+          Layout.fillWidth: true
+          // height: parent.height
+
+          Layout.margins: 10
+          font.pixelSize: Appearance.font.pixelSize.small
+          text: {
+            const path = Config.options.background.wallpaperPath;
+            if (!path)
+              return "";
+            const fileName = path.split("/").pop();
+            const lastDot = fileName.lastIndexOf(".");
+            return (lastDot > 0 ? fileName.substring(0, lastDot) : fileName).replace(/_/g, " ");
+          }
+        }
+        RippleButtonWithIcon {
+          Layout.fillWidth: true
+          materialIcon: "wallpaper"
+          mainText: Translation.tr("Choose file")
+          onClicked: {
+            Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath}`]);
+          }
+          StyledToolTip {
+            text: Translation.tr("Pick wallpaper image on your system")
+          }
+        }
+      }
+    }
+  }
 
   ContentSection {
     icon: "sync_alt"
@@ -178,11 +246,12 @@ ContentPage {
         }
       }
     }
-    Input {
-      Layout.fillWidth: true
+    ConfigInput {
+      title: Translation.tr("Quote text")
+      description: Translation.tr("This text will be showed under the clock")
+      enabled: Config.options.background.widgets.clock.quote.enable
       placeholderText: Translation.tr("Quote")
       text: Config.options.background.widgets.clock.quote.text
-      wrapMode: TextEdit.Wrap
       onTextChanged: {
         Config.options.background.widgets.clock.quote.text = text;
       }

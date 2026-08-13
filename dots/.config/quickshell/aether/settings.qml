@@ -24,37 +24,52 @@ ApplicationWindow {
     {
       name: Translation.tr("Quick"),
       icon: "instant_mix",
-      component: "modules/settings/QuickConfig.qml"
+      component: "modules/settings/Quick.qml"
     },
     {
       name: Translation.tr("General"),
-      icon: "browse",
-      component: "modules/settings/GeneralConfig.qml"
+      icon: "settings",
+      component: "modules/settings/General.qml"
     },
     {
-      name: Translation.tr("Bar"),
+      name: Translation.tr("Appearance"),
+      icon: "invert_colors",
+      component: "modules/settings/Appearance.qml"
+    },
+    {
+      name: Translation.tr("Menu Bar"),
+      icon: "menu",
+      component: "modules/settings/MenuBar.qml"
+    },
+    {
+      name: Translation.tr("Desktop & Dock"),
       icon: "toast",
-      component: "modules/settings/BarConfig.qml"
+      component: "modules/settings/Desktop.qml"
     },
     {
       name: Translation.tr("Background"),
       icon: "texture",
-      component: "modules/settings/BackgroundConfig.qml"
+      component: "modules/settings/Background.qml"
     },
     {
       name: Translation.tr("Interface"),
       icon: "bottom_app_bar",
-      component: "modules/settings/InterfaceConfig.qml"
+      component: "modules/settings/Interface.qml"
+    },
+    {
+      name: Translation.tr("Search"),
+      icon: "search",
+      component: "modules/settings/Search.qml"
     },
     {
       name: Translation.tr("Hyprland"),
       icon: "select_window_2",
-      component: "modules/settings/HyprlandConfig.qml"
+      component: "modules/settings/Hyprland.qml"
     },
     {
       name: Translation.tr("Services"),
       icon: "settings",
-      component: "modules/settings/ServicesConfig.qml"
+      component: "modules/settings/Services.qml"
     }
   ]
   property int currentPage: 0
@@ -131,6 +146,7 @@ ApplicationWindow {
               toggled: root.currentPage === index
               onPressed: root.currentPage = index
 
+              colBackgroundHover: Appearance.colors.colLayer2Hover
               colBackgroundToggled: Appearance.colors.colSecondaryContainer
               colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
               colRippleToggled: Appearance.colors.colSecondaryContainerActive

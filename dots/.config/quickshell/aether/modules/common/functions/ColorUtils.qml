@@ -151,7 +151,6 @@ Singleton {
      */
     function adaptColor(color, darkColor = "black", lightColor = "white") {
         var c = Qt.color(color);
-        // var hsp = Math.sqrt(0.299 * (c.red * c.red) + 0.587 * (c.green * c.green) + 0.114 * (c.blue * c.blue))
         return c.hsvValue > 0.5 ? Qt.color(darkColor) : Qt.color(lightColor);
     }
 

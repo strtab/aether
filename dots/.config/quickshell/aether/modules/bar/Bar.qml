@@ -57,7 +57,7 @@ Scope {
         property bool superShow: false
         property bool mustShow: hoverRegion.containsMouse || superShow
         exclusionMode: ExclusionMode.Ignore
-        exclusiveZone: (Config?.options.bar.autoHide.enable && (!mustShow || !Config?.options.bar.autoHide.pushWindows)) ? 0 : Appearance.sizes.baseBarHeight + (Config.options.bar.cornerStyle === 1 ? Appearance.sizes.hyprlandGapsOut : 0)
+        exclusiveZone: (Config?.options.bar.autoHide.enable && (!mustShow || !Config?.options.bar.autoHide.pushWindows)) ? 0 : Appearance.sizes.baseBarHeight
         WlrLayershell.namespace: "quickshell:bar"
         WlrLayershell.layer: Appearance.layers.bar
         implicitHeight: Appearance.sizes.barHeight + Appearance.rounding.screenRounding
@@ -121,46 +121,6 @@ Scope {
             }
             Behavior on anchors.bottomMargin {
               animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-            }
-          }
-
-          // Round decorators
-          Loader {
-            id: roundDecorators
-            anchors {
-              left: parent.left
-              right: parent.right
-              top: barContent.bottom
-            }
-            height: Appearance.rounding.screenRounding
-            active: showBarBackground && Config.options.bar.cornerStyle === 0 // Hug
-
-            sourceComponent: Item {
-              implicitHeight: Appearance.rounding.screenRounding
-              RoundCorner {
-                id: leftCorner
-                anchors {
-                  top: parent.top
-                  bottom: parent.bottom
-                  left: parent.left
-                }
-
-                implicitSize: Appearance.rounding.screenRounding
-                color: showBarBackground ? Appearance.colors.colMenubarBackground : "transparent"
-
-                corner: RoundCorner.CornerEnum.TopLeft
-              }
-              RoundCorner {
-                id: rightCorner
-                anchors {
-                  right: parent.right
-                  top: parent.top
-                }
-                implicitSize: Appearance.rounding.screenRounding
-                color: showBarBackground ? Appearance.colors.colMenubarBackground : "transparent"
-
-                corner: RoundCorner.CornerEnum.TopRight
-              }
             }
           }
         }

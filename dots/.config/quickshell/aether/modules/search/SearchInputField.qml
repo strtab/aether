@@ -82,7 +82,7 @@ RowLayout {
     Layout.rightMargin: 0
     Layout.fillWidth: true
     Layout.fillHeight: true
-    iconSize: Appearance.font.pixelSize.hugeass + 5
+    iconSize: Appearance.font.pixelSize.hugeass + 2
     text: switch (root.activeModeType) {
     case SearchInputField.SearchPrefixType.Action:
       return "action_key";

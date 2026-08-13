@@ -53,8 +53,8 @@ ContentPage {
       Layout.fillWidth: true
 
       Item {
-        implicitWidth: 340
-        implicitHeight: 200
+        implicitWidth: 300
+        implicitHeight: 180
 
         StyledImage {
           id: wallpaperPreview

@@ -242,7 +242,7 @@ Singleton {
         }
         property string wallpaperPath: FileUtils.trimFileProtocol(`${Directories.assetsPath}/images/default_wallpaper.jpg`)
         property string thumbnailPath: ""
-        property bool hideWhenFullscreen: true
+        property bool hideWhenFullscreen: false
         property JsonObject parallax: JsonObject {
           property bool vertical: false
           property bool autoVertical: false
@@ -256,12 +256,10 @@ Singleton {
       property JsonObject bar: JsonObject {
         property bool enable: true
         property list<string> screenList: [] // List of names, like "eDP-1", find out with 'hyprctl monitors' command
-        property int cornerStyle: 0 // 0: Hug | 1: Float | 2: Plain rectangle
-        property bool floatStyleShadow: true // Show shadow behind bar when cornerStyle == 1 (Float)
         property JsonObject autoHide: JsonObject {
           property bool enable: false
           property int hoverRegionWidth: 2
-          property bool pushWindows: false
+          property bool pushWindows: true
           property JsonObject showWhenPressingSuper: JsonObject {
             property bool enable: true
             property int delay: 140
@@ -302,11 +300,6 @@ Singleton {
         property JsonObject clock: JsonObject {
           property bool enable: true
           property bool showDate: true
-        }
-        property JsonObject indicators: JsonObject {
-          property JsonObject notifications: JsonObject {
-            property bool showUnreadCount: false
-          }
         }
       }
 

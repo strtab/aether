@@ -22,6 +22,7 @@ RowLayout {
     spacing: 2
 
     ContentSubsectionLabel {
+      id: label
       Layout.fillWidth: true
       color: Appearance.colors.colOnSecondaryContainer
       visible: root.title && root.title.length > 0
@@ -29,6 +30,7 @@ RowLayout {
     }
 
     StyledText {
+      id: description
       Layout.fillWidth: true
       Layout.leftMargin: 2
       color: Appearance.colors.colSubtext

@@ -180,14 +180,13 @@ Item { // Wrapper
         }
       }
 
-      Rectangle {
-        // Separator
+      Rectangle { // Separator
         visible: root.showResults
 
         // Layout.fillWidth: true
+        width: searchWidgetContent.width - 30
 
         Layout.alignment: Qt.AlignHCenter
-        width: searchWidgetContent.width - 30
 
         height: 1
         color: Appearance.colors.colOutlineVariant

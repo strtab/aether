@@ -11,6 +11,7 @@ ComboBox {
   id: root
 
   property string buttonIcon: ""
+  property int itemHeight: 30
   property real buttonRadius: Appearance.rounding.verysmall
   property color colBackground: Appearance?.m3colors.m3surfaceContainerHighest
   property color colBackgroundHover: Appearance.m3colors.m3surfaceBright
@@ -21,7 +22,7 @@ ComboBox {
   // Compact by default instead of stretching to fill the row.
   // Content-driven width, capped by minimumWidth/maximumWidth if set by the parent.
   implicitWidth: Math.max(contentLayout.implicitWidth + leftPadding + rightPadding, 160)
-  implicitHeight: 34
+  implicitHeight: root.itemHeight
   Layout.fillWidth: false
 
   leftPadding: 12
@@ -47,14 +48,9 @@ ComboBox {
   indicator: MaterialSymbol {
     x: root.width - width - 10
     y: root.height / 2 - height / 2
-    text: "keyboard_arrow_down"
-    iconSize: Appearance.font.pixelSize.normal
+    text: "unfold_more"
+    iconSize: Appearance.font.pixelSize.large
     color: Appearance.colors.colOnSecondaryContainer
-
-    rotation: root.popup.visible ? 180 : 0
-    Behavior on rotation {
-      animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-    }
   }
 
   contentItem: Item {
@@ -64,7 +60,8 @@ ComboBox {
     RowLayout {
       id: contentLayout
       anchors.fill: parent
-      spacing: 6
+      Layout.alignment: Qt.AlignVCenter
+      spacing: 4
 
       StyledText {
         Layout.fillWidth: true
@@ -80,24 +77,16 @@ ComboBox {
   delegate: ItemDelegate {
     id: itemDelegate
     width: ListView.view ? ListView.view.width : root.width
-    implicitHeight: 34
+    implicitHeight: root.itemHeight
 
     required property var model
     required property int index
     property color color: {
-      if (root.currentIndex === itemDelegate.index) {
-        if (itemDelegate.down)
-          return Appearance.colors.colSecondaryContainerActive;
-        if (itemDelegate.hovered)
-          return Appearance.colors.colSecondaryContainerHover;
-        return Appearance.colors.colSecondaryContainer;
-      } else {
-        if (itemDelegate.down)
-          return Appearance.colors.colLayer3Active;
-        if (itemDelegate.hovered)
-          return Appearance.colors.colLayer3Hover;
-        return ColorUtils.transparentize(Appearance.colors.colLayer3);
-      }
+      if (itemDelegate.down)
+        return Appearance.colors.colLayer3Active;
+      if (itemDelegate.hovered)
+        return Appearance.colors.colLayer3Hover;
+      return ColorUtils.transparentize(Appearance.colors.colLayer3);
     }
     property color colText: (root.currentIndex === itemDelegate.index) ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnLayer3
 
@@ -117,10 +106,13 @@ ComboBox {
       }
     }
 
+    // anchors.fill: parent makes the leftMargin/rightMargin below actually apply;
+    // without an active anchor, margin properties are no-ops.
     contentItem: RowLayout {
+      anchors.fill: parent
+      anchors.leftMargin: 8
+      anchors.rightMargin: 6
       spacing: 8
-      anchors.leftMargin: 12
-      anchors.rightMargin: 12
 
       Loader {
         Layout.alignment: Qt.AlignVCenter
@@ -144,9 +136,17 @@ ComboBox {
 
       StyledText {
         Layout.fillWidth: true
+        Layout.alignment: Qt.AlignVCenter
         color: itemDelegate.colText
         text: itemDelegate.model[root.textRole]
         elide: Text.ElideRight
+        verticalAlignment: Text.AlignVCenter
+      }
+      MaterialSymbol {
+        visible: root.currentIndex === itemDelegate.index
+        text: "check"
+        iconSize: Appearance.font.pixelSize.large
+        color: Appearance.colors.colOnSecondaryContainer
       }
     }
   }
