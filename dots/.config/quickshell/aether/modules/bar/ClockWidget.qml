@@ -37,7 +37,7 @@ Item {
     StyledText {
       Layout.fillHeight: true
       font.pixelSize: Appearance.font.pixelSize.large
-      font.family: Appearance.font.family.numbers
+      font.family: Appearance.font.family.monospaced
       color: root.color
       text: DateTime.time
     }
