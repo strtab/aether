@@ -8,7 +8,6 @@ ContentPage {
   forceWidth: true
 
   ContentSection {
-    icon: "keyboard"
     title: Translation.tr("Cheat sheet")
 
     ContentSubsection {
@@ -30,7 +29,6 @@ ContentPage {
     }
 
     ConfigSwitch {
-      buttonIcon: "󰘵"
       text: Translation.tr("Use macOS-like symbols for mods keys")
       checked: Config.options.cheatsheet.useMacSymbol
       onCheckedChanged: {
@@ -40,7 +38,6 @@ ContentPage {
     }
 
     ConfigSwitch {
-      buttonIcon: "󱊶"
       text: Translation.tr("Use symbols for function keys")
       checked: Config.options.cheatsheet.useFnSymbol
       onCheckedChanged: {
@@ -49,7 +46,6 @@ ContentPage {
       description: Translation.tr("e.g. 󱊫 for F1, 󱊶  for F12")
     }
     ConfigSwitch {
-      buttonIcon: "󰍽"
       text: Translation.tr("Use symbols for mouse")
       checked: Config.options.cheatsheet.useMouseSymbol
       onCheckedChanged: {
@@ -80,11 +76,9 @@ ContentPage {
     }
   }
   ContentSection {
-    icon: "call_to_action"
     title: Translation.tr("Dock")
 
     ConfigSwitch {
-      buttonIcon: "check"
       text: Translation.tr("Enable")
       checked: Config.options.dock.enable
       onCheckedChanged: {
@@ -93,7 +87,6 @@ ContentPage {
     }
 
     ConfigSwitch {
-      buttonIcon: "keep"
       text: Translation.tr("Pinned on startup")
       checked: Config.options.dock.pinnedOnStartup
       onCheckedChanged: {
@@ -101,7 +94,6 @@ ContentPage {
       }
     }
     ConfigSwitch {
-      buttonIcon: "keep"
       text: Translation.tr("Show pin button")
       checked: Config.options.dock.showPinButton
       onCheckedChanged: {
@@ -110,7 +102,6 @@ ContentPage {
     }
   }
   ConfigSwitch {
-    buttonIcon: "highlight_mouse_cursor"
     text: Translation.tr("Show overview button")
     checked: Config.options.dock.showOverviewButton
     onCheckedChanged: {
@@ -119,18 +110,14 @@ ContentPage {
   }
 
   ConfigSpinBox {
-    icon: "aspect_ratio"
     text: Translation.tr("Icon size (px)")
-    value: Config.options.dock.iconSize ?? 40
     from: 55
     to: 100
     stepSize: 1
     onValueChanged: {
-      Config.setNestedValue("dock.iconSize", value);
     }
   }
   ConfigSwitch {
-    buttonIcon: "highlight_mouse_cursor"
     text: Translation.tr("Hover to reveal")
     checked: Config.options.dock.hoverToReveal
     onCheckedChanged: {
@@ -138,8 +125,6 @@ ContentPage {
     }
   }
   ConfigSwitch {
-    buttonIcon: "colors"
-    text: Translation.tr("Tint app icons")
     checked: Config.options.dock.monochromeIcons
     onCheckedChanged: {
       Config.options.dock.monochromeIcons = checked;
@@ -147,11 +132,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "lock"
     title: Translation.tr("Lock screen")
 
     ConfigSwitch {
-      buttonIcon: "water_drop"
       text: Translation.tr('Use Hyprlock (instead of Quickshell)')
       checked: Config.options.lock.useHyprlock
       onCheckedChanged: {
@@ -161,7 +144,6 @@ ContentPage {
     }
 
     ConfigSwitch {
-      buttonIcon: "account_circle"
       text: Translation.tr('Launch on startup')
       checked: Config.options.lock.launchOnStartup
       onCheckedChanged: {
@@ -173,7 +155,6 @@ ContentPage {
       title: Translation.tr("Security")
 
       ConfigSwitch {
-        buttonIcon: "settings_power"
         text: Translation.tr('Require password to power off/restart')
         checked: Config.options.lock.security.requirePasswordToPower
         onCheckedChanged: {
@@ -183,7 +164,6 @@ ContentPage {
       }
 
       ConfigSwitch {
-        buttonIcon: "key_vertical"
         text: Translation.tr('Also unlock keyring')
         checked: Config.options.lock.security.unlockKeyring
         onCheckedChanged: {
@@ -199,7 +179,6 @@ ContentPage {
       title: Translation.tr("Style: general")
 
       ConfigSwitch {
-        buttonIcon: "center_focus_weak"
         text: Translation.tr('Center clock')
         checked: Config.options.lock.centerClock
         onCheckedChanged: {
@@ -208,7 +187,6 @@ ContentPage {
       }
 
       ConfigSwitch {
-        buttonIcon: "info"
         text: Translation.tr('Show "Locked" text')
         checked: Config.options.lock.showLockedText
         onCheckedChanged: {
@@ -217,7 +195,6 @@ ContentPage {
       }
 
       ConfigSwitch {
-        buttonIcon: "shapes"
         text: Translation.tr('Use varying shapes for password characters')
         checked: Config.options.lock.materialShapeChars
         onCheckedChanged: {
@@ -229,7 +206,6 @@ ContentPage {
       title: Translation.tr("Style: Blurred")
 
       ConfigSwitch {
-        buttonIcon: "blur_on"
         text: Translation.tr('Enable blur')
         checked: Config.options.lock.blur.enable
         onCheckedChanged: {
@@ -238,7 +214,6 @@ ContentPage {
       }
 
       ConfigSpinBox {
-        icon: "loupe"
         text: Translation.tr("Extra wallpaper zoom (%)")
         value: Config.options.lock.blur.extraZoom * 100
         from: 1
@@ -252,11 +227,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "notifications"
     title: Translation.tr("Notifications")
 
     ConfigSpinBox {
-      icon: "av_timer"
       text: Translation.tr("Timeout duration (if not defined by notification) (ms)")
       value: Config.options.notifications.timeout
       from: 1000
@@ -269,11 +242,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "voting_chip"
     title: Translation.tr("On-screen display")
 
     ConfigSpinBox {
-      icon: "av_timer"
       text: Translation.tr("Timeout (ms)")
       value: Config.options.osd.timeout
       from: 100
@@ -286,11 +257,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "screenshot_frame_2"
     title: Translation.tr("Region selector (screen snipping/Google Lens)")
 
     ConfigSwitch {
-      buttonIcon: "select_window"
       text: Translation.tr('Windows hint')
       checked: Config.options.regionSelector.targetRegions.windows
       onCheckedChanged: {
@@ -298,7 +267,6 @@ ContentPage {
       }
     }
     ConfigSwitch {
-      buttonIcon: "right_panel_open"
       text: Translation.tr('Layers hint')
       checked: Config.options.regionSelector.targetRegions.layers
       onCheckedChanged: {
@@ -306,7 +274,6 @@ ContentPage {
       }
     }
     ConfigSwitch {
-      buttonIcon: "nearby"
       text: Translation.tr('Content hint')
       checked: Config.options.regionSelector.targetRegions.content
       onCheckedChanged: {
@@ -325,12 +292,10 @@ ContentPage {
         }
         options: [
           {
-            icon: "activity_zone",
             value: "rectangles",
             displayName: Translation.tr("Rectangular selection")
           },
           {
-            icon: "gesture",
             value: "circle",
             displayName: Translation.tr("Circle to Search")
           }
@@ -342,7 +307,6 @@ ContentPage {
       title: Translation.tr("Rectangular selection")
 
       ConfigSwitch {
-        buttonIcon: "point_scan"
         text: Translation.tr("Show aim lines")
         checked: Config.options.regionSelector.rect.showAimLines
         onCheckedChanged: {
@@ -355,7 +319,6 @@ ContentPage {
       title: Translation.tr("Circle selection")
 
       ConfigSpinBox {
-        icon: "eraser_size_3"
         text: Translation.tr("Stroke width")
         value: Config.options.regionSelector.circle.strokeWidth
         from: 1
@@ -367,7 +330,6 @@ ContentPage {
       }
 
       ConfigSpinBox {
-        icon: "screenshot_frame_2"
         text: Translation.tr("Padding")
         value: Config.options.regionSelector.circle.padding
         from: 0
@@ -381,11 +343,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "side_navigation"
     title: Translation.tr("Sidebars")
 
     ConfigSwitch {
-      buttonIcon: "memory"
       text: Translation.tr('Keep right sidebar loaded')
       checked: Config.options.sidebar.keepRightSidebarLoaded
       onCheckedChanged: {
@@ -395,7 +355,6 @@ ContentPage {
     }
 
     // ConfigSwitch {
-    //   buttonIcon: "translate"
     //   text: Translation.tr('Enable translator')
     //   checked: Config.options.sidebar.translator.enable
     //   onCheckedChanged: {
@@ -415,12 +374,10 @@ ContentPage {
       //   options: [
       //     {
       //       displayName: Translation.tr("Classic"),
-      //       icon: "password_2",
       //       value: "classic"
       //     },
       //     {
       //       displayName: Translation.tr("Android"),
-      //       icon: "action_key",
       //       value: "android"
       //     }
       //   ]
@@ -428,7 +385,6 @@ ContentPage {
 
       ConfigSpinBox {
         enabled: Config.options.sidebar.quickToggles.style === "android"
-        icon: "splitscreen_left"
         text: Translation.tr("Columns")
         value: Config.options.sidebar.quickToggles.android.columns
         from: 1
@@ -444,7 +400,6 @@ ContentPage {
       title: Translation.tr("Sliders")
 
       ConfigSwitch {
-        buttonIcon: "check"
         text: Translation.tr("Enable")
         checked: Config.options.sidebar.quickSliders.enable
         onCheckedChanged: {
@@ -453,7 +408,6 @@ ContentPage {
       }
 
       ConfigSwitch {
-        buttonIcon: "brightness_6"
         text: Translation.tr("Brightness")
         enabled: Config.options.sidebar.quickSliders.enable
         checked: Config.options.sidebar.quickSliders.showBrightness
@@ -463,7 +417,6 @@ ContentPage {
       }
 
       ConfigSwitch {
-        buttonIcon: "volume_up"
         text: Translation.tr("Volume")
         enabled: Config.options.sidebar.quickSliders.enable
         checked: Config.options.sidebar.quickSliders.showVolume
@@ -473,7 +426,6 @@ ContentPage {
       }
 
       ConfigSwitch {
-        buttonIcon: "mic"
         text: Translation.tr("Microphone")
         enabled: Config.options.sidebar.quickSliders.enable
         checked: Config.options.sidebar.quickSliders.showMic
@@ -485,11 +437,9 @@ ContentPage {
   }
 
   // ContentSection {
-  //   icon: "overview_key"
   //   title: Translation.tr("Overview")
   //
   //   ConfigSwitch {
-  //     buttonIcon: "check"
   //     text: Translation.tr("Enable")
   //     checked: Config.options.overview.enable
   //     onCheckedChanged: {
@@ -497,15 +447,12 @@ ContentPage {
   //     }
   //   }
   //   ConfigSwitch {
-  //     buttonIcon: "center_focus_strong"
-  //     text: Translation.tr("Center icons")
   //     checked: Config.options.overview.centerIcons
   //     onCheckedChanged: {
   //       Config.options.overview.centerIcons = checked;
   //     }
   //   }
   //   ConfigSpinBox {
-  //     icon: "loupe"
   //     text: Translation.tr("Scale (%)")
   //     value: Config.options.overview.scale * 100
   //     from: 1
@@ -518,7 +465,6 @@ ContentPage {
   //   ConfigRow {
   //     uniform: true
   //     ConfigSpinBox {
-  //       icon: "splitscreen_bottom"
   //       text: Translation.tr("Rows")
   //       value: Config.options.overview.rows
   //       from: 1
@@ -529,7 +475,6 @@ ContentPage {
   //       }
   //     }
   //     ConfigSpinBox {
-  //       icon: "splitscreen_right"
   //       text: Translation.tr("Columns")
   //       value: Config.options.overview.columns
   //       from: 1
@@ -550,12 +495,10 @@ ContentPage {
   //       options: [
   //         {
   //           displayName: Translation.tr("Left to right"),
-  //           icon: "arrow_forward",
   //           value: 0
   //         },
   //         {
   //           displayName: Translation.tr("Right to left"),
-  //           icon: "arrow_back",
   //           value: 1
   //         }
   //       ]
@@ -568,12 +511,10 @@ ContentPage {
   //       options: [
   //         {
   //           displayName: Translation.tr("Top-down"),
-  //           icon: "arrow_downward",
   //           value: 0
   //         },
   //         {
   //           displayName: Translation.tr("Bottom-up"),
-  //           icon: "arrow_upward",
   //           value: 1
   //         }
   //       ]
@@ -582,11 +523,9 @@ ContentPage {
   // }
 
   ContentSection {
-    icon: "wallpaper_slideshow"
     title: Translation.tr("Wallpaper selector")
 
     ConfigSwitch {
-      buttonIcon: "ad"
       text: Translation.tr('Use system file picker')
       checked: Config.options.wallpaperSelector.useSystemFileDialog
       onCheckedChanged: {
@@ -594,157 +533,10 @@ ContentPage {
       }
     }
   }
-
   ContentSection {
-    icon: "text_format"
-    title: Translation.tr("Fonts")
-
-    ContentSubsection {
-      title: Translation.tr("Main font")
-      description: Translation.tr("Used for general UI text")
-
-      FontSelector {
-        id: mainFontSelector
-        selectedFont: Config.options?.appearance?.typography?.main ?? "Roboto Flex"
-        onSelectedFontChanged: {
-          if (Config.options?.appearance?.typography)
-            Config.setNestedValue("appearance.typography.main", selectedFont);
-        }
-        Connections {
-          target: Config.options?.appearance?.typography ?? null
-          function onMainFontChanged() {
-            mainFontSelector.selectedFont = Config.options.appearance.typography.main;
-          }
-        }
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Numbers font")
-      description: Translation.tr("Used for displaying numbers")
-
-      FontSelector {
-        id: numbersFontSelector
-        selectedFont: Config.options?.appearance?.typography?.numbers ?? "Roboto Flex"
-        onSelectedFontChanged: {
-          if (Config.options?.appearance?.typography)
-            Config.setNestedValue("appearance.typography.numbers", selectedFont);
-        }
-        Connections {
-          target: Config.options?.appearance?.typography ?? null
-          function onMainFontChanged() {
-            numbersFontSelector.selectedFont = Config.options.appearance.typography.numbers;
-          }
-        }
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Title font")
-      description: Translation.tr("Used for headings and titles")
-
-      FontSelector {
-        id: titleFontSelector
-        selectedFont: Config.options?.appearance?.typography?.title ?? "Roboto Flex"
-        onSelectedFontChanged: {
-          if (Config.options?.appearance?.typography)
-            Config.setNestedValue("appearance.typography.title", selectedFont);
-        }
-        Connections {
-          target: Config.options?.appearance?.typography ?? null
-          function onMainFontChanged() {
-            titleFontSelector.selectedFont = Config.options.appearance.typography.title;
-          }
-        }
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Monospace font")
-      description: Translation.tr("Used for code and terminal")
-
-      FontSelector {
-        id: monospaceFontSelector
-        selectedFont: Config.options?.appearance?.typography?.monospace ?? "JetBrains Mono NF"
-        onSelectedFontChanged: {
-          if (Config.options?.appearance?.typography)
-            Config.setNestedValue("appearance.typography.monospace", selectedFont);
-        }
-        Connections {
-          target: Config.options?.appearance?.monospace ?? null
-          function onMainFontChanged() {
-            monospaceFontSelector.selectedFont = Config.options.appearance.typography.monospace;
-          }
-        }
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Nerd font icons")
-      description: Translation.tr("Font used for Nerd Font icons")
-
-      FontSelector {
-        id: nerdFontSelector
-        selectedFont: Config.options?.appearance?.typography?.iconNerd ?? "JetBrains Mono NF"
-        onSelectedFontChanged: {
-          if (Config.options?.appearance?.typography)
-            Config.setNestedValue("appearance.typography.iconNerd", selectedFont);
-        }
-        Connections {
-          target: Config.options?.appearance?.iconNerd ?? null
-          function onMainFontChanged() {
-            nerdFontSelector.selectedFont = Config.options.appearance.typography.iconNerd;
-          }
-        }
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Reading font")
-      description: Translation.tr("Used for reading large blocks of text")
-
-      FontSelector {
-        id: readingFontSelector
-        selectedFont: Config.options?.appearance?.typography?.reading ?? "Readex Pro"
-        onSelectedFontChanged: {
-          if (Config.options?.appearance?.typography)
-            Config.setNestedValue("appearance.typography.reading", selectedFont);
-        }
-        Connections {
-          target: Config.options?.appearance?.reading ?? null
-          function onMainFontChanged() {
-            readingFontSelector.selectedFont = Config.options.appearance.typography.reading;
-          }
-        }
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Expressive font")
-      description: Translation.tr("Used for decorative/expressive text")
-
-      FontSelector {
-        id: expressiveFontSelector
-        selectedFont: Config.options?.appearance?.typography?.expressive ?? "Google Sans 17pt"
-        onSelectedFontChanged: {
-          if (Config.options?.appearance?.typography)
-            Config.setNestedValue("appearance.typography.expressive", selectedFont);
-        }
-        Connections {
-          target: Config.options?.appearance?.expressive ?? null
-          function onMainFontChanged() {
-            expressiveFontSelector.selectedFont = Config.options.appearance.typography.expressive;
-          }
-        }
-      }
-    }
-  }
-  ContentSection {
-    icon: "colors"
     title: Translation.tr("Color generation")
 
     ConfigSwitch {
-      buttonIcon: "hardware"
       text: Translation.tr("Shell & utilities")
       checked: Config.options.appearance.wallpaperTheming.enableAppsAndShell
       onCheckedChanged: {
@@ -752,7 +544,6 @@ ContentPage {
       }
     }
     ConfigSwitch {
-      buttonIcon: "tv_options_input_settings"
       text: Translation.tr("Qt apps")
       checked: Config.options.appearance.wallpaperTheming.enableQtApps
       onCheckedChanged: {
@@ -761,7 +552,6 @@ ContentPage {
       description: Translation.tr("Shell & utilities theming must also be enabled")
     }
     // ConfigSwitch {
-    //   buttonIcon: "terminal"
     //   text: Translation.tr("Terminal")
     //   checked: Config.options.appearance.wallpaperTheming.enableTerminal
     //   onCheckedChanged: {
@@ -774,7 +564,6 @@ ContentPage {
     // ConfigRow {
     //   uniform: true
     //   ConfigSwitch {
-    //     buttonIcon: "dark_mode"
     //     text: Translation.tr("Force dark mode in terminal")
     //     checked: Config.options.appearance.wallpaperTheming.terminalGenerationProps.forceDarkMode
     //     onCheckedChanged: {
@@ -787,7 +576,6 @@ ContentPage {
     // }
     //
     // ConfigSpinBox {
-    //   icon: "invert_colors"
     //   text: Translation.tr("Terminal: Harmony (%)")
     //   value: Config.options.appearance.wallpaperTheming.terminalGenerationProps.harmony * 100
     //   from: 0
@@ -798,7 +586,6 @@ ContentPage {
     //   }
     // }
     // ConfigSpinBox {
-    //   icon: "gradient"
     //   text: Translation.tr("Terminal: Harmonize threshold")
     //   value: Config.options.appearance.wallpaperTheming.terminalGenerationProps.harmonizeThreshold
     //   from: 0
@@ -809,7 +596,6 @@ ContentPage {
     //   }
     // }
     // ConfigSpinBox {
-    //   icon: "format_color_text"
     //   text: Translation.tr("Terminal: Foreground boost (%)")
     //   value: Config.options.appearance.wallpaperTheming.terminalGenerationProps.termFgBoost * 100
     //   from: 0

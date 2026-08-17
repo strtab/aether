@@ -8,11 +8,9 @@ ContentPage {
   forceWidth: true
 
   ContentSection {
-    icon: "toggle_on"
     title: Translation.tr("")
 
     ConfigSwitch {
-      buttonIcon: "check_circle"
       text: Translation.tr("Enable the menu bar")
       description: Translation.tr("Turn the entire top bar on or off.")
       checked: Config.options.bar.enable
@@ -47,7 +45,6 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "spoke"
     title: Translation.tr("Positioning")
 
     ConfigComboBox {
@@ -71,7 +68,6 @@ ContentPage {
 
     ConfigSpinBox {
       enabled: Config.options.bar.autoHide.enable
-      icon: "swipe_right"
       text: Translation.tr("Hover trigger region width (px)")
       // description: Translation.tr("Width of the invisible edge area that reveals the bar when the mouse touches it.")
       value: Config.options.bar.autoHide.hoverRegionWidth
@@ -85,7 +81,6 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.bar.autoHide.enable
-      buttonIcon: "vertical_align_top"
       text: Translation.tr("Push windows down")
       description: Translation.tr("Reserve space for the bar instead of overlaying windows when it is shown.")
       checked: Config.options.bar.autoHide.pushWindows
@@ -96,7 +91,6 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.bar.autoHide.enable
-      buttonIcon: "keyboard_command_key"
       text: Translation.tr("Show when pressing Super")
       description: Translation.tr("Temporarily reveal the auto-hidden bar while the Super key is held down.")
       checked: Config.options.bar.autoHide.showWhenPressingSuper.enable
@@ -107,7 +101,6 @@ ContentPage {
 
     ConfigSpinBox {
       enabled: Config.options.bar.autoHide.enable && Config.options.bar.autoHide.showWhenPressingSuper.enable
-      icon: "timer"
       text: Translation.tr("Show delay when pressing Super (ms)")
       // description: Translation.tr("How long Super must be held before the bar appears.")
       value: Config.options.bar.autoHide.showWhenPressingSuper.delay
@@ -121,10 +114,8 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "spoke"
     title: Translation.tr("Style")
     ConfigSwitch {
-      buttonIcon: "colors"
       text: Translation.tr('Show menu bar background')
       checked: Config.options.bar.background.enable
       onCheckedChanged: {
@@ -220,11 +211,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "workspaces"
     title: Translation.tr("Workspaces")
 
     ConfigSwitch {
-      buttonIcon: "check"
       text: Translation.tr('Enable')
       checked: Config.options.bar.workspaces.enable
       onCheckedChanged: {
@@ -234,7 +223,6 @@ ContentPage {
 
     ConfigSwitch {
       visible: Config.options.bar.workspaces.enable
-      buttonIcon: "counter_1"
       text: Translation.tr('Always show numbers')
       checked: Config.options.bar.workspaces.alwaysShowNumbers
       onCheckedChanged: {
@@ -244,8 +232,6 @@ ContentPage {
 
     ConfigSwitch {
       visible: Config.options.bar.workspaces.enable
-      buttonIcon: "award_star"
-      text: Translation.tr('Show app icons')
       checked: Config.options.bar.workspaces.showAppIcons
       onCheckedChanged: {
         Config.options.bar.workspaces.showAppIcons = checked;
@@ -254,8 +240,6 @@ ContentPage {
 
     ConfigSwitch {
       visible: Config.options.bar.workspaces.enable
-      buttonIcon: "colors"
-      text: Translation.tr('Tint app icons')
       checked: Config.options.bar.workspaces.monochromeIcons
       onCheckedChanged: {
         Config.options.bar.workspaces.monochromeIcons = checked;
@@ -264,9 +248,7 @@ ContentPage {
 
     ConfigSwitch {
       visible: Config.options.bar.workspaces.enable
-      buttonIcon: "font_download"
       text: Translation.tr("Use Nerd Font glyphs")
-      description: Translation.tr("Render workspace numbers using Nerd Font icons instead of plain digits.")
       checked: Config.options.bar.workspaces.useNerdFont
       onCheckedChanged: {
         Config.options.bar.workspaces.useNerdFont = checked;
@@ -275,7 +257,6 @@ ContentPage {
 
     ConfigSpinBox {
       visible: Config.options.bar.workspaces.enable
-      icon: "view_column"
       text: Translation.tr("Workspaces shown")
       value: Config.options.bar.workspaces.shown
       from: 1
@@ -288,7 +269,6 @@ ContentPage {
 
     ConfigSpinBox {
       visible: Config.options.bar.workspaces.enable
-      icon: "touch_long"
       text: Translation.tr("Number show delay when pressing Super (ms)")
       value: Config.options.bar.workspaces.showNumberDelay
       from: 0
@@ -306,17 +286,14 @@ ContentPage {
       model: [
         {
           displayName: Translation.tr("Normal"),
-          icon: "timer_10",
           value: '[]'
         },
         {
           displayName: Translation.tr("Han chars"),
-          icon: "square_dot",
           value: '["一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"]'
         },
         {
           displayName: Translation.tr("Roman"),
-          icon: "account_balance",
           value: '["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX"]'
         }
       ]
@@ -328,11 +305,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "monitor_heart"
     title: Translation.tr("Resources")
 
     ConfigSwitch {
-      buttonIcon: "swap_horiz"
       text: Translation.tr("Always show swap usage")
       description: Translation.tr("Keep the swap indicator visible even when swap usage is low.")
       checked: Config.options.bar.resources.alwaysShowSwap
@@ -342,7 +317,6 @@ ContentPage {
     }
 
     ConfigSwitch {
-      buttonIcon: "memory"
       text: Translation.tr("Always show CPU usage")
       description: Translation.tr("Keep the CPU indicator visible even when usage is low.")
       checked: Config.options.bar.resources.alwaysShowCpu
@@ -352,7 +326,6 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      icon: "sd_card_alert"
       text: Translation.tr("Memory warning threshold (%)")
       // description: Translation.tr("Highlight the memory indicator once usage crosses this percentage.")
       value: Config.options.bar.resources.memoryWarningThreshold
@@ -365,7 +338,6 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      icon: "swap_vert"
       text: Translation.tr("Swap warning threshold (%)")
       // description: Translation.tr("Highlight the swap indicator once usage crosses this percentage.")
       value: Config.options.bar.resources.swapWarningThreshold
@@ -378,7 +350,6 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      icon: "speed"
       text: Translation.tr("CPU warning threshold (%)")
       // description: Translation.tr("Highlight the CPU indicator once usage crosses this percentage.")
       value: Config.options.bar.resources.cpuWarningThreshold
@@ -392,11 +363,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "cloud"
     title: Translation.tr("Weather")
 
     ConfigSwitch {
-      buttonIcon: "my_location"
       text: Translation.tr("Use GPS location")
       description: Translation.tr("Detect your location automatically instead of entering a city manually.")
       checked: Config.options.bar.weather.enableGPS
@@ -425,7 +394,6 @@ ContentPage {
     }
 
     ConfigSwitch {
-      buttonIcon: "thermostat"
       text: Translation.tr("Use imperial units")
       description: Translation.tr("Show temperature and wind speed in imperial units (Fahrenheit, mph) instead of metric.")
       checked: Config.options.bar.weather.useUSCS
@@ -435,7 +403,6 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      icon: "update"
       text: Translation.tr("Update interval (minutes)")
       // description: Translation.tr("How often the weather forecast is refreshed.")
       value: Config.options.bar.weather.fetchInterval
@@ -449,11 +416,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "schedule"
     title: Translation.tr("Clock")
 
     ConfigSwitch {
-      buttonIcon: "check"
       text: Translation.tr("Show clock")
       description: Translation.tr("Display the clock widget on the bar.")
       checked: Config.options.bar.clock.enable
@@ -464,7 +429,6 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.bar.clock.enable
-      buttonIcon: "calendar_today"
       text: Translation.tr("Show date")
       description: Translation.tr("Also display the date next to the time.")
       checked: Config.options.bar.clock.showDate

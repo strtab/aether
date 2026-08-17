@@ -10,7 +10,6 @@ ContentPage {
     forceWidth: true
 
     ContentSection {
-        icon: "box"
         title: Translation.tr("Distro")
         
         RowLayout {
@@ -20,7 +19,6 @@ ContentPage {
             Layout.bottomMargin: 10
             IconImage {
                 implicitSize: 80
-                source: Quickshell.iconPath(SystemInfo.logo)
             }
             ColumnLayout {
                 Layout.alignment: Qt.AlignVCenter
@@ -79,7 +77,6 @@ ContentPage {
 
     }
     ContentSection {
-        icon: "folder_managed"
         title: Translation.tr("Dotfiles")
 
         RowLayout {
@@ -89,7 +86,6 @@ ContentPage {
             Layout.bottomMargin: 10
             IconImage {
                 implicitSize: 80
-                source: Quickshell.iconPath("aether")
             }
             ColumnLayout {
                 Layout.alignment: Qt.AlignVCenter

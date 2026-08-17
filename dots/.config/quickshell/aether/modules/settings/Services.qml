@@ -8,11 +8,9 @@ ContentPage {
   forceWidth: true
 
   ContentSection {
-    icon: "music_cast"
     title: Translation.tr("Music Recognition")
 
     ConfigSpinBox {
-      icon: "timer_off"
       text: Translation.tr("Total duration timeout (s)")
       value: Config.options.musicRecognition.timeout
       from: 10
@@ -23,7 +21,6 @@ ContentPage {
       }
     }
     ConfigSpinBox {
-      icon: "av_timer"
       text: Translation.tr("Polling interval (s)")
       value: Config.options.musicRecognition.interval
       from: 2
@@ -36,7 +33,6 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "cell_tower"
     title: Translation.tr("Networking")
 
     Input {
@@ -51,11 +47,9 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "memory"
     title: Translation.tr("Resources")
 
     ConfigSpinBox {
-      icon: "av_timer"
       text: Translation.tr("Polling interval (ms)")
       value: Config.options.resources.updateInterval
       from: 100
@@ -68,7 +62,6 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "file_open"
     title: Translation.tr("Save paths")
 
     Input {
@@ -93,7 +86,6 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "search"
     title: Translation.tr("Search")
 
     ConfigSwitch {
@@ -171,10 +163,8 @@ ContentPage {
   }
 
   ContentSection {
-    icon: "weather_mix"
     title: Translation.tr("Weather")
     ConfigSwitch {
-      buttonIcon: "assistant_navigation"
       text: Translation.tr("Enable GPS based location")
       checked: Config.options.bar.weather.enableGPS
       onCheckedChanged: {
@@ -182,7 +172,6 @@ ContentPage {
       }
     }
     ConfigSwitch {
-      buttonIcon: "thermometer"
       text: Translation.tr("Fahrenheit unit")
       checked: Config.options.bar.weather.useUSCS
       onCheckedChanged: {
@@ -203,7 +192,6 @@ ContentPage {
       }
     }
     ConfigSpinBox {
-      icon: "av_timer"
       text: Translation.tr("Polling interval (m)")
       value: Config.options.bar.weather.fetchInterval
       from: 5

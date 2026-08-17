@@ -29,7 +29,6 @@ ContentPage {
         spacing: 0
         MaterialSymbol {
           Layout.alignment: Qt.AlignHCenter
-          iconSize: 30
           text: dark ? "dark_mode" : "light_mode"
           color: smallLightDarkPreferenceButton.colText
         }
@@ -45,7 +44,6 @@ ContentPage {
 
   // Wallpaper selection
   ContentSection {
-    icon: "format_paint"
     title: Translation.tr("Wallpaper & Colors")
     Layout.fillWidth: true
 
@@ -131,7 +129,6 @@ ContentPage {
           }
 
           ToolbarPairedFab {
-            iconText: "colorize"
             onClicked: {
               Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--noswitch", "--color"]);
             }
@@ -140,122 +137,60 @@ ContentPage {
       }
     }
 
-    ContentSubsection {
+    ConfigComboBox {
       title: Translation.tr("Palette")
-      ConfigSelectionArray {
-        currentValue: Config.options.appearance.palette.type
-        onSelected: newValue => {
-          Config.options.appearance.palette.type = newValue;
-          Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath} --noswitch`]);
+      description: Translation.tr("Select the color palette to use for the system.")
+      textRole: "displayName"
+      model: [
+        {
+          "value": "auto",
+          "displayName": Translation.tr("Auto")
+        },
+        {
+          "value": "scheme-content",
+          "displayName": Translation.tr("Content")
+        },
+        {
+          "value": "scheme-expressive",
+          "displayName": Translation.tr("Expressive")
+        },
+        {
+          "value": "scheme-fidelity",
+          "displayName": Translation.tr("Fidelity")
+        },
+        {
+          "value": "scheme-fruit-salad",
+          "displayName": Translation.tr("Fruit Salad")
+        },
+        {
+          "value": "scheme-monochrome",
+          "displayName": Translation.tr("Monochrome")
+        },
+        {
+          "value": "scheme-neutral",
+          "displayName": Translation.tr("Neutral")
+        },
+        {
+          "value": "scheme-rainbow",
+          "displayName": Translation.tr("Rainbow")
+        },
+        {
+          "value": "scheme-tonal-spot",
+          "displayName": Translation.tr("Tonal Spot")
         }
-        options: [
-          {
-            "value": "auto",
-            "displayName": Translation.tr("Auto")
-          },
-          {
-            "value": "scheme-content",
-            "displayName": Translation.tr("Content")
-          },
-          {
-            "value": "scheme-expressive",
-            "displayName": Translation.tr("Expressive")
-          },
-          {
-            "value": "scheme-fidelity",
-            "displayName": Translation.tr("Fidelity")
-          },
-          {
-            "value": "scheme-fruit-salad",
-            "displayName": Translation.tr("Fruit Salad")
-          },
-          {
-            "value": "scheme-monochrome",
-            "displayName": Translation.tr("Monochrome")
-          },
-          {
-            "value": "scheme-neutral",
-            "displayName": Translation.tr("Neutral")
-          },
-          {
-            "value": "scheme-rainbow",
-            "displayName": Translation.tr("Rainbow")
-          },
-          {
-            "value": "scheme-tonal-spot",
-            "displayName": Translation.tr("Tonal Spot")
-          }
-        ]
+      ]
+      value: Config.options.appearance.palette.type
+      onSelected: newValue => {
+        Config.options.appearance.palette.type = newValue;
+        Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath} --noswitch`]);
       }
     }
 
     ConfigSwitch {
-      buttonIcon: "ev_shadow"
       text: Translation.tr("Transparency")
       checked: Config.options.appearance.transparency.enable
       onCheckedChanged: {
         Config.options.appearance.transparency.enable = checked;
-      }
-    }
-  }
-
-  ContentSection {
-    icon: "screenshot_monitor"
-    title: Translation.tr("Bar & screen")
-
-    ContentSubsection {
-      title: Translation.tr("Bar style")
-
-      ConfigSelectionArray {
-        currentValue: Config.options.bar.cornerStyle
-        onSelected: newValue => {
-          Config.options.bar.cornerStyle = newValue; // Update local copy
-        }
-        options: [
-          {
-            displayName: Translation.tr("Hug"),
-            icon: "line_curve",
-            value: 0
-          },
-          {
-            displayName: Translation.tr("Float"),
-            icon: "page_header",
-            value: 1
-          },
-          {
-            displayName: Translation.tr("Rect"),
-            icon: "toolbar",
-            value: 2
-          }
-        ]
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Screen round corner")
-
-      ConfigSelectionArray {
-        currentValue: Config.options.appearance.fakeScreenRounding
-        onSelected: newValue => {
-          Config.options.appearance.fakeScreenRounding = newValue;
-        }
-        options: [
-          {
-            displayName: Translation.tr("No"),
-            icon: "close",
-            value: 0
-          },
-          {
-            displayName: Translation.tr("Yes"),
-            icon: "check",
-            value: 1
-          },
-          {
-            displayName: Translation.tr("When not fullscreen"),
-            icon: "fullscreen_exit",
-            value: 2
-          }
-        ]
       }
     }
   }
