@@ -41,8 +41,6 @@ WindowDialog {
         left: parent.left
         right: parent.right
       }
-      iconSize: Appearance.font.pixelSize.larger
-      buttonIcon: "lightbulb"
       text: Translation.tr("Enable now")
       checked: Hyprsunset.active ?? false
       onCheckedChanged: {
@@ -55,8 +53,6 @@ WindowDialog {
         left: parent.left
         right: parent.right
       }
-      iconSize: Appearance.font.pixelSize.larger
-      buttonIcon: "night_sight_auto"
       text: Translation.tr("Automatic")
       checked: Config.options.light.night.automatic
       onCheckedChanged: {
@@ -101,8 +97,6 @@ WindowDialog {
         left: parent.left
         right: parent.right
       }
-      iconSize: Appearance.font.pixelSize.larger
-      buttonIcon: "flash_off"
       text: Translation.tr("Enable")
       checked: Config.options.light.antiFlashbang.enable
       onCheckedChanged: {

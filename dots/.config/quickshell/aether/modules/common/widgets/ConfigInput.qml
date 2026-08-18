@@ -6,16 +6,28 @@ import QtQuick.Layouts
 ContentSubsection {
   id: root
 
-  property string text: ""
-  property string placeholderText: ""
+  property alias text: input.text
+  property alias placeholderText: input.placeholderText
+  property int inputWidth: 200
 
   opacity: root.enabled ? 1 : 0.4
 
+  // Redeclaring default property here overrides the one inherited from
+  // ContentSubsection. Any child written inside "ConfigInput { ... }" by
+  // the caller now goes into extraContent instead of being appended after Input.
+  default property alias extraContent: extraContainer.data
+
+  ColumnLayout {
+    id: extraContainer
+    Layout.fillWidth: true
+    // caller's items land here, rendered before Input
+  }
+
   Input {
-    wrapMode: TextEdit.Wrap
-    Layout.fillWidth: root.title.visible & root.description.visible ? false : true
-    text: root.text
-    placeholderText: root.placeholderText
+    id: input
+    Layout.fillHeight: false
+    implicitWidth: root.inputWidth
+    implicitHeight: 35
     opacity: root.enabled ? 1 : 0.4
   }
 }

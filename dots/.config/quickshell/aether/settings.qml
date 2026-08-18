@@ -22,11 +22,6 @@ ApplicationWindow {
   property real contentPadding: 8
   property var pages: [
     {
-      name: Translation.tr("Quick"),
-      icon: "instant_mix",
-      component: "modules/settings/Quick.qml"
-    },
-    {
       name: Translation.tr("General"),
       icon: "settings",
       component: "modules/settings/General.qml"
@@ -94,6 +89,7 @@ ApplicationWindow {
     anchors.fill: parent
 
     RowLayout { // Window content with sidebar and content pane
+      spacing: 0
       Layout.fillWidth: true
       Layout.fillHeight: true
 
@@ -118,7 +114,6 @@ ApplicationWindow {
             Layout.topMargin: 30
             Layout.bottomMargin: 0
             font.pixelSize: Appearance.font.pixelSize.smaller
-            font.bold: true
             color: Appearance.colors.colSubtext
             text: Translation.tr("Options")
           }
@@ -126,8 +121,8 @@ ApplicationWindow {
           ListView {
             Layout.fillHeight: true
             Layout.margins: 4
-            Layout.leftMargin: 15
-            Layout.rightMargin: 15
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
             implicitWidth: 180
             clip: true
             model: root.pages
@@ -141,10 +136,15 @@ ApplicationWindow {
                 right: parent.right
               }
 
+              Layout.margins: 0
+
               rippleEnabled: false
 
               toggled: root.currentPage === index
-              onPressed: root.currentPage = index
+              onPressed: {
+                root.currentPage = index;
+                SettingsNav.close(); // leaving the page, any open subpage no longer applies
+              }
 
               colBackgroundHover: Appearance.colors.colLayer2Hover
               colBackgroundToggled: Appearance.colors.colSecondaryContainer
@@ -154,7 +154,7 @@ ApplicationWindow {
               contentItem: RowLayout {
                 MaterialSymbol {
                   color: sideBarButton.toggled ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnLayer1
-                  iconSize: Appearance.font.pixelSize.larger
+                  iconSize: Appearance.font.pixelSize.large
                   text: sideBarButton.modelData.icon
                   fill: sideBarButton.toggled ? 1 : 0
                 }
@@ -189,57 +189,186 @@ ApplicationWindow {
         }
       }
 
-      Rectangle { // Content container
+      ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
-        color: Appearance.m3colors.m3background
 
-        Loader {
-          id: pageLoader
-          anchors.fill: parent
-          opacity: 1.0
+        Rectangle { // Header: back button appears only while a subpage is open
+          Layout.fillWidth: true
+          implicitHeight: SettingsNav.subPageOpen ? 60 : 0
+          clip: true
+          visible: opacity > 0
+          opacity: SettingsNav.subPageOpen ? 1 : 0
 
-          active: Config.ready
-          Component.onCompleted: {
-            source = root.pages[0].component;
+          color: "transparent"
+
+          // Same fade used by the content wrappers below, plus a height
+          // reveal so the page underneath doesn't jump when the header
+          // appears/disappears.
+          Behavior on implicitHeight {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+          }
+          Behavior on opacity {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
           }
 
-          Connections {
-            target: root
-            function onCurrentPageChanged() {
-              switchAnim.complete();
-              switchAnim.start();
-            }
-          }
+          RowLayout {
+            id: header
+            anchors.fill: parent
+            anchors.leftMargin: 50
+            spacing: 10
 
-          SequentialAnimation {
-            id: switchAnim
+            RippleButton {
+              buttonRadius: Appearance.rounding.small
+              colBackgroundHover: Appearance.colors.colLayer2Hover
 
-            NumberAnimation {
-              target: pageLoader
-              properties: "opacity"
-              from: 1
-              to: 0
-              duration: 100
-              easing.type: Appearance.animation.elementMoveExit.type
-              easing.bezierCurve: Appearance.animationCurves.emphasizedFirstHalf
-            }
-            ParallelAnimation {
-              PropertyAction {
-                target: pageLoader
-                property: "source"
-                value: root.pages[root.currentPage].component
+              onPressed: SettingsNav.close()
+
+              contentItem: MaterialSymbol {
+                anchors.centerIn: parent
+                color: Appearance.colors.colOnLayer1
+                iconSize: Appearance.font.pixelSize.large
+                text: "chevron_left"
               }
             }
-            ParallelAnimation {
-              NumberAnimation {
-                target: pageLoader
-                properties: "opacity"
-                from: 0
-                to: 1
-                duration: 200
-                easing.type: Appearance.animation.elementMoveEnter.type
-                easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
+
+            StyledText {
+              Layout.fillWidth: true
+              font.pixelSize: Appearance.font.pixelSize.large
+              color: Appearance.colors.colOnLayer1
+              text: SettingsNav.subPageOpen ? SettingsNav.subPageTitle : (root.pages[root.currentPage]?.name ?? "")
+            }
+          }
+        }
+
+        Rectangle { // Content container
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: Appearance.m3colors.m3background
+
+          // Regular page content, loaded from a file path as before.
+          Item {
+            id: mainContentWrapper
+            anchors.fill: parent
+            visible: opacity > 0
+            opacity: SettingsNav.subPageOpen ? 0 : 1
+
+            Behavior on opacity {
+              animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            }
+
+            Loader {
+              id: pageLoader
+              anchors.fill: parent
+              opacity: 1.0
+
+              active: Config.ready
+              Component.onCompleted: {
+                source = root.pages[0].component;
+              }
+
+              Connections {
+                target: root
+                function onCurrentPageChanged() {
+                  switchAnim.complete();
+                  switchAnim.start();
+                }
+              }
+
+              SequentialAnimation {
+                id: switchAnim
+
+                NumberAnimation {
+                  target: pageLoader
+                  properties: "opacity"
+                  from: 1
+                  to: 0
+                  duration: 100
+                  easing.type: Appearance.animation.elementMoveExit.type
+                  easing.bezierCurve: Appearance.animationCurves.emphasizedFirstHalf
+                }
+                ParallelAnimation {
+                  PropertyAction {
+                    target: pageLoader
+                    property: "source"
+                    value: root.pages[root.currentPage].component
+                  }
+                }
+                ParallelAnimation {
+                  NumberAnimation {
+                    target: pageLoader
+                    properties: "opacity"
+                    from: 0
+                    to: 1
+                    duration: 200
+                    easing.type: Appearance.animation.elementMoveEnter.type
+                    easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
+                  }
+                }
+              }
+            }
+          }
+
+          // Subpage content, opened dynamically by ConfigSubPageButton.onPressed
+          // (or any code) calling SettingsNav.open(title, component) from
+          // inside whatever page is currently loaded above.
+          Item {
+            id: subPageWrapper
+            anchors.fill: parent
+            visible: opacity > 0
+            opacity: SettingsNav.subPageOpen ? 1 : 0
+
+            Behavior on opacity {
+              animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            }
+
+            Loader {
+              id: subPageLoader
+              anchors.fill: parent
+              opacity: 1.0
+
+              active: SettingsNav.subPageOpen
+
+              Connections {
+                target: SettingsNav
+                function onSubPageComponentChanged() {
+                  if (!SettingsNav.subPageOpen)
+                    return; // being closed, subPageWrapper's own fade handles this
+                  subPageSwitchAnim.complete();
+                  subPageSwitchAnim.start();
+                }
+              }
+
+              SequentialAnimation {
+                id: subPageSwitchAnim
+
+                NumberAnimation {
+                  target: subPageLoader
+                  properties: "opacity"
+                  from: 1
+                  to: 0
+                  duration: 100
+                  easing.type: Appearance.animation.elementMoveExit.type
+                  easing.bezierCurve: Appearance.animationCurves.emphasizedFirstHalf
+                }
+                ParallelAnimation {
+                  PropertyAction {
+                    target: subPageLoader
+                    property: "sourceComponent"
+                    value: SettingsNav.subPageComponent
+                  }
+                }
+                ParallelAnimation {
+                  NumberAnimation {
+                    target: subPageLoader
+                    properties: "opacity"
+                    from: 0
+                    to: 1
+                    duration: 200
+                    easing.type: Appearance.animation.elementMoveEnter.type
+                    easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
+                  }
+                }
               }
             }
           }

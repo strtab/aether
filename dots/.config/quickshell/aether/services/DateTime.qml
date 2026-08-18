@@ -7,7 +7,7 @@ import Quickshell
 import Quickshell.Io
 
 /**
- * A nice wrapper for date and time strings.
+ * A wrapper for date and time strings.
  */
 Singleton {
     property var clock: SystemClock {

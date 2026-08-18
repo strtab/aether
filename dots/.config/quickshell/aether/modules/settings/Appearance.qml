@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import qs.services
 import qs.modules.common
 import qs.modules.common.functions
@@ -29,9 +30,112 @@ ContentPage {
       onSelected: newValue => Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath} --mode ${newValue} --noswitch`])
     }
 
+    ConfigSwitch {
+      title: Translation.tr("Transparency")
+      checked: Config.options.appearance.transparency.enable
+      onCheckedChanged: {
+        Config.options.appearance.transparency.enable = checked;
+      }
+    }
+
+    RowLayout {
+      Layout.fillWidth: true
+      spacing: 8
+
+      ConfigInput {
+        id: accentColorInput
+        title: Translation.tr("Accent Color")
+        description: Translation.tr("")
+        placeholderText: Translation.tr("Example: #000000")
+        text: Config.options.appearance.palette.accentColor
+        inputWidth: 200
+        onFocusChanged: {
+          debounceTimer.restart();
+        }
+        onTextChanged: {
+          Config.options.appearance.palette.accentColor = text;
+          debounceTimer.restart();
+        }
+        RippleButtonWithIcon {
+          onClicked: {
+            Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--noswitch", "--color"]);
+          }
+          contentItem: MaterialSymbol {
+            anchors.centerIn: parent
+            color: Appearance.colors.colOnLayer1
+            iconSize: Appearance.font.pixelSize.normal
+            text: "colorize"
+          }
+        }
+
+        Timer {
+          id: debounceTimer
+          interval: 600
+          repeat: false
+          onTriggered: {
+            const color = accentColorInput.text.trim();
+            const isValidHex = /^#[0-9A-Fa-f]{6}$/.test(color);
+            if (!isValidHex)
+              return;
+            Config.options.appearance.palette.accentColor = accentColorInput.text;
+            Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--noswitch", "--color", Config.options.appearance.palette.accentColor]);
+          }
+        }
+      }
+    }
+
+    ConfigComboBox {
+      title: Translation.tr("Palette")
+      description: Translation.tr("Select the color palette to use for the system.")
+      textRole: "displayName"
+      model: [
+        {
+          "value": "auto",
+          "displayName": Translation.tr("Auto")
+        },
+        {
+          "value": "scheme-content",
+          "displayName": Translation.tr("Content")
+        },
+        {
+          "value": "scheme-expressive",
+          "displayName": Translation.tr("Expressive")
+        },
+        {
+          "value": "scheme-fidelity",
+          "displayName": Translation.tr("Fidelity")
+        },
+        {
+          "value": "scheme-fruit-salad",
+          "displayName": Translation.tr("Fruit Salad")
+        },
+        {
+          "value": "scheme-monochrome",
+          "displayName": Translation.tr("Monochrome")
+        },
+        {
+          "value": "scheme-neutral",
+          "displayName": Translation.tr("Neutral")
+        },
+        {
+          "value": "scheme-rainbow",
+          "displayName": Translation.tr("Rainbow")
+        },
+        {
+          "value": "scheme-tonal-spot",
+          "displayName": Translation.tr("Tonal Spot")
+        }
+      ]
+      value: Config.options.appearance.palette.type
+      onSelected: newValue => {
+        Config.options.appearance.palette.type = newValue;
+        Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath} --noswitch`]);
+      }
+    }
+
     ConfigSubPageButton {
       Layout.fillWidth: true
-      text: Translation.tr("Appearance")
+      text: Translation.tr("Typography")
       description: Translation.tr("Customize the fonts")
       targetComponent: typographySubPage
     }

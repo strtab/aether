@@ -87,7 +87,7 @@ ContentPage {
   ContentSection {
     title: Translation.tr("General")
     ConfigSwitch {
-      text: Translation.tr("Enable")
+      title: Translation.tr("Enable")
       checked: Config.options.background.enable
       onCheckedChanged: {
         Config.options.background.enable = checked;
@@ -99,7 +99,7 @@ ContentPage {
     title: Translation.tr("Parallax")
 
     ConfigSwitch {
-      text: Translation.tr("Vertical")
+      title: Translation.tr("Vertical")
       checked: Config.options.background.parallax.vertical
       onCheckedChanged: {
         Config.options.background.parallax.vertical = checked;
@@ -107,21 +107,21 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Depends on workspace")
+      title: Translation.tr("Depends on workspace")
       checked: Config.options.background.parallax.enableWorkspace
       onCheckedChanged: {
         Config.options.background.parallax.enableWorkspace = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr("Depends on sidebars")
+      title: Translation.tr("Depends on sidebars")
       checked: Config.options.background.parallax.enableSidebar
       onCheckedChanged: {
         Config.options.background.parallax.enableSidebar = checked;
       }
     }
     ConfigSpinBox {
-      text: Translation.tr("Preferred wallpaper zoom (%)")
+      title: Translation.tr("Preferred wallpaper zoom (%)")
       value: Config.options.background.parallax.workspaceZoom * 100
       from: 100
       to: 150
@@ -150,7 +150,7 @@ ContentPage {
     readonly property bool cookiePresent: stylePresent("cookie")
 
     ConfigSwitch {
-      text: Translation.tr("Enable")
+      title: Translation.tr("Enable")
       checked: Config.options.background.widgets.clock.enable
       onCheckedChanged: {
         Config.options.background.widgets.clock.enable = checked;
@@ -181,7 +181,7 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Show only when locked")
+      title: Translation.tr("Show only when locked")
       checked: Config.options.background.widgets.clock.showOnlyWhenLocked
       onCheckedChanged: {
         Config.options.background.widgets.clock.showOnlyWhenLocked = checked;
@@ -227,7 +227,7 @@ ContentPage {
       ]
     }
     ConfigSwitch {
-      text: Translation.tr("Enable quote")
+      title: Translation.tr("Enable quote")
       checked: Config.options.background.widgets.clock.quote.enable
       onCheckedChanged: {
         Config.options.background.widgets.clock.quote.enable = checked;
@@ -249,14 +249,14 @@ ContentPage {
     title: Translation.tr("Digital clock settings")
 
     ConfigSwitch {
-      text: Translation.tr("Vertical")
+      title: Translation.tr("Vertical")
       checked: Config.options.background.widgets.clock.digital.vertical
       onCheckedChanged: {
         Config.options.background.widgets.clock.digital.vertical = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr("Animate time change")
+      title: Translation.tr("Animate time change")
       checked: Config.options.background.widgets.clock.digital.animateChange
       onCheckedChanged: {
         Config.options.background.widgets.clock.digital.animateChange = checked;
@@ -264,14 +264,14 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Show date")
+      title: Translation.tr("Show date")
       checked: Config.options.background.widgets.clock.digital.showDate
       onCheckedChanged: {
         Config.options.background.widgets.clock.digital.showDate = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr("Use adaptive alignment")
+      title: Translation.tr("Use adaptive alignment")
       checked: Config.options.background.widgets.clock.digital.adaptiveAlignment
       onCheckedChanged: {
         Config.options.background.widgets.clock.digital.adaptiveAlignment = checked;
@@ -343,7 +343,7 @@ ContentPage {
     title: Translation.tr("Cookie clock settings")
 
     ConfigSwitch {
-      text: Translation.tr("Use old sine wave cookie implementation")
+      title: Translation.tr("Use old sine wave cookie implementation")
       checked: Config.options.background.widgets.clock.cookie.useSineCookie
       onCheckedChanged: {
         Config.options.background.widgets.clock.cookie.useSineCookie = checked;
@@ -354,7 +354,7 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      text: Translation.tr("Sides")
+      title: Translation.tr("Sides")
       value: Config.options.background.widgets.clock.cookie.sides
       from: 0
       to: 40
@@ -365,7 +365,7 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Constantly rotate")
+      title: Translation.tr("Constantly rotate")
       checked: Config.options.background.widgets.clock.cookie.constantlyRotate
       onCheckedChanged: {
         Config.options.background.widgets.clock.cookie.constantlyRotate = checked;
@@ -377,7 +377,7 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.background.widgets.clock.cookie.dialNumberStyle === "dots" || Config.options.background.widgets.clock.cookie.dialNumberStyle === "full"
-      text: Translation.tr("Hour marks")
+      title: Translation.tr("Hour marks")
       checked: Config.options.background.widgets.clock.cookie.hourMarks
       onEnabledChanged: {
         checked = Config.options.background.widgets.clock.cookie.hourMarks;
@@ -392,7 +392,7 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.background.widgets.clock.cookie.dialNumberStyle !== "numbers"
-      text: Translation.tr("Digits in the middle")
+      title: Translation.tr("Digits in the middle")
       checked: Config.options.background.widgets.clock.cookie.timeIndicators
       onEnabledChanged: {
         checked = Config.options.background.widgets.clock.cookie.timeIndicators;
@@ -560,7 +560,7 @@ ContentPage {
     title: Translation.tr("Widget: Weather")
 
     ConfigSwitch {
-      text: Translation.tr("Enable")
+      title: Translation.tr("Enable")
       checked: Config.options.background.widgets.weather.enable
       onCheckedChanged: {
         Config.options.background.widgets.weather.enable = checked;

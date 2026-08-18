@@ -6,7 +6,6 @@ ContentSubsection {
   id: root
 
   // Combo box appearance
-  property string buttonIcon: ""
   property string textRole: "displayName"
   // Key inside each model item that holds the actual value (as opposed to the display label)
   property string valueRole: "value"
@@ -24,7 +23,6 @@ ContentSubsection {
 
   StyledComboBox {
     id: comboBox
-    buttonIcon: root.buttonIcon
     textRole: root.textRole
     model: root.model
 

@@ -11,7 +11,7 @@ ContentPage {
     title: Translation.tr("Music Recognition")
 
     ConfigSpinBox {
-      text: Translation.tr("Total duration timeout (s)")
+      title: Translation.tr("Total duration timeout (s)")
       value: Config.options.musicRecognition.timeout
       from: 10
       to: 100
@@ -21,7 +21,7 @@ ContentPage {
       }
     }
     ConfigSpinBox {
-      text: Translation.tr("Polling interval (s)")
+      title: Translation.tr("Polling interval (s)")
       value: Config.options.musicRecognition.interval
       from: 2
       to: 10
@@ -50,7 +50,7 @@ ContentPage {
     title: Translation.tr("Resources")
 
     ConfigSpinBox {
-      text: Translation.tr("Polling interval (ms)")
+      title: Translation.tr("Polling interval (ms)")
       value: Config.options.resources.updateInterval
       from: 100
       to: 10000
@@ -86,99 +86,20 @@ ContentPage {
   }
 
   ContentSection {
-    title: Translation.tr("Search")
-
-    ConfigSwitch {
-      text: Translation.tr("Use Levenshtein distance-based algorithm instead of fuzzy")
-      checked: Config.options.search.sloppy
-      onCheckedChanged: {
-        Config.options.search.sloppy = checked;
-      }
-      StyledToolTip {
-        text: Translation.tr("Could be better if you make a ton of typos,\nbut results can be weird and might not work with acronyms\n(e.g. \"GIMP\" might not give you the paint program)")
-      }
-    }
-
-    ContentSubsection {
-      title: Translation.tr("Prefixes")
-      Input {
-        Layout.fillWidth: true
-        placeholderText: Translation.tr("Action")
-        text: Config.options.search.prefix.action
-        wrapMode: TextEdit.Wrap
-        onTextChanged: {
-          Config.options.search.prefix.action = text;
-        }
-      }
-      Input {
-        Layout.fillWidth: true
-        placeholderText: Translation.tr("Clipboard")
-        text: Config.options.search.prefix.clipboard
-        wrapMode: TextEdit.Wrap
-        onTextChanged: {
-          Config.options.search.prefix.clipboard = text;
-        }
-      }
-
-      Input {
-        Layout.fillWidth: true
-        placeholderText: Translation.tr("Math")
-        text: Config.options.search.prefix.math
-        wrapMode: TextEdit.Wrap
-        onTextChanged: {
-          Config.options.search.prefix.math = text;
-        }
-      }
-      Input {
-        Layout.fillWidth: true
-        placeholderText: Translation.tr("Shell command")
-        text: Config.options.search.prefix.shellCommand
-        wrapMode: TextEdit.Wrap
-        onTextChanged: {
-          Config.options.search.prefix.shellCommand = text;
-        }
-      }
-      Input {
-        Layout.fillWidth: true
-        placeholderText: Translation.tr("Web search")
-        text: Config.options.search.prefix.webSearch
-        wrapMode: TextEdit.Wrap
-        onTextChanged: {
-          Config.options.search.prefix.webSearch = text;
-        }
-      }
-    }
-    ContentSubsection {
-      title: Translation.tr("Web search")
-      Input {
-        Layout.fillWidth: true
-        placeholderText: Translation.tr("Base URL")
-        text: Config.options.search.engineBaseUrl
-        wrapMode: TextEdit.Wrap
-        onTextChanged: {
-          Config.options.search.engineBaseUrl = text;
-        }
-      }
-    }
-  }
-
-  ContentSection {
     title: Translation.tr("Weather")
     ConfigSwitch {
-      text: Translation.tr("Enable GPS based location")
+      title: Translation.tr("Enable GPS based location")
       checked: Config.options.bar.weather.enableGPS
       onCheckedChanged: {
         Config.options.bar.weather.enableGPS = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr("Fahrenheit unit")
+      title: Translation.tr("Fahrenheit unit")
+      description:  Translation.tr("It may take a few seconds to update")
       checked: Config.options.bar.weather.useUSCS
       onCheckedChanged: {
         Config.options.bar.weather.useUSCS = checked;
-      }
-      StyledToolTip {
-        text: Translation.tr("It may take a few seconds to update")
       }
     }
 
@@ -192,7 +113,7 @@ ContentPage {
       }
     }
     ConfigSpinBox {
-      text: Translation.tr("Polling interval (m)")
+      title: Translation.tr("Polling interval (m)")
       value: Config.options.bar.weather.fetchInterval
       from: 5
       to: 50

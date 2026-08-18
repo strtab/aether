@@ -155,7 +155,7 @@ GroupButton {
             left: parent.left
             right: parent.right
           }
-          font.pixelSize: Appearance.font.pixelSize.smallie
+          font.pixelSize: Appearance.font.pixelSize.smaller
           font.weight: 600
           color: root.colText
           elide: Text.ElideRight

@@ -12,31 +12,6 @@ ContentPage {
   id: page
   forceWidth: true
 
-  function goTo(term) {
-    const t = term.toLowerCase().trim();
-
-    function findTarget(rootItem) {
-      for (let i = 0; i < rootItem.children.length; i++) {
-        let child = rootItem.children[i];
-        if (child.title && child.title.toLowerCase().includes(t)) {
-          return child;
-        }
-      }
-      for (let i = 0; i < rootItem.children.length; i++) {
-        let found = findTarget(rootItem.children[i]);
-        if (found)
-          return found;
-      }
-      return null;
-    }
-
-    let target = findTarget(mainLayout);
-    if (target) {
-      let pos = target.mapToItem(mainLayout, 0, 0);
-      page.contentY = Math.max(0, pos.y - 0);
-    }
-  }
-
   Component.onCompleted: {
     const h = Config.options.hyprland;
     HyprlandConfig.setMany({
@@ -88,7 +63,7 @@ ContentPage {
         title: (monitorConfig.monitors[monitorCanvas.selectedIndex]?.name ?? "") + " · " + (monitorConfig.monitors[monitorCanvas.selectedIndex]?.description ?? "")
 
         ConfigSwitch {
-          text: Translation.tr("Enabled")
+          title: Translation.tr("Enabled")
           checked: !(monitorConfig.monitors[monitorCanvas.selectedIndex]?.disabled ?? false)
           onCheckedChanged: {
             monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
@@ -153,7 +128,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Scale")
+          title: Translation.tr("Scale")
           value: Math.round((monitorConfig.monitors[monitorCanvas.selectedIndex]?.scale ?? 1.0) * 100)
           from: 50
           to: 300
@@ -167,7 +142,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Position X")
+          title: Translation.tr("Position X")
           value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.x ?? 0
           from: 0
           to: 7680
@@ -181,7 +156,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Position Y")
+          title: Translation.tr("Position Y")
           value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.y ?? 0
           from: 0
           to: 4320
@@ -236,7 +211,7 @@ ContentPage {
           title: Translation.tr("Keyboard layout")
           description: Translation.tr("Examples: us, es, latam")
           placeholderText: Translation.tr("Keyboard layout")
-          text: Config.options.hyprland.input.kbLayout
+          title: Config.options.hyprland.input.kbLayout
           onTextChanged: {
             Config.options.hyprland.input.kbLayout = text;
             HyprlandConfig.set("input:kb_layout", text);
@@ -244,7 +219,7 @@ ContentPage {
         }
 
         ConfigSwitch {
-          text: Translation.tr("Numlock by default")
+          title: Translation.tr("Numlock by default")
           checked: Config.options.hyprland.input.numlock
           onCheckedChanged: {
             Config.options.hyprland.input.numlock = checked;
@@ -253,7 +228,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Repeat delay (ms)")
+          title: Translation.tr("Repeat delay (ms)")
           value: Config.options.hyprland.input.repeatDelay
           from: 100
           to: 1000
@@ -265,7 +240,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Repeat rate")
+          title: Translation.tr("Repeat rate")
           value: Config.options.hyprland.input.repeatRate
           from: 10
           to: 100
@@ -309,7 +284,7 @@ ContentPage {
         title: Translation.tr("Touchpad")
 
         ConfigSwitch {
-          text: Translation.tr("Natural scroll")
+          title: Translation.tr("Natural scroll")
           checked: Config.options.hyprland.input.touchpad.naturalScroll
           onCheckedChanged: {
             Config.options.hyprland.input.touchpad.naturalScroll = checked;
@@ -318,7 +293,7 @@ ContentPage {
         }
 
         ConfigSwitch {
-          text: Translation.tr("Disable while typing")
+          title: Translation.tr("Disable while typing")
           checked: Config.options.hyprland.input.touchpad.disableWhileTyping
           onCheckedChanged: {
             Config.options.hyprland.input.touchpad.disableWhileTyping = checked;
@@ -327,7 +302,7 @@ ContentPage {
         }
 
         ConfigSwitch {
-          text: Translation.tr("Clickfinger behavior")
+          title: Translation.tr("Clickfinger behavior")
           checked: Config.options.hyprland.input.touchpad.clickfingerBehavior
           onCheckedChanged: {
             Config.options.hyprland.input.touchpad.clickfingerBehavior = checked;
@@ -336,7 +311,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Scroll factor")
+          title: Translation.tr("Scroll factor")
           value: Math.round(Config.options.hyprland.input.touchpad.scrollFactor * 10)
           from: 1
           to: 30
@@ -354,7 +329,7 @@ ContentPage {
       title: Translation.tr("Visual & Aesthetics")
 
       ConfigSpinBox {
-        text: Translation.tr("Window Rounding")
+        title: Translation.tr("Window Rounding")
         value: Config.options.hyprland.decoration.rounding
         from: 0
         to: 30
@@ -366,7 +341,7 @@ ContentPage {
       }
 
       ConfigSpinBox {
-        text: Translation.tr("Border Size")
+        title: Translation.tr("Border Size")
         value: Config.options.hyprland.general.borderSize
         from: 0
         to: 10
@@ -380,7 +355,7 @@ ContentPage {
       ContentSubsection {
         title: Translation.tr("Blur")
         ConfigSwitch {
-          text: Translation.tr("Blur")
+          title: Translation.tr("Blur")
           checked: Config.options.hyprland.decoration.blur.enabled
           onCheckedChanged: {
             Config.options.hyprland.decoration.blur.enabled = checked;
@@ -389,7 +364,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Blur Size")
+          title: Translation.tr("Blur Size")
           value: Config.options.hyprland.decoration.blur.size
           from: 1
           to: 20
@@ -401,7 +376,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Blur Passes")
+          title: Translation.tr("Blur Passes")
           value: Config.options.hyprland.decoration.blur.passes
           from: 1
           to: 6
@@ -417,7 +392,7 @@ ContentPage {
         title: Translation.tr("Gaps")
 
         ConfigSpinBox {
-          text: Translation.tr("Gaps In")
+          title: Translation.tr("Gaps In")
           value: Config.options.hyprland.general.gapsIn
           from: 0
           to: 40
@@ -429,7 +404,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Gaps Out")
+          title: Translation.tr("Gaps Out")
           value: Config.options.hyprland.general.gapsOut
           from: 0
           to: 60
@@ -445,7 +420,7 @@ ContentPage {
         title: Translation.tr("Opacity")
 
         ConfigSpinBox {
-          text: Translation.tr("Active Opacity")
+          title: Translation.tr("Active Opacity")
           value: Math.round(Config.options.hyprland.decoration.activeOpacity * 100)
           from: 10
           to: 100
@@ -457,7 +432,7 @@ ContentPage {
         }
 
         ConfigSpinBox {
-          text: Translation.tr("Inactive Opacity")
+          title: Translation.tr("Inactive Opacity")
           value: Math.round(Config.options.hyprland.decoration.inactiveOpacity * 100)
           from: 10
           to: 100
@@ -475,7 +450,7 @@ ContentPage {
       title: Translation.tr("Animations")
 
       ConfigSwitch {
-        text: Translation.tr("Enable Animations")
+        title: Translation.tr("Enable Animations")
         checked: Config.options.hyprland.animations.enable
         onCheckedChanged: {
           Config.options.hyprland.animations.enable = checked;

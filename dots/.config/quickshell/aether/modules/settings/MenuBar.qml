@@ -11,7 +11,7 @@ ContentPage {
     title: Translation.tr("")
 
     ConfigSwitch {
-      text: Translation.tr("Enable the menu bar")
+      title: Translation.tr("Enable the menu bar")
       description: Translation.tr("Turn the entire top bar on or off.")
       checked: Config.options.bar.enable
       onCheckedChanged: {
@@ -68,7 +68,7 @@ ContentPage {
 
     ConfigSpinBox {
       enabled: Config.options.bar.autoHide.enable
-      text: Translation.tr("Hover trigger region width (px)")
+      title: Translation.tr("Hover trigger region width (px)")
       // description: Translation.tr("Width of the invisible edge area that reveals the bar when the mouse touches it.")
       value: Config.options.bar.autoHide.hoverRegionWidth
       from: 1
@@ -81,7 +81,7 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.bar.autoHide.enable
-      text: Translation.tr("Push windows down")
+      title: Translation.tr("Push windows down")
       description: Translation.tr("Reserve space for the bar instead of overlaying windows when it is shown.")
       checked: Config.options.bar.autoHide.pushWindows
       onCheckedChanged: {
@@ -91,7 +91,7 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.bar.autoHide.enable
-      text: Translation.tr("Show when pressing Super")
+      title: Translation.tr("Show when pressing Super")
       description: Translation.tr("Temporarily reveal the auto-hidden bar while the Super key is held down.")
       checked: Config.options.bar.autoHide.showWhenPressingSuper.enable
       onCheckedChanged: {
@@ -101,7 +101,7 @@ ContentPage {
 
     ConfigSpinBox {
       enabled: Config.options.bar.autoHide.enable && Config.options.bar.autoHide.showWhenPressingSuper.enable
-      text: Translation.tr("Show delay when pressing Super (ms)")
+      title: Translation.tr("Show delay when pressing Super (ms)")
       // description: Translation.tr("How long Super must be held before the bar appears.")
       value: Config.options.bar.autoHide.showWhenPressingSuper.delay
       from: 0
@@ -116,7 +116,7 @@ ContentPage {
   ContentSection {
     title: Translation.tr("Style")
     ConfigSwitch {
-      text: Translation.tr('Show menu bar background')
+      title: Translation.tr('Show menu bar background')
       checked: Config.options.bar.background.enable
       onCheckedChanged: {
         Config.options.bar.background.enable = checked;
@@ -214,7 +214,7 @@ ContentPage {
     title: Translation.tr("Workspaces")
 
     ConfigSwitch {
-      text: Translation.tr('Enable')
+      title: Translation.tr('Enable')
       checked: Config.options.bar.workspaces.enable
       onCheckedChanged: {
         Config.options.bar.workspaces.enable = checked;
@@ -223,7 +223,7 @@ ContentPage {
 
     ConfigSwitch {
       visible: Config.options.bar.workspaces.enable
-      text: Translation.tr('Always show numbers')
+      title: Translation.tr('Always show numbers')
       checked: Config.options.bar.workspaces.alwaysShowNumbers
       onCheckedChanged: {
         Config.options.bar.workspaces.alwaysShowNumbers = checked;
@@ -248,7 +248,7 @@ ContentPage {
 
     ConfigSwitch {
       visible: Config.options.bar.workspaces.enable
-      text: Translation.tr("Use Nerd Font glyphs")
+      title: Translation.tr("Use Nerd Font glyphs")
       checked: Config.options.bar.workspaces.useNerdFont
       onCheckedChanged: {
         Config.options.bar.workspaces.useNerdFont = checked;
@@ -257,7 +257,7 @@ ContentPage {
 
     ConfigSpinBox {
       visible: Config.options.bar.workspaces.enable
-      text: Translation.tr("Workspaces shown")
+      title: Translation.tr("Workspaces shown")
       value: Config.options.bar.workspaces.shown
       from: 1
       to: 30
@@ -269,7 +269,7 @@ ContentPage {
 
     ConfigSpinBox {
       visible: Config.options.bar.workspaces.enable
-      text: Translation.tr("Number show delay when pressing Super (ms)")
+      title: Translation.tr("Number show delay when pressing Super (ms)")
       value: Config.options.bar.workspaces.showNumberDelay
       from: 0
       to: 1000
@@ -308,7 +308,7 @@ ContentPage {
     title: Translation.tr("Resources")
 
     ConfigSwitch {
-      text: Translation.tr("Always show swap usage")
+      title: Translation.tr("Always show swap usage")
       description: Translation.tr("Keep the swap indicator visible even when swap usage is low.")
       checked: Config.options.bar.resources.alwaysShowSwap
       onCheckedChanged: {
@@ -317,7 +317,7 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Always show CPU usage")
+      title: Translation.tr("Always show CPU usage")
       description: Translation.tr("Keep the CPU indicator visible even when usage is low.")
       checked: Config.options.bar.resources.alwaysShowCpu
       onCheckedChanged: {
@@ -326,7 +326,7 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      text: Translation.tr("Memory warning threshold (%)")
+      title: Translation.tr("Memory warning threshold (%)")
       // description: Translation.tr("Highlight the memory indicator once usage crosses this percentage.")
       value: Config.options.bar.resources.memoryWarningThreshold
       from: 0
@@ -338,7 +338,7 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      text: Translation.tr("Swap warning threshold (%)")
+      title: Translation.tr("Swap warning threshold (%)")
       // description: Translation.tr("Highlight the swap indicator once usage crosses this percentage.")
       value: Config.options.bar.resources.swapWarningThreshold
       from: 0
@@ -350,7 +350,7 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      text: Translation.tr("CPU warning threshold (%)")
+      title: Translation.tr("CPU warning threshold (%)")
       // description: Translation.tr("Highlight the CPU indicator once usage crosses this percentage.")
       value: Config.options.bar.resources.cpuWarningThreshold
       from: 0
@@ -366,7 +366,7 @@ ContentPage {
     title: Translation.tr("Weather")
 
     ConfigSwitch {
-      text: Translation.tr("Use GPS location")
+      title: Translation.tr("Use GPS location")
       description: Translation.tr("Detect your location automatically instead of entering a city manually.")
       checked: Config.options.bar.weather.enableGPS
       onCheckedChanged: {
@@ -394,7 +394,7 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Use imperial units")
+      title: Translation.tr("Use imperial units")
       description: Translation.tr("Show temperature and wind speed in imperial units (Fahrenheit, mph) instead of metric.")
       checked: Config.options.bar.weather.useUSCS
       onCheckedChanged: {
@@ -403,7 +403,7 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      text: Translation.tr("Update interval (minutes)")
+      title: Translation.tr("Update interval (minutes)")
       // description: Translation.tr("How often the weather forecast is refreshed.")
       value: Config.options.bar.weather.fetchInterval
       from: 1
@@ -419,7 +419,7 @@ ContentPage {
     title: Translation.tr("Clock")
 
     ConfigSwitch {
-      text: Translation.tr("Show clock")
+      title: Translation.tr("Show clock")
       description: Translation.tr("Display the clock widget on the bar.")
       checked: Config.options.bar.clock.enable
       onCheckedChanged: {
@@ -429,7 +429,7 @@ ContentPage {
 
     ConfigSwitch {
       enabled: Config.options.bar.clock.enable
-      text: Translation.tr("Show date")
+      title: Translation.tr("Show date")
       description: Translation.tr("Also display the date next to the time.")
       checked: Config.options.bar.clock.showDate
       onCheckedChanged: {

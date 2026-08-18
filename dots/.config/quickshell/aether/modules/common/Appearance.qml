@@ -448,12 +448,10 @@ Singleton {
         })
     }
     property QtObject pixelSize: QtObject {
-      property int smallest: Math.round(10 * root.fontSizeScale)
       property int smaller: Math.round(12 * root.fontSizeScale)
-      property int smallie: Math.round(13 * root.fontSizeScale)
-      property int small: Math.round(15 * root.fontSizeScale)
-      property int normal: Math.round(16 * root.fontSizeScale)
-      property int large: Math.round(17 * root.fontSizeScale)
+      property int small: Math.round(13 * root.fontSizeScale)
+      property int normal: Math.round(14 * root.fontSizeScale)
+      property int large: Math.round(16 * root.fontSizeScale)
       property int larger: Math.round(19 * root.fontSizeScale)
       property int huge: Math.round(22 * root.fontSizeScale)
       property int hugeass: Math.round(23 * root.fontSizeScale)

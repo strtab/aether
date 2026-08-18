@@ -29,7 +29,7 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Use macOS-like symbols for mods keys")
+      title: Translation.tr("Use macOS-like symbols for mods keys")
       checked: Config.options.cheatsheet.useMacSymbol
       onCheckedChanged: {
         Config.options.cheatsheet.useMacSymbol = checked;
@@ -38,7 +38,7 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Use symbols for function keys")
+      title: Translation.tr("Use symbols for function keys")
       checked: Config.options.cheatsheet.useFnSymbol
       onCheckedChanged: {
         Config.options.cheatsheet.useFnSymbol = checked;
@@ -46,7 +46,7 @@ ContentPage {
       description: Translation.tr("e.g. 󱊫 for F1, 󱊶  for F12")
     }
     ConfigSwitch {
-      text: Translation.tr("Use symbols for mouse")
+      title: Translation.tr("Use symbols for mouse")
       checked: Config.options.cheatsheet.useMouseSymbol
       onCheckedChanged: {
         Config.options.cheatsheet.useMouseSymbol = checked;
@@ -55,7 +55,7 @@ ContentPage {
     }
 
     ConfigSpinBox {
-      text: Translation.tr("Keybind font size")
+      title: Translation.tr("Keybind font size")
       value: Config.options.cheatsheet.fontSize.key
       from: 8
       to: 30
@@ -65,7 +65,7 @@ ContentPage {
       }
     }
     ConfigSpinBox {
-      text: Translation.tr("Description font size")
+      title: Translation.tr("Description font size")
       value: Config.options.cheatsheet.fontSize.comment
       from: 8
       to: 30
@@ -79,7 +79,7 @@ ContentPage {
     title: Translation.tr("Dock")
 
     ConfigSwitch {
-      text: Translation.tr("Enable")
+      title: Translation.tr("Enable")
       checked: Config.options.dock.enable
       onCheckedChanged: {
         Config.options.dock.enable = checked;
@@ -87,14 +87,14 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr("Pinned on startup")
+      title: Translation.tr("Pinned on startup")
       checked: Config.options.dock.pinnedOnStartup
       onCheckedChanged: {
         Config.options.dock.pinnedOnStartup = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr("Show pin button")
+      title: Translation.tr("Show pin button")
       checked: Config.options.dock.showPinButton
       onCheckedChanged: {
         Config.options.dock.showPinButton = checked;
@@ -102,7 +102,7 @@ ContentPage {
     }
   }
   ConfigSwitch {
-    text: Translation.tr("Show overview button")
+    title: Translation.tr("Show overview button")
     checked: Config.options.dock.showOverviewButton
     onCheckedChanged: {
       Config.options.dock.showOverviewButton = checked;
@@ -110,7 +110,7 @@ ContentPage {
   }
 
   ConfigSpinBox {
-    text: Translation.tr("Icon size (px)")
+    title: Translation.tr("Icon size (px)")
     from: 55
     to: 100
     stepSize: 1
@@ -118,7 +118,7 @@ ContentPage {
     }
   }
   ConfigSwitch {
-    text: Translation.tr("Hover to reveal")
+    title: Translation.tr("Hover to reveal")
     checked: Config.options.dock.hoverToReveal
     onCheckedChanged: {
       Config.options.dock.hoverToReveal = checked;
@@ -135,7 +135,7 @@ ContentPage {
     title: Translation.tr("Lock screen")
 
     ConfigSwitch {
-      text: Translation.tr('Use Hyprlock (instead of Quickshell)')
+      title: Translation.tr('Use Hyprlock (instead of Quickshell)')
       checked: Config.options.lock.useHyprlock
       onCheckedChanged: {
         Config.options.lock.useHyprlock = checked;
@@ -144,7 +144,7 @@ ContentPage {
     }
 
     ConfigSwitch {
-      text: Translation.tr('Launch on startup')
+      title: Translation.tr('Launch on startup')
       checked: Config.options.lock.launchOnStartup
       onCheckedChanged: {
         Config.options.lock.launchOnStartup = checked;
@@ -155,7 +155,7 @@ ContentPage {
       title: Translation.tr("Security")
 
       ConfigSwitch {
-        text: Translation.tr('Require password to power off/restart')
+        title: Translation.tr('Require password to power off/restart')
         checked: Config.options.lock.security.requirePasswordToPower
         onCheckedChanged: {
           Config.options.lock.security.requirePasswordToPower = checked;
@@ -164,7 +164,7 @@ ContentPage {
       }
 
       ConfigSwitch {
-        text: Translation.tr('Also unlock keyring')
+        title: Translation.tr('Also unlock keyring')
         checked: Config.options.lock.security.unlockKeyring
         onCheckedChanged: {
           Config.options.lock.security.unlockKeyring = checked;
@@ -179,7 +179,7 @@ ContentPage {
       title: Translation.tr("Style: general")
 
       ConfigSwitch {
-        text: Translation.tr('Center clock')
+        title: Translation.tr('Center clock')
         checked: Config.options.lock.centerClock
         onCheckedChanged: {
           Config.options.lock.centerClock = checked;
@@ -187,7 +187,7 @@ ContentPage {
       }
 
       ConfigSwitch {
-        text: Translation.tr('Show "Locked" text')
+        title: Translation.tr('Show "Locked" text')
         checked: Config.options.lock.showLockedText
         onCheckedChanged: {
           Config.options.lock.showLockedText = checked;
@@ -195,7 +195,7 @@ ContentPage {
       }
 
       ConfigSwitch {
-        text: Translation.tr('Use varying shapes for password characters')
+        title: Translation.tr('Use varying shapes for password characters')
         checked: Config.options.lock.materialShapeChars
         onCheckedChanged: {
           Config.options.lock.materialShapeChars = checked;
@@ -206,7 +206,7 @@ ContentPage {
       title: Translation.tr("Style: Blurred")
 
       ConfigSwitch {
-        text: Translation.tr('Enable blur')
+        title: Translation.tr('Enable blur')
         checked: Config.options.lock.blur.enable
         onCheckedChanged: {
           Config.options.lock.blur.enable = checked;
@@ -214,7 +214,7 @@ ContentPage {
       }
 
       ConfigSpinBox {
-        text: Translation.tr("Extra wallpaper zoom (%)")
+        title: Translation.tr("Extra wallpaper zoom (%)")
         value: Config.options.lock.blur.extraZoom * 100
         from: 1
         to: 150
@@ -230,7 +230,7 @@ ContentPage {
     title: Translation.tr("Notifications")
 
     ConfigSpinBox {
-      text: Translation.tr("Timeout duration (if not defined by notification) (ms)")
+      title: Translation.tr("Timeout duration (if not defined by notification) (ms)")
       value: Config.options.notifications.timeout
       from: 1000
       to: 60000
@@ -245,7 +245,7 @@ ContentPage {
     title: Translation.tr("On-screen display")
 
     ConfigSpinBox {
-      text: Translation.tr("Timeout (ms)")
+      title: Translation.tr("Timeout (ms)")
       value: Config.options.osd.timeout
       from: 100
       to: 3000
@@ -260,21 +260,21 @@ ContentPage {
     title: Translation.tr("Region selector (screen snipping/Google Lens)")
 
     ConfigSwitch {
-      text: Translation.tr('Windows hint')
+      title: Translation.tr('Windows hint')
       checked: Config.options.regionSelector.targetRegions.windows
       onCheckedChanged: {
         Config.options.regionSelector.targetRegions.windows = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr('Layers hint')
+      title: Translation.tr('Layers hint')
       checked: Config.options.regionSelector.targetRegions.layers
       onCheckedChanged: {
         Config.options.regionSelector.targetRegions.layers = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr('Content hint')
+      title: Translation.tr('Content hint')
       checked: Config.options.regionSelector.targetRegions.content
       onCheckedChanged: {
         Config.options.regionSelector.targetRegions.content = checked;
@@ -307,7 +307,7 @@ ContentPage {
       title: Translation.tr("Rectangular selection")
 
       ConfigSwitch {
-        text: Translation.tr("Show aim lines")
+        title: Translation.tr("Show aim lines")
         checked: Config.options.regionSelector.rect.showAimLines
         onCheckedChanged: {
           Config.options.regionSelector.rect.showAimLines = checked;
@@ -319,7 +319,7 @@ ContentPage {
       title: Translation.tr("Circle selection")
 
       ConfigSpinBox {
-        text: Translation.tr("Stroke width")
+        title: Translation.tr("Stroke width")
         value: Config.options.regionSelector.circle.strokeWidth
         from: 1
         to: 20
@@ -330,7 +330,7 @@ ContentPage {
       }
 
       ConfigSpinBox {
-        text: Translation.tr("Padding")
+        title: Translation.tr("Padding")
         value: Config.options.regionSelector.circle.padding
         from: 0
         to: 100
@@ -346,7 +346,7 @@ ContentPage {
     title: Translation.tr("Sidebars")
 
     ConfigSwitch {
-      text: Translation.tr('Keep right sidebar loaded')
+      title: Translation.tr('Keep right sidebar loaded')
       checked: Config.options.sidebar.keepRightSidebarLoaded
       onCheckedChanged: {
         Config.options.sidebar.keepRightSidebarLoaded = checked;
@@ -355,7 +355,7 @@ ContentPage {
     }
 
     // ConfigSwitch {
-    //   text: Translation.tr('Enable translator')
+    //   title: Translation.tr('Enable translator')
     //   checked: Config.options.sidebar.translator.enable
     //   onCheckedChanged: {
     //     Config.options.sidebar.translator.enable = checked;
@@ -385,7 +385,7 @@ ContentPage {
 
       ConfigSpinBox {
         enabled: Config.options.sidebar.quickToggles.style === "android"
-        text: Translation.tr("Columns")
+        title: Translation.tr("Columns")
         value: Config.options.sidebar.quickToggles.android.columns
         from: 1
         to: 8
@@ -400,7 +400,7 @@ ContentPage {
       title: Translation.tr("Sliders")
 
       ConfigSwitch {
-        text: Translation.tr("Enable")
+        title: Translation.tr("Enable")
         checked: Config.options.sidebar.quickSliders.enable
         onCheckedChanged: {
           Config.options.sidebar.quickSliders.enable = checked;
@@ -408,7 +408,7 @@ ContentPage {
       }
 
       ConfigSwitch {
-        text: Translation.tr("Brightness")
+        title: Translation.tr("Brightness")
         enabled: Config.options.sidebar.quickSliders.enable
         checked: Config.options.sidebar.quickSliders.showBrightness
         onCheckedChanged: {
@@ -417,7 +417,7 @@ ContentPage {
       }
 
       ConfigSwitch {
-        text: Translation.tr("Volume")
+        title: Translation.tr("Volume")
         enabled: Config.options.sidebar.quickSliders.enable
         checked: Config.options.sidebar.quickSliders.showVolume
         onCheckedChanged: {
@@ -426,7 +426,7 @@ ContentPage {
       }
 
       ConfigSwitch {
-        text: Translation.tr("Microphone")
+        title: Translation.tr("Microphone")
         enabled: Config.options.sidebar.quickSliders.enable
         checked: Config.options.sidebar.quickSliders.showMic
         onCheckedChanged: {
@@ -440,7 +440,7 @@ ContentPage {
   //   title: Translation.tr("Overview")
   //
   //   ConfigSwitch {
-  //     text: Translation.tr("Enable")
+  //     title: Translation.tr("Enable")
   //     checked: Config.options.overview.enable
   //     onCheckedChanged: {
   //       Config.options.overview.enable = checked;
@@ -453,7 +453,7 @@ ContentPage {
   //     }
   //   }
   //   ConfigSpinBox {
-  //     text: Translation.tr("Scale (%)")
+  //     title: Translation.tr("Scale (%)")
   //     value: Config.options.overview.scale * 100
   //     from: 1
   //     to: 100
@@ -465,7 +465,7 @@ ContentPage {
   //   ConfigRow {
   //     uniform: true
   //     ConfigSpinBox {
-  //       text: Translation.tr("Rows")
+  //       title: Translation.tr("Rows")
   //       value: Config.options.overview.rows
   //       from: 1
   //       to: 20
@@ -475,7 +475,7 @@ ContentPage {
   //       }
   //     }
   //     ConfigSpinBox {
-  //       text: Translation.tr("Columns")
+  //       title: Translation.tr("Columns")
   //       value: Config.options.overview.columns
   //       from: 1
   //       to: 20
@@ -526,7 +526,7 @@ ContentPage {
     title: Translation.tr("Wallpaper selector")
 
     ConfigSwitch {
-      text: Translation.tr('Use system file picker')
+      title: Translation.tr('Use system file picker')
       checked: Config.options.wallpaperSelector.useSystemFileDialog
       onCheckedChanged: {
         Config.options.wallpaperSelector.useSystemFileDialog = checked;
@@ -537,14 +537,14 @@ ContentPage {
     title: Translation.tr("Color generation")
 
     ConfigSwitch {
-      text: Translation.tr("Shell & utilities")
+      title: Translation.tr("Shell & utilities")
       checked: Config.options.appearance.wallpaperTheming.enableAppsAndShell
       onCheckedChanged: {
         Config.options.appearance.wallpaperTheming.enableAppsAndShell = checked;
       }
     }
     ConfigSwitch {
-      text: Translation.tr("Qt apps")
+      title: Translation.tr("Qt apps")
       checked: Config.options.appearance.wallpaperTheming.enableQtApps
       onCheckedChanged: {
         Config.options.appearance.wallpaperTheming.enableQtApps = checked;
@@ -552,31 +552,31 @@ ContentPage {
       description: Translation.tr("Shell & utilities theming must also be enabled")
     }
     // ConfigSwitch {
-    //   text: Translation.tr("Terminal")
+    //   title: Translation.tr("Terminal")
     //   checked: Config.options.appearance.wallpaperTheming.enableTerminal
     //   onCheckedChanged: {
     //     Config.options.appearance.wallpaperTheming.enableTerminal = checked;
     //   }
     //   StyledToolTip {
-    //     text: Translation.tr("Shell & utilities theming must also be enabled")
+    //     title: Translation.tr("Shell & utilities theming must also be enabled")
     //   }
     // }
     // ConfigRow {
     //   uniform: true
     //   ConfigSwitch {
-    //     text: Translation.tr("Force dark mode in terminal")
+    //     title: Translation.tr("Force dark mode in terminal")
     //     checked: Config.options.appearance.wallpaperTheming.terminalGenerationProps.forceDarkMode
     //     onCheckedChanged: {
     //       Config.options.appearance.wallpaperTheming.terminalGenerationProps.forceDarkMode = checked;
     //     }
     //     StyledToolTip {
-    //       text: Translation.tr("Ignored if terminal theming is not enabled")
+    //       title: Translation.tr("Ignored if terminal theming is not enabled")
     //     }
     //   }
     // }
     //
     // ConfigSpinBox {
-    //   text: Translation.tr("Terminal: Harmony (%)")
+    //   title: Translation.tr("Terminal: Harmony (%)")
     //   value: Config.options.appearance.wallpaperTheming.terminalGenerationProps.harmony * 100
     //   from: 0
     //   to: 100
@@ -586,7 +586,7 @@ ContentPage {
     //   }
     // }
     // ConfigSpinBox {
-    //   text: Translation.tr("Terminal: Harmonize threshold")
+    //   title: Translation.tr("Terminal: Harmonize threshold")
     //   value: Config.options.appearance.wallpaperTheming.terminalGenerationProps.harmonizeThreshold
     //   from: 0
     //   to: 100
@@ -596,7 +596,7 @@ ContentPage {
     //   }
     // }
     // ConfigSpinBox {
-    //   text: Translation.tr("Terminal: Foreground boost (%)")
+    //   title: Translation.tr("Terminal: Foreground boost (%)")
     //   value: Config.options.appearance.wallpaperTheming.terminalGenerationProps.termFgBoost * 100
     //   from: 0
     //   to: 100

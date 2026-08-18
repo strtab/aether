@@ -13,8 +13,11 @@ RowLayout {
   default property alias contentData: controlSlot.data
 
   Layout.fillWidth: true
+  spacing: 10
+  Layout.margins: 8
   Layout.bottomMargin: 10
-  spacing: 16
+  Layout.topMargin: 10
+
 
   // Left side: title + description stacked vertically
   ColumnLayout {

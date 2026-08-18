@@ -32,9 +32,9 @@ ColumnLayout {
       margins: 10
     }
 
-    StyledRectangularShadow {
-      target: card
-    }
+    // StyledRectangularShadow {
+    //   target: card
+    // }
 
     Rectangle {
       id: card

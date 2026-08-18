@@ -68,7 +68,6 @@ ColumnLayout {
     Layout.fillWidth: true
 
     ConfigSwitch {
-      buttonIcon: "check"
       text: Translation.tr("Enable")
       checked: Config.options.hyprland.autostartApps.enable
       onCheckedChanged: {

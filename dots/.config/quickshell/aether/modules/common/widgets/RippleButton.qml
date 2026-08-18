@@ -141,7 +141,7 @@ Button {
   background: Rectangle {
     id: buttonBackground
     radius: root.buttonEffectiveRadius
-    implicitHeight: 30
+    implicitHeight: 20
 
     color: root.buttonColor
     Behavior on color {
