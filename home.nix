@@ -21,11 +21,11 @@ in
 
   # Main options for Illogical Impulse
   options.programs.aether = {
-    enable = mkEnableOption "Enable the Illogical Impulse Hyprland configuration";
+    enable = mkEnableOption "Enable the aether Hyprland configuration";
 
     qsConfig = mkOption {
       type = types.str;
-      default = "ii";
+      default = "aether";
     };
 
     copyQuickShellDots = mkEnableOption "Enable automatic overwriting quickshell dotfiles" // {
