@@ -52,10 +52,8 @@ in
               return 0
             }
           '';
-          ".local/state/quickshell/.venv/bin/python".source =
-            "${cfg.internal.pythonEnv}/bin/python";
-          ".local/state/quickshell/.venv/bin/python3".source =
-            "${cfg.internal.pythonEnv}/bin/python3";
+          ".local/state/quickshell/.venv/bin/python".source = "${cfg.internal.pythonEnv}/bin/python";
+          ".local/state/quickshell/.venv/bin/python3".source = "${cfg.internal.pythonEnv}/bin/python3";
           ".local/state/quickshell/.venv/pyvenv.cfg".text = ''
             home = ${cfg.internal.pythonEnv}/bin
             include-system-site-packages = false
@@ -95,8 +93,7 @@ in
         xdg.dataFile = {
           # and the custom icon is handled here if needed, but it's usually in the package too?
           # Re-adding the single SVG manually just in case
-          "icons/hicolor/scalable/apps/aether.svg".source =
-            "${dotfiles}/dots/.local/share/icons/aether.svg";
+          "icons/hicolor/scalable/apps/aether.svg".source = "${dotfiles}/dots/.local/share/icons/aether.svg";
         };
 
         # Use activation script ONLY for stateful integration

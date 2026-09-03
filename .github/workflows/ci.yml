@@ -3,20 +3,7 @@ name: CI
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  format:
-    name: Format check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v25
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-
-      - name: Flake format check
-        run: nix run nixpkgs#nixfmt-tree -- --ci
-
-  build:
+  update:
     name: Lock file update
     runs-on: ubuntu-latest
     permissions:
@@ -35,8 +22,11 @@ jobs:
       - name: Flake update
         run: nix flake update --print-build-logs
 
+      - name: Flake format check
+        run: nix run nixpkgs#nixfmt-tree 
+
       - name: Commit changes
         uses: devops-infra/action-commit-push@v1.5.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          commit_message: "[CI] update lock file"
+          commit_message: "[CI] update lock file & formatting"
