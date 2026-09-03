@@ -21,7 +21,7 @@ RippleButton {
   property string description: ""
   property Component targetComponent: null
 
-  implicitHeight: 56
+  implicitHeight: 50
   colBackgroundHover: Appearance.colors.colLayer2Hover
 
   onPressed: SettingsNav.open(root.text, root.targetComponent)
