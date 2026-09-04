@@ -59,114 +59,110 @@ ContentPage {
         monitorConfig: monitorConfig
       }
 
+      ConfigSwitch {
+        title: Translation.tr("Enabled")
+        checked: !(monitorConfig.monitors[monitorCanvas.selectedIndex]?.disabled ?? false)
+        onCheckedChanged: {
+          monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
+            disabled: !checked
+          });
+          monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
+        }
+      }
+
       ContentSubsection {
-        title: (monitorConfig.monitors[monitorCanvas.selectedIndex]?.name ?? "") + " · " + (monitorConfig.monitors[monitorCanvas.selectedIndex]?.description ?? "")
-
-        ConfigSwitch {
-          title: Translation.tr("Enabled")
-          checked: !(monitorConfig.monitors[monitorCanvas.selectedIndex]?.disabled ?? false)
-          onCheckedChanged: {
+        title: Translation.tr("Resolution & Refresh Rate")
+        StyledComboBoxSearch {
+          model: (monitorConfig.monitors[monitorCanvas.selectedIndex]?.availableModes ?? []).map(mode => ({
+                display: mode,
+                value: mode
+              }))
+          textRole: "display"
+          currentIndex: (monitorConfig.monitors[monitorCanvas.selectedIndex]?.availableModes ?? []).indexOf(monitorConfig.monitors[monitorCanvas.selectedIndex]?.currentMode ?? "")
+          onActivated: {
+            const mon = monitorConfig.monitors[monitorCanvas.selectedIndex];
+            const mode = mon.availableModes[currentIndex];
+            const parts = mode.match(/(\d+)x(\d+)@([\d.]+)Hz/);
             monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
-              disabled: !checked
+              currentMode: mode,
+              width: parseInt(parts[1]),
+              height: parseInt(parts[2]),
+              refreshRate: parseFloat(parts[3])
             });
             monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
           }
         }
+      }
 
-        ContentSubsection {
-          title: Translation.tr("Resolution & Refresh Rate")
-          StyledComboBoxSearch {
-            model: (monitorConfig.monitors[monitorCanvas.selectedIndex]?.availableModes ?? []).map(mode => ({
-                  display: mode,
-                  value: mode
-                }))
-            textRole: "display"
-            currentIndex: (monitorConfig.monitors[monitorCanvas.selectedIndex]?.availableModes ?? []).indexOf(monitorConfig.monitors[monitorCanvas.selectedIndex]?.currentMode ?? "")
-            onActivated: {
-              const mon = monitorConfig.monitors[monitorCanvas.selectedIndex];
-              const mode = mon.availableModes[currentIndex];
-              const parts = mode.match(/(\d+)x(\d+)@([\d.]+)Hz/);
-              monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
-                currentMode: mode,
-                width: parseInt(parts[1]),
-                height: parseInt(parts[2]),
-                refreshRate: parseFloat(parts[3])
-              });
-              monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
-            }
-          }
+      ConfigComboBox {
+        title: Translation.tr("Orientation")
+        description: Translation.tr("Rotation applied to the selected display")
+        value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.transform ?? 0
+        onSelected: newValue => {
+          monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
+            transform: newValue
+          });
+          monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
         }
+        model: [
+          {
+            displayName: Translation.tr("Normal"),
+            value: 0
+          },
+          {
+            displayName: "90°",
+            value: 1
+          },
+          {
+            displayName: "180°",
+            value: 2
+          },
+          {
+            displayName: "270°",
+            value: 3
+          },
+        ]
+      }
 
-        ConfigComboBox {
-          title: Translation.tr("Orientation")
-          description: Translation.tr("Rotation applied to the selected display")
-          value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.transform ?? 0
-          onSelected: newValue => {
-            monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
-              transform: newValue
-            });
-            monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
-          }
-          model: [
-            {
-              displayName: Translation.tr("Normal"),
-              value: 0
-            },
-            {
-              displayName: "90°",
-              value: 1
-            },
-            {
-              displayName: "180°",
-              value: 2
-            },
-            {
-              displayName: "270°",
-              value: 3
-            },
-          ]
+      ConfigSpinBox {
+        title: Translation.tr("Scale")
+        value: Math.round((monitorConfig.monitors[monitorCanvas.selectedIndex]?.scale ?? 1.0) * 100)
+        from: 50
+        to: 300
+        stepSize: 20
+        onValueChanged: {
+          monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
+            scale: value / 100.0
+          });
+          monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
         }
+      }
 
-        ConfigSpinBox {
-          title: Translation.tr("Scale")
-          value: Math.round((monitorConfig.monitors[monitorCanvas.selectedIndex]?.scale ?? 1.0) * 100)
-          from: 50
-          to: 300
-          stepSize: 20
-          onValueChanged: {
-            monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
-              scale: value / 100.0
-            });
-            monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
-          }
+      ConfigSpinBox {
+        title: Translation.tr("Position X")
+        value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.x ?? 0
+        from: 0
+        to: 7680
+        stepSize: 1
+        onValueChanged: {
+          monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
+            x: value
+          });
+          monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
         }
+      }
 
-        ConfigSpinBox {
-          title: Translation.tr("Position X")
-          value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.x ?? 0
-          from: 0
-          to: 7680
-          stepSize: 1
-          onValueChanged: {
-            monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
-              x: value
-            });
-            monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
-          }
-        }
-
-        ConfigSpinBox {
-          title: Translation.tr("Position Y")
-          value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.y ?? 0
-          from: 0
-          to: 4320
-          stepSize: 1
-          onValueChanged: {
-            monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
-              y: value
-            });
-            monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
-          }
+      ConfigSpinBox {
+        title: Translation.tr("Position Y")
+        value: monitorConfig.monitors[monitorCanvas.selectedIndex]?.y ?? 0
+        from: 0
+        to: 4320
+        stepSize: 1
+        onValueChanged: {
+          monitorConfig.updateMonitor(monitorCanvas.selectedIndex, {
+            y: value
+          });
+          monitorConfig.applyAndSave(monitorCanvas.selectedIndex);
         }
       }
     }
@@ -197,130 +193,6 @@ ContentPage {
             value: "scrolling"
           },
         ]
-      }
-    }
-
-    // ── Input ─────────────────────────────────────────────────────────────
-    ContentSection {
-      title: Translation.tr("Input")
-
-      ContentSubsection {
-        title: Translation.tr("Keyboard")
-
-        ConfigInput {
-          title: Translation.tr("Keyboard layout")
-          description: Translation.tr("Examples: us, es, latam")
-          placeholderText: Translation.tr("Keyboard layout")
-          title: Config.options.hyprland.input.kbLayout
-          onTextChanged: {
-            Config.options.hyprland.input.kbLayout = text;
-            HyprlandConfig.set("input:kb_layout", text);
-          }
-        }
-
-        ConfigSwitch {
-          title: Translation.tr("Numlock by default")
-          checked: Config.options.hyprland.input.numlock
-          onCheckedChanged: {
-            Config.options.hyprland.input.numlock = checked;
-            HyprlandConfig.set("input:numlock_by_default", checked ? 1 : 0);
-          }
-        }
-
-        ConfigSpinBox {
-          title: Translation.tr("Repeat delay (ms)")
-          value: Config.options.hyprland.input.repeatDelay
-          from: 100
-          to: 1000
-          stepSize: 10
-          onValueChanged: {
-            Config.options.hyprland.input.repeatDelay = value;
-            HyprlandConfig.set("input:repeat_delay", value);
-          }
-        }
-
-        ConfigSpinBox {
-          title: Translation.tr("Repeat rate")
-          value: Config.options.hyprland.input.repeatRate
-          from: 10
-          to: 100
-          stepSize: 1
-          onValueChanged: {
-            Config.options.hyprland.input.repeatRate = value;
-            HyprlandConfig.set("input:repeat_rate", value);
-          }
-        }
-
-        ConfigComboBox {
-          title: Translation.tr("Follow mouse")
-          description: Translation.tr("How moving the cursor affects window focus")
-          value: Config.options.hyprland.input.followMouse
-          onSelected: newValue => {
-            Config.options.hyprland.input.followMouse = newValue;
-            HyprlandConfig.set("input:follow_mouse", newValue);
-          }
-          model: [
-            {
-              displayName: Translation.tr("Disabled"),
-              value: 0
-            },
-            {
-              displayName: Translation.tr("Full"),
-              value: 1
-            },
-            {
-              displayName: Translation.tr("Loose"),
-              value: 2
-            },
-            {
-              displayName: Translation.tr("Explicit"),
-              value: 3
-            },
-          ]
-        }
-      }
-
-      ContentSubsection {
-        title: Translation.tr("Touchpad")
-
-        ConfigSwitch {
-          title: Translation.tr("Natural scroll")
-          checked: Config.options.hyprland.input.touchpad.naturalScroll
-          onCheckedChanged: {
-            Config.options.hyprland.input.touchpad.naturalScroll = checked;
-            HyprlandConfig.set("input:touchpad:natural_scroll", checked ? 1 : 0);
-          }
-        }
-
-        ConfigSwitch {
-          title: Translation.tr("Disable while typing")
-          checked: Config.options.hyprland.input.touchpad.disableWhileTyping
-          onCheckedChanged: {
-            Config.options.hyprland.input.touchpad.disableWhileTyping = checked;
-            HyprlandConfig.set("input:touchpad:disable_while_typing", checked ? 1 : 0);
-          }
-        }
-
-        ConfigSwitch {
-          title: Translation.tr("Clickfinger behavior")
-          checked: Config.options.hyprland.input.touchpad.clickfingerBehavior
-          onCheckedChanged: {
-            Config.options.hyprland.input.touchpad.clickfingerBehavior = checked;
-            HyprlandConfig.set("input:touchpad:clickfinger_behavior", checked ? 1 : 0);
-          }
-        }
-
-        ConfigSpinBox {
-          title: Translation.tr("Scroll factor")
-          value: Math.round(Config.options.hyprland.input.touchpad.scrollFactor * 10)
-          from: 1
-          to: 30
-          stepSize: 1
-          onValueChanged: {
-            Config.options.hyprland.input.touchpad.scrollFactor = value / 10.0;
-            HyprlandConfig.set("input:touchpad:scroll_factor", value / 10.0);
-          }
-        }
       }
     }
 
