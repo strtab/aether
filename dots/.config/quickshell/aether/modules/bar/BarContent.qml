@@ -30,7 +30,7 @@ Item { // Bar content region
     id: barBackground
     anchors {
       fill: parent
-      margins: 0 
+      margins: 0
     }
     color: Config.options.bar.background.enable ? Appearance.colors.colMenubarBackground : "transparent"
   }
@@ -202,6 +202,10 @@ Item { // Bar content region
           HyprlandXkbIndicator {
             Layout.alignment: Qt.AlignVCenter
             Layout.rightMargin: indicatorsRowLayout.realSpacing
+          }
+          BatteryIndicator {
+            visible: (root.useShortenedForm < 2 && Battery.available)
+            Layout.alignment: Qt.AlignVCenter
           }
           MaterialSymbol {
             text: Network.materialSymbol
