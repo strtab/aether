@@ -37,9 +37,6 @@ in
       nerd-fonts.jetbrains-mono
       twemoji-color-font # ttf-twemoji
       inter
-      rubik
-
-      (google-fonts.override { fonts = [ "ReadexPro" ]; })
     ];
   };
 }
