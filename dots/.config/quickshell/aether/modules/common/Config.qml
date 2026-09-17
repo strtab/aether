@@ -558,11 +558,11 @@ Singleton {
       }
 
       property JsonObject screenRecord: JsonObject {
-        property string savePath: Directories.videos.replace("file://", "") // strip "file://"
+        property string savePath: FileUtils.trimFileProtocol(`${Directories.videos}/Records`)
       }
 
       property JsonObject screenSnip: JsonObject {
-        property string savePath: "" // only copy to clipboard when empty
+        property string savePath: FileUtils.trimFileProtocol(`${Directories.pictures}/Screenshots`) 
       }
 
       property JsonObject sounds: JsonObject {

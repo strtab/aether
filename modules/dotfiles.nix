@@ -89,13 +89,6 @@ in
           };
         };
 
-        # Dotfiles management via Home Manager (XDG Data)
-        xdg.dataFile = {
-          # and the custom icon is handled here if needed, but it's usually in the package too?
-          # Re-adding the single SVG manually just in case
-          "icons/hicolor/scalable/apps/aether.svg".source = "${dotfiles}/dots/.local/share/icons/aether.svg";
-        };
-
         # Use activation script ONLY for stateful integration
         home.activation.copyIllogicalImpulseConfigs = config.lib.dag.entryAfter [ "writeBoundary" ] ''
           # Path to the config directory in the dotfiles source

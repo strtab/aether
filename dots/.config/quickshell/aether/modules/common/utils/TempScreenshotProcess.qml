@@ -7,7 +7,7 @@ import qs.modules.common.functions
 Process {
     id: screenshotProc
     running: true
-    property string screenshotDir: Directories.screenshotTemp
+    property string screenshotDir: Directories.tempScreenshots
     required property ShellScreen screen
     property string screenshotPath: `${screenshotDir}/image-${screen.name}`
     command: ["bash", "-c", `mkdir -p '${StringUtils.shellSingleQuoteEscape(screenshotDir)}' && grim -o '${StringUtils.shellSingleQuoteEscape(screen.name)}' '${StringUtils.shellSingleQuoteEscape(screenshotPath)}'`]

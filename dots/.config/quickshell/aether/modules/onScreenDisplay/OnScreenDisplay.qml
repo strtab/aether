@@ -170,7 +170,7 @@ Scope {
                   MaterialSymbol {
                     id: protectionMessageIcon
                     text: "dangerous"
-                    iconSize: Appearance.font.pixelSize.hugeass
+                    iconSize: Appearance.font.pixelSize.title
                     color: Appearance.m3colors.m3onError
                   }
                   StyledText {

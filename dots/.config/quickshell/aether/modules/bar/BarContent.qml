@@ -122,9 +122,9 @@ Item { // Bar content region
         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
         Layout.fillWidth: false
         Layout.rightMargin: Appearance.rounding.screenRounding
-        Layout.leftMargin: 0
+        Layout.leftMargin: 10
 
-        implicitWidth: clockWidget.width * 1.2
+        implicitWidth: clockWidget.width
         implicitHeight: clockWidget.height - 5
 
         buttonRadius: Appearance.rounding.large

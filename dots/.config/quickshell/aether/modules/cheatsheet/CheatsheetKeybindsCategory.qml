@@ -22,18 +22,17 @@ Column {
   // http://xahlee.info/comp/unicode_computing_symbols.html
   // https://www.nerdfonts.com/cheat-sheet
   property var macSymbolMap: ({
-      "Ctrl": "󰘴",
+      "Super": "⌘",
+      "Ctrl": "⌃",
       "Alt": "󰘵",
-      "Shift": "󰘶",
+      "Shift": "⇧",
       "CapsLock": "⇪",
       "Space": "󱁐",
-      "Tab": "↹",
-      "Equal": "=",
-      "Minus": "-",
+      "Tab": "⇥",
       "Print": "",
-      "BackSpace": "󰭜",
+      "BackSpace": "⌫",
       "Delete": "⌦",
-      "Return": "󰌑",
+      "Return": "⏎",
       "Period": ".",
       "Escape": "⎋"
     })
@@ -64,17 +63,18 @@ Column {
   property var keyBlacklist: ["SUPER_L", "SUPER_R"]
   property var keySubstitutions: Object.assign({
     "Super": "",
-    "mouse_up": "Scroll ↓"    // ikr, weird
-    ,
-    "mouse_down": "Scroll ↑"  // trust me bro
-    ,
+    "mouse_up": "Scroll ↓",
+    "mouse_down": "Scroll ↑",
     "mouse:272": "LMB",
     "mouse:273": "RMB",
     "mouse:275": "MouseBack",
     "Slash": "/",
     "Hash": "#",
-    "Return": "Enter"
-  // "Shift": "",
+    "Question": "?",
+    "Return": "Enter",
+    "Equal": "=",
+    "Minus": "-",
+    "Plus": "+"
   }, !!Config.options.cheatsheet.superKey ? {
     "Super": Config.options.cheatsheet.superKey
   } : {}, Config.options.cheatsheet.useMacSymbol ? macSymbolMap : {}, Config.options.cheatsheet.useFnSymbol ? functionSymbolMap : {}, Config.options.cheatsheet.useMouseSymbol ? mouseSymbolMap : {})

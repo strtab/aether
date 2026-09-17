@@ -27,7 +27,7 @@ RippleButton {
             Layout.fillWidth: false
             Layout.leftMargin: 5
             color: Appearance.colors.colOnLayer2
-            iconSize: Appearance.font.pixelSize.hugeass
+            iconSize: Appearance.font.pixelSize.title
             text: input ? "mic_external_on" : "media_output"
         }
 

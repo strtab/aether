@@ -16,32 +16,30 @@ Item {
   property bool focusingThisMonitor: HyprlandData.activeWorkspace?.monitor == monitor?.name
   property var biggestWindow: HyprlandData.biggestWindowForWorkspace(HyprlandData.monitors[root.monitor?.id]?.activeWorkspace.id)
 
-  implicitWidth: colLayout.implicitWidth
+  implicitWidth: rowLayout.implicitWidth
 
-  function trimLeading(s) { return s ? s.replace(/^\s+/, "") : s; }
+  function trimLeading(s) {
+    return s ? s.replace(/^\s+/, "") : s;
+  }
 
-  ColumnLayout {
-    id: colLayout
+  function clear(s) {
+    if (!s) return s;
+    const cleared = s.replace(/^.*\./, "");
+    return cleared.charAt(0).toUpperCase() + cleared.slice(1);
+  }
 
-    anchors.verticalCenter: parent.verticalCenter
+  RowLayout {
+    id: rowLayout
     anchors.left: parent.left
     anchors.right: parent.right
-    spacing: -4
+    anchors.verticalCenter: parent.verticalCenter
 
     StyledText {
-      Layout.fillWidth: true
-      font.pixelSize: Appearance.font.pixelSize.smaller
+      Layout.fillHeight: true
+      font.pixelSize: Appearance.font.pixelSize.large
+      font.family: Appearance.font.family.numbers
       color: Appearance.colors.onMenubarBackground
-      elide: Text.ElideRight
-      text: root.focusingThisMonitor && root.activeWindow?.activated && root.biggestWindow ? root.activeWindow?.appId : (root.biggestWindow?.class) ?? Translation.tr("Desktop")
-    }
-
-    StyledText {
-      Layout.fillWidth: true
-      font.pixelSize: Appearance.font.pixelSize.small
-      color: Appearance.colors.onMenubarBackground
-      elide: Text.ElideRight
-      text: root.focusingThisMonitor && root.activeWindow?.activated && root.biggestWindow ? trimLeading(root.activeWindow?.title) : trimLeading(root.biggestWindow?.title) ?? `${Translation.tr("Workspace")} ${monitor?.activeWorkspace?.id ?? 1}`
+      text: root.focusingThisMonitor && root.activeWindow?.activated && root.biggestWindow ? (root.clear(root.activeWindow?.appId)) : (root.clear(root.biggestWindow?.class)) ?? Translation.tr("Desktop")
     }
   }
 }

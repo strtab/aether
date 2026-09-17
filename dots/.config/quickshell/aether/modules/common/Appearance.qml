@@ -449,18 +449,17 @@ Singleton {
     }
     property QtObject pixelSize: QtObject {
       property int smaller: Math.round(12 * root.fontSizeScale)
-      property int small: Math.round(13 * root.fontSizeScale)
+      property int small: Math.round(14 * root.fontSizeScale)
       property int normal: Math.round(14 * root.fontSizeScale)
-      property int large: Math.round(16 * root.fontSizeScale)
+      property int large: Math.round(15 * root.fontSizeScale)
       property int larger: Math.round(19 * root.fontSizeScale)
       property int huge: Math.round(22 * root.fontSizeScale)
-      property int hugeass: Math.round(23 * root.fontSizeScale)
       property int title: huge
     }
   }
 
   sizes: QtObject {
-    property real baseBarHeight: 32
+    property real baseBarHeight: 29
     property real barHeight: Config.options.bar.cornerStyle === 1 ? (baseBarHeight + root.sizes.hyprlandGapsOut * 2) : baseBarHeight
     property real elevationMargin: 10
     property real fabShadowRadius: 5

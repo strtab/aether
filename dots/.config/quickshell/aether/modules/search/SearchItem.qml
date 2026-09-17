@@ -284,7 +284,7 @@ RippleButton {
               active: actionButton.iconType === LauncherSearchResult.IconType.Material || actionButton.iconName === ""
               sourceComponent: MaterialSymbol {
                 text: actionButton.iconName || "video_settings"
-                font.pixelSize: (Config.options.search.fontSize + 2) ?? Appearance.font.pixelSize.hugeass
+                font.pixelSize: Appearance.font.pixelSize.title
                 color: Appearance.m3colors.m3onSurface
               }
             }

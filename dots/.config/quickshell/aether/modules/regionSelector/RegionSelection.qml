@@ -34,7 +34,7 @@ PanelWindow {
     property var selectionMode: RegionSelection.SelectionMode.RectCorners
     signal dismiss()
 
-    property string screenshotDir: Directories.screenshotTemp
+    property string screenshotDir: Directories.tempScreenshots
     property color overlayColor: ColorUtils.transparentize("#000000", 0.4)
     property color brightText: Appearance.m3colors.darkmode ? Appearance.colors.colOnLayer0 : Appearance.colors.colLayer0
     property color brightSecondary: Appearance.m3colors.darkmode ? Appearance.colors.colSecondary : Appearance.colors.colOnSecondary

@@ -123,7 +123,7 @@ MouseArea {
         id: fingerprintIcon
         fill: 1
         text: "fingerprint"
-        iconSize: Appearance.font.pixelSize.hugeass
+        iconSize: Appearance.font.pixelSize.title
         color: Appearance.colors.colOnSurfaceVariant
       }
     }

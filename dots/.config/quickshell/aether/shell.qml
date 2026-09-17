@@ -2,6 +2,8 @@
 //@ pragma Env QS_NO_RELOAD_POPUP=1
 //@ pragma Env QT_QUICK_CONTROLS_STYLE=Basic
 //@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
+//@ pragma DefaultEnv QT_LOGGING_RULES=quickshell.dbus.properties=false
+//@ pragma DefaultEnv QS_DROP_EXPENSIVE_FONTS=1
 
 // Remove two slashes below and adjust the value to change the UI scale
 //@ pragma Env QT_SCALE_FACTOR=1

@@ -21,29 +21,28 @@ Singleton {
   readonly property string videos: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
 
   // Other dirs used by the shell, without "file://"
+  property string shellConfig: FileUtils.trimFileProtocol(`${Directories.config}/aether`)
+  property string shellConfigPath: `${Directories.shellConfig}/config.json`
+
   property string assetsPath: Quickshell.shellPath("assets")
   property string scriptPath: Quickshell.shellPath("scripts")
   property string favicons: FileUtils.trimFileProtocol(`${Directories.cache}/media/favicons`)
   property string coverArt: FileUtils.trimFileProtocol(`${Directories.cache}/media/coverart`)
+
   property string tempImages: "/tmp/quickshell/media/images"
+  property string tempScreenshots: "/tmp/quickshell/media/screenshots"
   property string latexOutput: FileUtils.trimFileProtocol(`${Directories.cache}/media/latex`)
-  property string shellConfig: FileUtils.trimFileProtocol(`${Directories.config}/aether`)
-  property string shellConfigName: "config.json"
-  property string shellConfigPath: `${Directories.shellConfig}/${Directories.shellConfigName}`
   property string todoPath: FileUtils.trimFileProtocol(`${Directories.state}/user/todo.json`)
-  property string notesPath: FileUtils.trimFileProtocol(`${Directories.state}/user/notes.txt`)
-  property string conflictCachePath: FileUtils.trimFileProtocol(`${Directories.cache}/conflict-killer`)
   property string notificationsPath: FileUtils.trimFileProtocol(`${Directories.cache}/notifications/notifications.json`)
   property string generatedMaterialThemePath: FileUtils.trimFileProtocol(`${Directories.state}/user/generated/colors.json`)
   property string generatedWallpaperCategoryPath: FileUtils.trimFileProtocol(`${Directories.state}/user/generated/wallpaper/category.txt`)
   property string cliphistDecode: FileUtils.trimFileProtocol(`/tmp/quickshell/media/cliphist`)
-  property string screenshotTemp: "/tmp/quickshell/media/screenshot"
-  property string wallpaperSwitchScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/colors/switchwall.sh`)
   property string userActions: FileUtils.trimFileProtocol(`${Directories.shellConfig}/actions`)
-  property string recordScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/videos/record.sh`)
   property string userAvatarPathAccountsService: FileUtils.trimFileProtocol(`/var/lib/AccountsService/icons/${SystemInfo.username}`)
-  property string userAvatarPathRicersAndWeirdSystems: FileUtils.trimFileProtocol(`${Directories.home}.face`)
-  property string userAvatarPathRicersAndWeirdSystems2: FileUtils.trimFileProtocol(`${Directories.home}.face.icon`)
+
+  property string recordScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/videos/record.sh`)
+  property string wallpaperSwitchScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/colors/switchwall.sh`)
+
   // Cleanup on init
   Component.onCompleted: {
     Quickshell.execDetached(["mkdir", "-p", `${shellConfig}`]);
