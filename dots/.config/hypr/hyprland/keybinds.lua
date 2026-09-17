@@ -29,7 +29,7 @@ hl.bind("SUPER + CTRL + V", hl.dsp.global("quickshell:searchClipboardToggle"))
 hl.bind("SUPER + A", hl.dsp.global("quickshell:sidebarRightToggle"), { description = "Shell: Toggle sidebar" })
 hl.bind("SUPER + B", hl.dsp.global("quickshell:sidebarRightToggle"))
 hl.bind("SUPER + N", hl.dsp.global("quickshell:notificationsToggle"))
-hl.bind("SUPER + Slash", hl.dsp.global("quickshell:cheatsheetToggle"), { description = "Shell: Toggle cheatsheet" })
+hl.bind("SUPER + SHIFT + Slash", hl.dsp.global("quickshell:cheatsheetToggle"), { description = "Shell: Toggle cheatsheet" })
 -- hl.bind("SUPER + M", hl.dsp.global("quickshell:mediaControlsToggle"), { description = "Shell: Toggle media controls" })
 
 hl.bind(
@@ -62,16 +62,16 @@ hl.bind(
 )
 
 hl.bind(
-  "CTRL + SUPER + W",
+  "SUPER + CTRL + W",
   hl.dsp.global("quickshell:wallpaperSelectorToggle"),
   { description = "Shell: Change wallpaper" }
 )
 hl.bind(
-  "CTRL + SUPER + ALT + W",
+  "SUPER + CTRL + ALT + W",
   hl.dsp.global("quickshell:wallpaperSelectorRandom"),
   { description = "Shell: Random wallpaper" }
 )
-hl.bind("CTRL + SUPER + W", hl.dsp.exec_cmd(qsIsAlive .. " || " .. qsScripts .. "/colors/switchwall.sh"))
+hl.bind("SUPER + CTRL + W", hl.dsp.exec_cmd(qsIsAlive .. " || " .. qsScripts .. "/colors/switchwall.sh"))
 
 --##! Utilities
 --# Screenshot, Record, OCR, Color picker, Clipboard history
@@ -107,18 +107,19 @@ hl.bind(
 )
 --# Color picker
 hl.bind(
-  "SUPER + CTRL + C",
+  "SUPER + SHIFT + C",
   hl.dsp.exec_cmd("hyprpicker -a"),
-  { description = "Utilities: Pick color #RRGGBB >> clipboard" }
+  { description = "Utilities: Pick color" }
 )
+
 --# Recording stuff
 hl.bind(
-  "SUPER + SHIFT + CTRL + R",
+  "SUPER + CTRL + SHIFT + R",
   hl.dsp.global("quickshell:regionRecord"),
-  { locked = true, description = "Utilities: Record region (no sound)" }
+  { locked = true, description = "Utilities: Record region with no sound" }
 )
 hl.bind(
-  "SUPER + SHIFT + CTRL + R",
+  "SUPER + CTRL + SHIFT + R",
   hl.dsp.exec_cmd(qsIsAlive .. " || " .. qsScripts .. "/videos/record.sh"),
   { locked = true }
 )
@@ -126,12 +127,12 @@ hl.bind(
 hl.bind(
   "SUPER + CTRL + ALT + R",
   hl.dsp.exec_cmd(qsScripts .. "/videos/record.sh --fullscreen"),
-  { locked = true, description = "Utilities: Record screen (no sound)" }
+  { locked = true, description = "Utilities: Record screen with no sound" }
 )
 hl.bind(
   "SUPER + SHIFT + R",
   hl.dsp.exec_cmd(qsScripts .. "/videos/record.sh --fullscreen --sound"),
-  { locked = true, description = "Utilities: Record screen (with sound)" }
+  { locked = true, description = "Utilities: Record screen" }
 )
 
 --# Fullscreen screenshot
@@ -202,7 +203,7 @@ hl.bind("SUPER + mouse:272", function()
   if (win ~= nil and win.floating == true and (win.fullscreen == false or win.fullscreen_client == 0)) then
     hl.dispatch(hl.dsp.window.drag())
   end
-end, { mouse = true, description = "Window: Move" })
+end, { mouse = true })
 
 hl.bind("SUPER + mouse:274", function()
   local win = hl.get_active_window()
@@ -216,9 +217,8 @@ hl.bind("SUPER + mouse:273", function()
   if (win ~= nil and win.floating == true and (win.fullscreen == false or win.fullscreen_client == 0)) then
     hl.dispatch(hl.dsp.window.resize())
   end
-end, { mouse = true, description = "Window: Resize" })
+end, { mouse = true })
 
---#/# bind = SUPER + ←/↑/→/↓,, -- Focus in direction
 for i = 1, 4 do
   local arrowkey = { "Left", "Right", "Up", "Down" }
   local focusdir = { "l", "r", "u", "d" }
@@ -233,7 +233,6 @@ for i = 1, 2 do
   local focusdir = { "l", "r" }
   hl.bind("SUPER + " .. arrowkey[i], hl.dsp.focus({ direction = focusdir[i] }))
 end
---#/# bind = SUPER + SHIFT, ←/↑/→/↓,, -- Move in direction
 for i = 1, 4 do
   local arrowkey = { "Left", "Right", "Up", "Down" }
   local focusdir = { "l", "r", "u", "d" }
@@ -247,7 +246,6 @@ end
 hl.bind("SUPER + Q", hl.dsp.window.close(), { description = "Window: Close" })
 
 --# Window split ratio
---#/# binde = SUPER, ;/',, -- Adjust split ratio
 hl.bind("SUPER + Semicolon", hl.dsp.layout("splitratio -0.1"), { repeating = true })
 hl.bind("SUPER + Apostrophe", hl.dsp.layout("splitratio +0.1"), { repeating = true })
 --# Positioning mode
@@ -270,7 +268,6 @@ hl.bind(
 )
 hl.bind("SUPER + P", hl.dsp.window.pin(), { description = "Window: Pin" })
 
---#/# bind = SUPER+SHIFT, Hash,, -- Move to workspace -- (1, 2, 3,...)
 for i = 1, 10 do
   local numberkey = { 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 }
   hl.bind("SUPER + SHIFT + code:" .. numberkey[i], function()
@@ -278,7 +275,6 @@ for i = 1, 10 do
   end)
 end
 
---#/# bind = SUPER+ALT, Hash,, -- Send to workspace -- (1, 2, 3,...)
 for i = 1, 10 do
   hl.bind("SUPER + ALT + " .. (i % 10), function()
     hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(i), follow = false }))
@@ -301,7 +297,6 @@ end
 
 --##! Workspace
 --# Switching
---#/# bind = SUPER, Hash,, -- Focus workspace -- (1, 2, 3,...)
 for i = 1, 10 do
   hl.bind("SUPER + " .. (i % 10), function()
     hl.dispatch(hl.dsp.focus({ workspace = workspace_in_group(i) }))
@@ -322,28 +317,6 @@ for i = 1, 10 do
   end)
 end
 
--- #/# bind = CTRL+SUPER, ←/→,, -- Focus left/right
--- #/# bind = CTRL+SUPER+ALT, ←/→,, -- # [hidden] Focus busy left/right
--- for i = 1, 2 do
---   local keys = { "Left", "Right" }
---   local prefix = { "r-", "r+" }
---   local descdir = { "left", "right" }
---   hl.bind(
---     "CTRL + SUPER + " .. keys[i],
---     hl.dsp.focus({ workspace = prefix[i] .. "1" }),
---     { description = "Workspace: Focus " .. descdir[i] }
---   )
--- end
--- for i = 1, 2 do
---   local keys = { "Left", "Right" }
---   local prefix = { "m-", "m+" }
---   hl.bind("CTRL + SUPER + ALT + " .. keys[i], hl.dsp.focus({ workspace = prefix[i] .. "1" }))
--- end
--- for i = 1, 4 do
---   local key = { "BracketLeft", "BracketRight", "Up", "Down" }
---   local prefix = { "-1", "+1", "r-5", "r+5" }
---   hl.bind("CTRL + SUPER + " .. key[i], hl.dsp.focus({ workspace = prefix[i] }))
--- end
 
 --##! Virtual machines
 hl.define_submap("virtual-machine", function()
@@ -374,4 +347,4 @@ end)
 --##! Apps
 hl.bind("SUPER + T", hl.dsp.exec_cmd(Terminal), { description = "App: Terminal" })
 hl.bind("SUPER + E", hl.dsp.exec_cmd(FileManager), { description = "App: File manager" })
-hl.bind("SUPER + I", hl.dsp.exec_cmd(SettingsApp), { description = "App: Settings app" })
+hl.bind("SUPER + I", hl.dsp.exec_cmd(SettingsApp), { description = "App: Settings" })
