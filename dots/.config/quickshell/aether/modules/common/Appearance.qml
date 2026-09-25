@@ -432,7 +432,6 @@ Singleton {
       property string iconMaterial: "Material Symbols Rounded"
       property string iconNerd: Config.options.appearance.typography.iconNerd
       property string monospace: Config.options.appearance.typography.monospace
-      property string reading: Config.options.appearance.typography.reading
       property string expressive: Config.options.appearance.typography.expressive
     }
     property QtObject variableAxes: QtObject {
@@ -450,8 +449,8 @@ Singleton {
     property QtObject pixelSize: QtObject {
       property int smaller: Math.round(12 * root.fontSizeScale)
       property int small: Math.round(14 * root.fontSizeScale)
-      property int normal: Math.round(14 * root.fontSizeScale)
-      property int large: Math.round(15 * root.fontSizeScale)
+      property int normal: Math.round(16 * root.fontSizeScale)
+      property int large: Math.round(18 * root.fontSizeScale)
       property int larger: Math.round(19 * root.fontSizeScale)
       property int huge: Math.round(22 * root.fontSizeScale)
       property int title: huge

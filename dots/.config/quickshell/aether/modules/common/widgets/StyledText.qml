@@ -15,7 +15,7 @@ Text {
     font {
         hintingPreference: Font.PreferDefaultHinting
         family: defaultFont
-        pixelSize: Appearance?.font.pixelSize.small ?? 15
+        pixelSize: Appearance?.font.pixelSize.normal ?? 16
         variableAxes: shouldUseNumberFont ? ({}) : Appearance.font.variableAxes.main
     }
     color: Appearance?.m3colors.m3onBackground ?? "black"

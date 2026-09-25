@@ -93,7 +93,6 @@ Singleton {
           property string title: "Google Sans 17pt SemiBold"
           property string iconNerd: "JetBrains Mono NF"
           property string monospace: "JetBrains Mono NF"
-          property string reading: "Readex Pro"
           property string expressive: "Google Sans Flex 120pt Medium"
           property real sizeScale: 1.0
           property bool syncWithSystem: true // Sync fonts with GTK/KDE apps

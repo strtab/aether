@@ -35,17 +35,16 @@ Item { // Bar content region
     color: Config.options.bar.background.enable ? Appearance.colors.colMenubarBackground : "transparent"
   }
 
-  FocusedScrollMouseArea { // Left side
+  FocusedScrollMouseArea { 
     id: leading
 
     anchors {
       top: parent.top
       bottom: parent.bottom
       left: parent.left
-      right: trailing.left
     }
 
-    implicitWidth: leadingGroup.implicitWidth
+    implicitWidth: 10
     implicitHeight: Appearance.sizes.baseBarHeight
 
     onScrollDown: Brightness.decreaseBrightness()
@@ -60,27 +59,35 @@ Item { // Bar content region
       side: "left"
       anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
+      color: Appearance.colors.onMenubarBackground
+    }
+  }
+
+  RowLayout {
+    id: leadingGroup
+    anchors.fill: parent
+    spacing: itemSpacing
+
+    anchors {
+      top: parent.top
+      bottom: parent.bottom
+      left: parent.left
+      right: trailing.left
     }
 
-    RowLayout {
-      id: leadingGroup
-      anchors.fill: parent
-      spacing: itemSpacing
-
-      Workspaces {
-        visible: Config.options?.bar?.workspaces?.enable
-        Layout.leftMargin: Config.options?.bar?.workspaces?.enable ? Appearance.rounding.screenRounding : 0
-      }
-      ActiveWindow {
-        Layout.leftMargin: Config.options?.bar?.workspaces?.enable ? 0 : Appearance.rounding.screenRounding
-        Layout.rightMargin: Appearance.rounding.screenRounding
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-      }
-      Item { // Filler
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-      }
+    Workspaces {
+      visible: Config.options?.bar?.workspaces?.enable
+      Layout.leftMargin: Config.options?.bar?.workspaces?.enable ? root.itemSpacing : 0
+    }
+    ActiveWindow {
+      Layout.leftMargin: Config.options?.bar?.workspaces?.enable ? 0 : root.itemSpacing
+      Layout.rightMargin: root.itemSpacing
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+    }
+    Item { // Filler
+      Layout.fillWidth: true
+      Layout.fillHeight: true
     }
   }
 
@@ -93,7 +100,7 @@ Item { // Bar content region
       right: parent.right
     }
 
-    implicitWidth: trailingGroup.implicitWidth
+    implicitWidth: 10
     implicitHeight: Appearance.sizes.baseBarHeight
 
     onScrollDown: Audio.decrementVolume()
@@ -108,126 +115,133 @@ Item { // Bar content region
       side: "right"
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
+      color: Appearance.colors.onMenubarBackground
+    }
+  }
+
+  RowLayout {
+    id: trailingGroup
+    anchors.fill: parent
+    layoutDirection: Qt.RightToLeft
+    spacing: 0
+
+    anchors {
+      top: parent.top
+      bottom: parent.bottom
+      right: parent.right
     }
 
-    RowLayout {
-      id: trailingGroup
-      anchors.fill: parent
-      layoutDirection: Qt.RightToLeft
-      spacing: 0
+    RippleButton { // Clock
+      visible: Config.options.bar?.clock?.enable
 
-      RippleButton { // Clock
-        visible: Config.options.bar?.clock?.enable
+      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+      Layout.fillWidth: false
+      Layout.rightMargin: root.itemSpacing
+      Layout.leftMargin: 10
 
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        Layout.fillWidth: false
-        Layout.rightMargin: Appearance.rounding.screenRounding
-        Layout.leftMargin: 10
+      implicitWidth: clockWidget.width
+      implicitHeight: clockWidget.height - 5
 
-        implicitWidth: clockWidget.width
-        implicitHeight: clockWidget.height - 5
+      buttonRadius: Appearance.rounding.large
+      colBackground: "transparent"
+      colBackgroundHover: Appearance.colors.colLayer1Hover
+      colRipple: Appearance.colors.colLayer1Active
+      colBackgroundToggled: Appearance.colors.colSecondaryContainer
+      colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
+      colRippleToggled: Appearance.colors.colSecondaryContainerActive
+      toggled: GlobalStates.notificationCenterOpen
 
-        buttonRadius: Appearance.rounding.large
-        colBackground: "transparent"
-        colBackgroundHover: Appearance.colors.colLayer1Hover
-        colRipple: Appearance.colors.colLayer1Active
-        colBackgroundToggled: Appearance.colors.colSecondaryContainer
-        colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
-        colRippleToggled: Appearance.colors.colSecondaryContainerActive
-        toggled: GlobalStates.notificationCenterOpen
-
-        onPressed: {
-          GlobalStates.notificationCenterOpen = !GlobalStates.notificationCenterOpen;
-        }
-
-        ClockWidget {
-          id: clockWidget
-          anchors.centerIn: parent
-        }
+      onPressed: {
+        GlobalStates.notificationCenterOpen = !GlobalStates.notificationCenterOpen;
       }
 
-      RippleButton { // Indicators
-        id: rightSidebarButton
+      ClockWidget {
+        id: clockWidget
+        anchors.centerIn: parent
+      }
+    }
 
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        Layout.rightMargin: Config.options.bar?.clock?.enable ? 0 : Appearance.rounding.screenRounding
-        Layout.fillWidth: false
+    RippleButton { // Indicators
+      id: rightSidebarButton
 
-        implicitWidth: indicatorsRowLayout.width + 10 * 2
-        implicitHeight: indicatorsRowLayout.height - 5
+      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+      Layout.rightMargin: Config.options.bar?.clock?.enable ? 0 : root.itemSpacing
+      Layout.fillWidth: false
 
-        buttonRadius: Appearance.rounding.large
-        colBackground: "transparent"
-        colBackgroundHover: Appearance.colors.colLayer1Hover
-        colRipple: Appearance.colors.colLayer1Active
-        colBackgroundToggled: Appearance.colors.colSecondaryContainer
-        colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
-        colRippleToggled: Appearance.colors.colSecondaryContainerActive
-        toggled: GlobalStates.sidebarRightOpen
+      implicitWidth: indicatorsRowLayout.width + 10 * 2
+      implicitHeight: indicatorsRowLayout.height - 5
 
-        onPressed: {
-          GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-        }
+      buttonRadius: Appearance.rounding.large
+      colBackground: "transparent"
+      colBackgroundHover: Appearance.colors.colLayer1Hover
+      colRipple: Appearance.colors.colLayer1Active
+      colBackgroundToggled: Appearance.colors.colSecondaryContainer
+      colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
+      colRippleToggled: Appearance.colors.colSecondaryContainerActive
+      toggled: GlobalStates.sidebarRightOpen
 
-        RowLayout {
-          id: indicatorsRowLayout
-          anchors.centerIn: parent
-          property real realSpacing: root.itemSpacing
-          spacing: 0
+      onPressed: {
+        GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
+      }
 
-          Revealer {
-            reveal: Audio.sink?.audio?.muted ?? false
-            Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-            Behavior on Layout.rightMargin {
-              animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-            }
-            MaterialSymbol {
-              text: "volume_off"
-              iconSize: Appearance.font.pixelSize.larger
-              color: Appearance.colors.onMenubarBackground
-            }
-          }
-          Revealer {
-            reveal: Audio.source?.audio?.muted ?? false
-            Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-            Behavior on Layout.rightMargin {
-              animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-            }
-            MaterialSymbol {
-              text: "mic_off"
-              iconSize: Appearance.font.pixelSize.larger
-              color: Appearance.colors.onMenubarBackground
-            }
-          }
-          HyprlandXkbIndicator {
-            Layout.alignment: Qt.AlignVCenter
-            Layout.rightMargin: indicatorsRowLayout.realSpacing
-          }
-          BatteryIndicator {
-            visible: (root.useShortenedForm < 2 && Battery.available)
-            Layout.alignment: Qt.AlignVCenter
+      RowLayout {
+        id: indicatorsRowLayout
+        anchors.centerIn: parent
+        property real realSpacing: root.itemSpacing
+        spacing: 0
+
+        Revealer {
+          reveal: Audio.sink?.audio?.muted ?? false
+          Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
+          Behavior on Layout.rightMargin {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
           }
           MaterialSymbol {
-            text: Network.materialSymbol
+            text: "volume_off"
             iconSize: Appearance.font.pixelSize.larger
             color: Appearance.colors.onMenubarBackground
           }
         }
+        Revealer {
+          reveal: Audio.source?.audio?.muted ?? false
+          Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
+          Behavior on Layout.rightMargin {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+          }
+          MaterialSymbol {
+            text: "mic_off"
+            iconSize: Appearance.font.pixelSize.larger
+            color: Appearance.colors.onMenubarBackground
+          }
+        }
+        HyprlandXkbIndicator {
+          Layout.alignment: Qt.AlignVCenter
+          Layout.rightMargin: indicatorsRowLayout.realSpacing
+        }
+        BatteryIndicator {
+          visible: (root.useShortenedForm < 2 && Battery.available)
+          Layout.alignment: Qt.AlignVCenter
+        }
+        MaterialSymbol {
+          text: Network.materialSymbol
+          iconSize: Appearance.font.pixelSize.larger
+          color: Appearance.colors.onMenubarBackground
+        }
       }
+    }
 
-      SysTray {
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        Layout.rightMargin: itemSpacing * 0.8
-        implicitHeight: indicatorsRowLayout.height - 5 // litle shitty
-        Layout.fillWidth: false
-        Layout.fillHeight: false
-      }
+    SysTray {
+      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+      Layout.rightMargin: itemSpacing * 0.8
+      implicitHeight: indicatorsRowLayout.height - 5 // litle shitty
+      Layout.fillWidth: false
+      Layout.fillHeight: false
+    }
 
-      Item { // Filler
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-      }
+    Item { // Filler
+      Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+      Layout.fillWidth: true
+      Layout.fillHeight: true
     }
   }
 }

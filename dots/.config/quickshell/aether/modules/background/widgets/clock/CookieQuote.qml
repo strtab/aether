@@ -49,7 +49,7 @@ Item {
                 text: Config.options.background.widgets.clock.quote.text
                 color: Appearance.colors.colOnSecondaryContainer
                 font {
-                    family: Appearance.font.family.reading
+                    family: Appearance.font.family.main
                     pixelSize: Appearance.font.pixelSize.large
                     weight: Font.Normal
                 }

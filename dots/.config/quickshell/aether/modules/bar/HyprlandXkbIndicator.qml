@@ -50,7 +50,7 @@ Item {
     StyledText {
       text: root.currentLayoutCode.slice(0, 2).toLowerCase()
       color: Appearance.colors.onMenubarBackground
-      font.pixelSize: Appearance.font.pixelSize.large + 1
+      font.pixelSize: Appearance.font.pixelSize.large
       Layout.fillHeight: true
       animateChange: true
     }

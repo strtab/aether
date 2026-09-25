@@ -36,10 +36,9 @@ Item {
 
     StyledText {
       Layout.fillHeight: true
-      font.pixelSize: Appearance.font.pixelSize.large
       font.family: Appearance.font.family.numbers
       color: Appearance.colors.onMenubarBackground
-      text: root.focusingThisMonitor && root.activeWindow?.activated && root.biggestWindow ? (root.clear(root.activeWindow?.appId)) : (root.clear(root.biggestWindow?.class)) ?? Translation.tr("Desktop")
+      text: root.focusingThisMonitor && root.activeWindow?.activated && root.biggestWindow ? (root.clear(root.activeWindow?.appId)) : (root.clear(root.biggestWindow?.class)) ?? `${Translation.tr("Workspace")} ${monitor?.activeWorkspace?.id ?? 1}`
     }
   }
 }

@@ -38,7 +38,7 @@ Item {
                     rotation: -numberItem.rotation
 
                     font {
-                        family: Appearance.font.family.reading
+                        family: Appearance.font.family.main
                         pixelSize: root.fontSize
                         weight: Font.Black
                     }

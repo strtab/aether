@@ -250,26 +250,6 @@ ContentPage {
           }
 
           ContentSubsection {
-            title: Translation.tr("Reading font")
-            description: Translation.tr("Used for reading large blocks of text")
-
-            FontSelector {
-              id: readingFontSelector
-              selectedFont: Config.options?.appearance?.typography?.reading ?? "Readex Pro"
-              onSelectedFontChanged: {
-                if (Config.options?.appearance?.typography)
-                  Config.setNestedValue("appearance.typography.reading", selectedFont);
-              }
-              Connections {
-                target: Config.options?.appearance?.reading ?? null
-                function onMainFontChanged() {
-                  readingFontSelector.selectedFont = Config.options.appearance.typography.reading;
-                }
-              }
-            }
-          }
-
-          ContentSubsection {
             title: Translation.tr("Expressive font")
             description: Translation.tr("Used for decorative/expressive text")
 
