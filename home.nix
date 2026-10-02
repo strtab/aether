@@ -23,13 +23,16 @@ in
   options.programs.aether = {
     enable = mkEnableOption "Enable the aether Hyprland configuration";
 
-    qsConfig = mkOption {
-      type = types.str;
-      default = "aether";
+    qs = {
+      overwriting = mkEnableOption "Enable automatic overwriting quickshell dotfiles" // {
+        default = true;
+      };
     };
 
-    copyQuickShellDots = mkEnableOption "Enable automatic overwriting quickshell dotfiles" // {
-      default = true;
+    hypridle = {
+      enable = mkEnableOption "Enable hypridle" // {
+        default = true;
+      };
     };
 
     hyprland = {

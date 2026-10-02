@@ -81,7 +81,7 @@ in
     };
 
     services.hypridle = {
-      enable = true;
+      enable = cfg.hypridle.enable;
       settings = {
         general = {
           lock_cmd = "hyprctl dispatch 'hl.dsp.global(\"quickshell:lock\")' & pidof qs quickshell hyprlock || hyprlock";

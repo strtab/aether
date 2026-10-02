@@ -16,7 +16,7 @@ in
     home.sessionVariables = {
       AETHER_DOTFILES_SOURCE = "${config.home.homeDirectory}/.config";
       AETHER_VIRTUAL_ENV = "${config.home.homeDirectory}/.local/state/quickshell/.venv";
-      qsConfig = "${config.home.homeDirectory}/.config/quickshell/${cfg.qsConfig}";
+      qsConfig = "${config.home.homeDirectory}/.config/quickshell/aether";
     };
 
     # Ensure variables are available to systemd services (and Hyprland)

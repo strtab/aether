@@ -158,12 +158,12 @@ in
 
           copyIfNotExist "kdeglobals"
 
-          ${lib.optionalString cfg.copyQuickShellDots ''
+          ${lib.optionalString cfg.qs.overwriting ''
             # Quickshell separately (patched derivation)
             [ -L "$targetPath/quickshell" ] && $DRY_RUN_CMD rm -f "$targetPath/quickshell"
-            [ -L "$targetPath/quickshell" ] && $DRY_RUN_CMD rm -f "$targetPath/quickshell/${cfg.qsConfig}"
+            [ -L "$targetPath/quickshell" ] && $DRY_RUN_CMD rm -f "$targetPath/quickshell/aether"
 
-            $DRY_RUN_CMD cp -rv "${quickshellPatched}/${cfg.qsConfig}" "$targetPath/quickshell"
+            $DRY_RUN_CMD cp -rv "${quickshellPatched}/aether" "$targetPath/quickshell"
             givePriv "quickshell"
           ''}
 
