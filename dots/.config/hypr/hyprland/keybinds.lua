@@ -155,7 +155,7 @@ hl.bind(
     .. " $SCREENSHOT_PATH && "
     .. "notify-send -a 'System' -t 1200 'Screenshot Saved' \"$SCREENSHOT_PATH\" "
   ),
-  { locked = true, non_consuming = true, description = "Utilities: Screenshot >> clipboard & file" }
+  { locked = true, non_consuming = true }
 )
 
 --##! Screen
