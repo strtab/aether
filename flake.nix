@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    quickshell.url = "github:outfoxxed/quickshell?tag=v0.3.0";
+    quickshell.url = "github:outfoxxed/quickshell?tag=v0.3.2";
     quickshell.inputs.nixpkgs.follows = "nixpkgs";
 
     hyprland.url = "github:hyprwm/Hyprland/5c9377c15f85c50648f35ca5a213754f95b93ca0"; # v0.56.1
