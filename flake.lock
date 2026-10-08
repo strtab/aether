@@ -36,11 +36,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1791378111,
-        "narHash": "sha256-b/q4ZPJjibvAThl0g72e46Zp9V6V7tlbbx+QLj6XgF8=",
+        "lastModified": 1791457473,
+        "narHash": "sha256-s7AZwMuYpCdMig/im8Na6rsNOjbNS0aaLhI8pBqgmEs=",
         "owner": "strtab",
         "repo": "aether",
-        "rev": "919db4e1a4ecbe0d984b0a770f06287380221484",
+        "rev": "532480482adba64ac2cc328a2afeb0db8c326864",
         "type": "github"
       },
       "original": {
