@@ -14,11 +14,6 @@ Rectangle {
   implicitWidth: mainRowLayout.implicitWidth + mainRowLayout.anchors.margins * 2
   implicitHeight: mainRowLayout.implicitHeight + mainRowLayout.anchors.margins * 2
 
-  GlassBevel {
-    anchors.fill: parent
-    radius: root.radius
-  }
-
   RowLayout {
     id: mainRowLayout
     anchors.fill: parent
@@ -30,7 +25,6 @@ Rectangle {
       Layout.fillWidth: false
       Layout.alignment: Qt.AlignTop
       text: "info"
-      iconSize: Appearance.font.pixelSize.huge
       color: Appearance.colors.colOnSurface
     }
 
@@ -42,6 +36,7 @@ Rectangle {
         id: noticeText
         Layout.fillWidth: true
         text: "Notice message"
+        style: Appearance.font.style.callout
         color: Appearance.colors.colOnSurface
         wrapMode: Text.WordWrap
       }

@@ -29,6 +29,8 @@ hl.animation({ leaf = "layersOut",           enabled = true, speed = 4, bezier =
 hl.animation({ leaf = "workspaces",          enabled = true, speed = 6, bezier = "pc_decel",  style = "slide"     })
 hl.animation({ leaf = "specialWorkspaceIn",  enabled = true, speed = 2, bezier = "pc_wobble", style = "slidevert" })
 hl.animation({ leaf = "specialWorkspaceOut", enabled = true, speed = 2, bezier = "pc_accel",  style = "slidevert" })
+hl.animation({ leaf = "fadePopupsIn",  enabled = false })
+hl.animation({ leaf = "fadePopupsOut", enabled = false })
 """,
     "normal": """\
 hl.curve("emphasizedDecel", { type = "bezier", points = { {0.05, 0.7},  {0.1,  1}    } })
@@ -49,6 +51,8 @@ hl.animation({ leaf = "fadeLayersOut",       enabled = true, speed = 2.7, bezier
 hl.animation({ leaf = "workspaces",          enabled = true, speed = 7,   bezier = "menu_decel",      style = "slide"     })
 hl.animation({ leaf = "specialWorkspaceIn",  enabled = true, speed = 2.8, bezier = "emphasizedDecel", style = "slidevert" })
 hl.animation({ leaf = "specialWorkspaceOut", enabled = true, speed = 1.2, bezier = "emphasizedAccel", style = "slidevert" })
+hl.animation({ leaf = "fadePopupsIn",  enabled = false })
+hl.animation({ leaf = "fadePopupsOut", enabled = false })
 """,
     "niri": """\
 hl.curve("niri_wobble", { type = "bezier", points = { {0.15, 1.15}, {0.35, 1.0}  } })
@@ -64,6 +68,8 @@ hl.animation({ leaf = "layersOut",           enabled = true, speed = 4, bezier =
 hl.animation({ leaf = "workspaces",          enabled = true, speed = 6, bezier = "niri_decel",  style = "slidevert" })
 hl.animation({ leaf = "specialWorkspaceIn",  enabled = true, speed = 4, bezier = "niri_wobble", style = "slidevert" })
 hl.animation({ leaf = "specialWorkspaceOut", enabled = true, speed = 4, bezier = "niri_accel",  style = "slidevert" })
+hl.animation({ leaf = "fadePopupsIn",  enabled = false })
+hl.animation({ leaf = "fadePopupsOut", enabled = false })
 """,
     "reduced": """\
 hl.curve("emphasizedDecel", { type = "bezier", points = { {0.05, 0.7},  {0.1,  1}    } })
@@ -84,6 +90,8 @@ hl.animation({ leaf = "fadeLayersOut",       enabled = true, speed = 2.7, bezier
 hl.animation({ leaf = "workspaces",          enabled = false })
 hl.animation({ leaf = "specialWorkspaceIn",  enabled = false})
 hl.animation({ leaf = "specialWorkspaceOut", enabled = false})
+hl.animation({ leaf = "fadePopupsIn",  enabled = false })
+hl.animation({ leaf = "fadePopupsOut", enabled = false })
 """,
 }
 

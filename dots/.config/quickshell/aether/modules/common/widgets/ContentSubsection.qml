@@ -37,6 +37,7 @@ RowLayout {
       Layout.fillWidth: true
       Layout.leftMargin: 2
       color: Appearance.colors.colSubtext
+      style: Appearance.font.catption1
       visible: root.description && root.description.length > 0
       text: root.description
       wrapMode: Text.WordWrap

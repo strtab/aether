@@ -69,15 +69,11 @@ ContentPage {
           height: 1
           color: Appearance.colors.colOutlineVariant
         }
-        RippleButtonWithIcon {
+        RippleButton {
           Layout.fillWidth: true
-          materialIcon: "wallpaper"
-          mainText: Translation.tr("Choose file")
+          buttonText: Translation.tr("Choose file")
           onClicked: {
             Quickshell.execDetached(["bash", "-c", `${Directories.wallpaperSwitchScriptPath}`]);
-          }
-          StyledToolTip {
-            text: Translation.tr("Pick wallpaper image on your system")
           }
         }
       }

@@ -121,9 +121,7 @@ ApplicationWindow {
     MaterialThemeLoader.reapplyTheme();
     Config.readWriteDelay = 0; // Settings app always only sets one var at a time so delay isn't needed
   }
-  maximumWidth: 1100
   minimumWidth: 900
-  maximumHeight: 900
   minimumHeight: 600
   height: 800
   color: Appearance.m3colors.m3background
@@ -165,14 +163,16 @@ ApplicationWindow {
             // gap between groups (e.g. Energy/General, Services/Keyboard).
             section.property: "section"
             section.criteria: ViewSection.FullString
-            section.delegate: StyledText {
-              leftPadding: 10
-              width: ListView.view.width
-              topPadding: 20
-              bottomPadding: 4
-              font.pixelSize: Appearance.font.pixelSize.smaller
-              color: Appearance.colors.colSubtext
-              text: section
+            section.delegate: Item {
+              width: parent.width
+              implicitHeight: separator.height + 10
+              Rectangle { // Separator
+                id: separator
+                width: parent.width
+                anchors.centerIn: parent.center
+                color: Appearance.colors.colOutlineVariant
+                height: 1
+              }
             }
             delegate: RippleButton {
               id: sideBarButton
@@ -202,7 +202,6 @@ ApplicationWindow {
               contentItem: RowLayout {
                 MaterialSymbol {
                   color: sideBarButton.toggled ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnLayer1
-                  iconSize: Appearance.font.pixelSize.large
                   text: sideBarButton.modelData.icon
                   fill: sideBarButton.toggled ? 1 : 0
                 }
@@ -216,16 +215,31 @@ ApplicationWindow {
             }
           }
           StyledText {
-            id: distroDescription
+            id: version
             Layout.margins: 20
-            Layout.bottomMargin: 10
-            font.pixelSize: Appearance.font.pixelSize.smaller
+            Layout.bottomMargin: 0
+            style: Appearance.font.style.caption2
             color: Appearance.colors.colSubtext
             Process {
               command: ["bash", "-c", "source /etc/os-release && echo $PRETTY_NAME"]
               running: true
               stdout: SplitParser {
-                onRead: data => distroDescription.text = data.trim()
+                onRead: data => version.text = data.trim()
+              }
+            }
+          }
+          StyledText {
+            id: core
+            Layout.margins: 20
+            Layout.topMargin: 0
+            Layout.bottomMargin: 15
+            style: Appearance.font.style.caption1
+            color: Appearance.colors.colSubtext
+            Process {
+              command: ["bash", "-c", "uname -rs"]
+              running: true
+              stdout: SplitParser {
+                onRead: data => core.text = data.trim()
               }
             }
           }
@@ -262,7 +276,6 @@ ApplicationWindow {
               contentItem: MaterialSymbol {
                 anchors.centerIn: parent
                 color: Appearance.colors.colOnLayer1
-                iconSize: Appearance.font.pixelSize.large
                 text: "chevron_left"
               }
             }

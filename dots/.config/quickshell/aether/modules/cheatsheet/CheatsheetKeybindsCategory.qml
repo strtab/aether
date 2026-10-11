@@ -114,7 +114,6 @@ Column {
 
   StyledText {
     text: root.isCategorized ? root.categoryName : "Uncategorized"
-    font.pixelSize: Appearance.font.pixelSize.title
   }
 
   function hasDescription(bind) {
@@ -205,7 +204,6 @@ Column {
           delegate: KeyboardKey {
             required property var modelData
             key: root.transformKey(modelData) + " " + root.transformKey(bindLine.keyData.key)
-            pixelSize: Config.options.cheatsheet.fontSize.key
           }
         }
       }
@@ -217,7 +215,6 @@ Column {
           id: commentText
           anchors.verticalCenter: parent.verticalCenter
           anchors.left: parent.left
-          font.pixelSize: Config.options.cheatsheet.fontSize.comment || Appearance.font.pixelSize.smaller
           text: root.transformDescription(bindLine.keyData, bindLine.categoryName)
         }
       }

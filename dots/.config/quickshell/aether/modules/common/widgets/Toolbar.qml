@@ -36,11 +36,6 @@ Item {
         implicitWidth: toolbarLayout.implicitWidth + root.padding * 2
         radius: height / 2
 
-        GlassBevel {
-            anchors.fill: parent
-            radius: background.radius
-        }
-
         RowLayout {
             id: toolbarLayout
             spacing: 4

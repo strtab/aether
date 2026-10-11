@@ -3,18 +3,13 @@ import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 import QtQuick
-import QtQuick.Controls
-import QtQuick.Effects
 import QtQuick.Layouts
-import Quickshell.Io
 import Quickshell
-import Quickshell.Widgets
 import Quickshell.Wayland
-import Quickshell.Hyprland
 
-Scope { // Scope
+Scope {
   id: root
-  property bool pinned: Config.options?.dock.pinnedOnStartup ?? false
+  property bool pinned: Config.options?.dock?.pinnedOnStartup ?? false
 
   Variants {
     // For each monitor
@@ -22,138 +17,139 @@ Scope { // Scope
 
     PanelWindow {
       id: dockRoot
-      // Window
+
       required property var modelData
       screen: modelData
-      visible: (!GlobalStates.screenLocked && TaskbarApps.apps.length > 1)
 
-      property bool reveal: root.pinned || (Config.options?.dock.hoverToReveal && dockMouseArea.containsMouse) || dockApps.requestDockShow || (!ToplevelManager.activeToplevel?.activated)
+      visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked && TaskbarApps.apps.length > 1
 
-      anchors.left: true
-      anchors.right: true
-      anchors.bottom: true
+      readonly property real iconSize: Config.options?.dock?.iconSize ?? 65
+      readonly property bool monochrome: Config.options?.dock?.monochromeIcons ?? true
+      // Extra icon size at the cursor. Set Config.options.dock.magnification to false to disable.
+      readonly property real zoomPx: (Config.options?.dock?.magnification ?? true) ? (Config.options?.dock?.magnificationZoom ?? 30) : 0
 
-      exclusiveZone: root.pinned ? implicitHeight - (Appearance.sizes.hyprlandGapsOut) - (Appearance.sizes.elevationMargin - Appearance.sizes.hyprlandGapsOut) : 0
+      readonly property real slotWidth: dockRoot.iconSize + (dockRoot.iconSize / 4)
+      readonly property real capsulePadding: 10
+      readonly property real capsuleHeight: dockRoot.iconSize + (dockRoot.iconSize / 2)
+      readonly property real iconBottomMargin: (dockRoot.capsuleHeight - dockRoot.iconSize) / 2
+      readonly property int iconSlots: DockApps.slotIds.length
+      property real capsuleWidth: dockRoot.iconSlots * dockRoot.slotWidth + dockRoot.capsulePadding * 2
 
-      // Height for content and visual
-      property real dockVisualHeight: (Config.options?.dock.iconSize ?? 70) + dockRow.padding - 5
-      property real dockContentHeight: (dockVisualHeight + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut)
+      readonly property real tooltipHeadroom: 34
 
-      WlrLayershell.namespace: "quickshell:dock"
-      WlrLayershell.layer: Appearance.layers.dock
-      color: "transparent"
-
-      implicitWidth: dockBackground.implicitWidth
-      implicitHeight: dockContentHeight + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
-
-      Behavior on implicitHeight {
+      Behavior on capsuleWidth {
         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
       }
 
+      // Anchored to the bottom edge only, so the compositor centers the surface horizontally
+      anchors.bottom: true
+      implicitWidth: dockRoot.capsuleWidth + Appearance.sizes.elevationMargin * 2
+      implicitHeight: dockRoot.capsuleHeight + dockRoot.zoomPx + dockRoot.tooltipHeadroom + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
+      exclusiveZone: root.pinned ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 : 0
+
+      WlrLayershell.namespace: "quickshell:dock"
+      WlrLayershell.layer: WlrLayer.Top
+      color: "transparent"
+
+      // Cursor x inside dockRow, -1 when the cursor is outside
+      property real hoverX: -1
+      property int dragSourceIndex: -1
+      property int dragTargetIndex: -1
+      readonly property bool menuOpen: slotMenu.open
+      // Cursor position used for magnification; disabled while dragging or with an open menu
+      readonly property real zoomHoverX: dockRoot.dragSourceIndex === -1 && !dockRoot.menuOpen ? dockRoot.hoverX : -1
+
+      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal && hitArea.containsMouse) || dockRoot.menuOpen || (!ToplevelManager.activeToplevel?.activated)
+
+      Connections {
+        target: DockApps
+        function onSlotIdsChanged() {
+          dockRoot.hoverX = -1;
+        }
+      }
+
+      function slotIndexAt(x) {
+        for (let i = 0; i < slotRepeater.count; i++) {
+          const item = slotRepeater.itemAt(i);
+          if (item && x >= item.x && x < item.x + item.width)
+            return i;
+        }
+        return x < 0 ? 0 : Math.max(0, slotRepeater.count - 1);
+      }
+
+      function openSlotMenu(slot) {
+        // Window coordinates of the slot center
+        const center = slot.mapToItem(null, slot.width / 2, 0);
+        slotMenu.openFor(slot.app.appId, center.x, capsule.y - 10);
+      }
+
+      // Only the hover area receives input; it grows while the dock is revealed
       mask: Region {
-        item: dockMouseArea
+        item: hitArea
       }
 
       MouseArea {
-        id: dockMouseArea
-        height: parent.height
-        anchors {
-          top: parent.top
-          topMargin: dockRoot.reveal ? 0 : Config.options?.dock.hoverToReveal ? (dockRoot.implicitHeight - Config.options.dock.hoverRegionHeight) : (dockRoot.implicitHeight + 1)
-          horizontalCenter: parent.horizontalCenter
-        }
-        implicitWidth: dockHoverRegion.implicitWidth + Appearance.sizes.elevationMargin * 2
+        id: hitArea
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        width: parent.width
+        height: dockRoot.reveal ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 + Appearance.sizes.elevationMargin + (dockRoot.zoomHoverX >= 0 ? dockRoot.zoomPx + dockRoot.tooltipHeadroom : 0) : (Config.options?.dock?.hoverRegionHeight ?? 2)
         hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+      }
 
-        Behavior on anchors.topMargin {
+      DockSlotMenu {
+        id: slotMenu
+        dockWindow: dockRoot
+      }
+
+      Item {
+        id: capsule
+        width: dockRoot.capsuleWidth
+        height: dockRoot.capsuleHeight
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        // Slides below the screen edge when hidden
+        anchors.bottomMargin: dockRoot.reveal ? Appearance.sizes.hyprlandGapsOut : -(dockRoot.capsuleHeight + Appearance.sizes.elevationMargin)
+
+        Behavior on anchors.bottomMargin {
           animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
         }
 
-        Item {
-          id: dockHoverRegion
+        StyledRectangularShadow {
+          target: capsuleBackground
+        }
+
+        Rectangle {
+          id: capsuleBackground
           anchors.fill: parent
-          implicitWidth: dockBackground.implicitWidth
+          color: Appearance.colors.colLayer0
+          border.width: 1
+          border.color: Appearance.colors.colLayer0Border
+          radius: (Config.options?.dock?.iconSize / 2.2)
+        }
 
-          Item { // Wrapper for the dock background
-            id: dockBackground
-            anchors {
-              top: parent.top
-              bottom: parent.bottom
-              horizontalCenter: parent.horizontalCenter
+        RowLayout {
+          id: dockRow
+          anchors.fill: parent
+          anchors.leftMargin: dockRoot.capsulePadding
+          anchors.rightMargin: dockRoot.capsulePadding
+          spacing: 0
+
+          Repeater {
+            id: slotRepeater
+            model: DockApps.slotIds
+            delegate: DockSlot {
+              dock: dockRoot
             }
+          }
 
-            implicitWidth: dockRow.implicitWidth + 10 * 2
-            height: parent.height - Appearance.sizes.elevationMargin - Appearance.sizes.hyprlandGapsOut
-
-            StyledRectangularShadow {
-              target: dockVisualBackground
-            }
-            Rectangle { // The real rectangle that is visible
-              id: dockVisualBackground
-              property real margin: Appearance.sizes.elevationMargin
-              anchors.fill: parent
-              anchors.topMargin: Appearance.sizes.elevationMargin
-              anchors.bottomMargin: Appearance.sizes.hyprlandGapsOut
-              color: Appearance.colors.colLayer0
-              border.width: 1
-              border.color: Appearance.colors.colLayer0Border
-              radius: Appearance.rounding.large
-            }
-
-            RowLayout {
-              id: dockRow
-              anchors.top: parent.top
-              anchors.horizontalCenter: parent.horizontalCenter
-              anchors.verticalCenter: parent.verticalCenter
-              height: dockRoot.dockVisualHeight
-              property real padding: 2
-              spacing: 10
-
-              VerticalButtonGroup {
-                Layout.topMargin: Appearance.sizes.hyprlandGapsOut // why does this work
-                visible: Config.options?.dock.showPinButton ?? false
-                GroupButton {
-                  // Pin button
-                  baseWidth: 35
-                  baseHeight: 35
-                  clickedWidth: baseWidth
-                  clickedHeight: baseHeight + 20
-                  buttonRadius: Appearance.rounding.normal
-                  toggled: root.pinned
-                  onClicked: root.pinned = !root.pinned
-                  contentItem: MaterialSymbol {
-                    text: "keep"
-                    horizontalAlignment: Text.AlignHCenter
-                    iconSize: Appearance.font.pixelSize.larger
-                    color: root.pinned ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer0
-                  }
-                }
-              }
-              DockSeparator {
-                visible: Config.options?.dock.showPinButton ?? false
-              }
-              DockApps {
-                id: dockApps
-                height: dockRoot.dockVisualHeight
-                buttonPadding: dockRow.padding
-              }
-              DockSeparator {
-                visible: Config.options?.dock.showOverviewButton ?? false
-              }
-              DockButton {
-                visible: Config.options?.dock.showOverviewButton ?? false
-                Layout.fillHeight: true
-                onClicked: GlobalStates.overviewOpen = !GlobalStates.overviewOpen
-                topInset: Appearance.sizes.hyprlandGapsOut + dockRow.padding
-                bottomInset: Appearance.sizes.hyprlandGapsOut + dockRow.padding
-                contentItem: MaterialSymbol {
-                  anchors.fill: parent
-                  horizontalAlignment: Text.AlignHCenter
-                  font.pixelSize: parent.width / 2
-                  text: "apps"
-                  color: Appearance.colors.colOnLayer0
-                }
-              }
+          HoverHandler {
+            id: rowHover
+            onPointChanged: dockRoot.hoverX = rowHover.point.position.x
+            onHoveredChanged: {
+              if (!rowHover.hovered)
+                dockRoot.hoverX = -1;
             }
           }
         }

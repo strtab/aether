@@ -35,7 +35,7 @@ Item { // Bar content region
     color: Config.options.bar.background.enable ? Appearance.colors.colMenubarBackground : "transparent"
   }
 
-  FocusedScrollMouseArea { 
+  FocusedScrollMouseArea {
     id: leading
 
     anchors {
@@ -210,7 +210,7 @@ Item { // Bar content region
           }
           MaterialSymbol {
             text: "mic_off"
-            iconSize: Appearance.font.pixelSize.larger
+            style: Appearance.font.title3
             color: Appearance.colors.onMenubarBackground
           }
         }
@@ -224,7 +224,7 @@ Item { // Bar content region
         }
         MaterialSymbol {
           text: Network.materialSymbol
-          iconSize: Appearance.font.pixelSize.larger
+          style: Appearance.font.title3
           color: Appearance.colors.onMenubarBackground
         }
       }

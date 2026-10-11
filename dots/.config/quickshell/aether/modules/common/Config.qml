@@ -151,12 +151,7 @@ Singleton {
           property string animation: "normal"
           property bool enable: true
         }
-        property JsonObject autostartApps: JsonObject {
-          property bool enable: false
-          property list<var> apps: []
-        }
         property JsonObject decoration: JsonObject {
-          property int rounding: 25
           property real activeOpacity: 1.0
           property real inactiveOpacity: 1.0
           property JsonObject blur: JsonObject {
@@ -170,9 +165,6 @@ Singleton {
           }
         }
         property JsonObject general: JsonObject {
-          property int borderSize: 1
-          property int gapsIn: 2
-          property int gapsOut: 5
           property string layout: "dwindle"
         }
         property JsonObject input: JsonObject {
@@ -319,10 +311,6 @@ Singleton {
         property bool useMacSymbol: true
         property bool useMouseSymbol: false
         property bool useFnSymbol: false
-        property JsonObject fontSize: JsonObject {
-          property int key: Appearance.font.pixelSize.large
-          property int comment: Appearance.font.pixelSize.large
-        }
       }
 
       property JsonObject conflictKiller: JsonObject {
@@ -337,17 +325,13 @@ Singleton {
         property bool showOverviewButton: false
         property real iconSize: 65
         property real hoverRegionHeight: 2
-        property JsonObject dots: JsonObject {
-          property int maxCount: 5
-          property real widthFocused: 6
-          property real widthInactive: 6
-          property real height: 6
-        }
+        property bool magnification: true
+        property real magnificationZoom: 30
         property bool showPreview: true
         property bool pinnedOnStartup: true
         property bool hoverToReveal: true // When false, only reveals on empty workspace
         property list<string> pinnedApps: [ // IDs of pinned entries
-          "zen", "kitty", "obsidian", "anki", "thunderbird", "org.telegram.desktop", "org.kde.dolphin", "org.kde.kinfocenter", "ONLYOFFICE"]
+          "helium", "kitty", "obsidian", "anki", "org.telegram.desktop", "org.kde.dolphin", "ONLYOFFICE"]
         property list<string> ignoredAppRegexes: []
       }
 
@@ -561,7 +545,7 @@ Singleton {
       }
 
       property JsonObject screenSnip: JsonObject {
-        property string savePath: FileUtils.trimFileProtocol(`${Directories.pictures}/Screenshots`) 
+        property string savePath: FileUtils.trimFileProtocol(`${Directories.pictures}/Screenshots`)
       }
 
       property JsonObject sounds: JsonObject {

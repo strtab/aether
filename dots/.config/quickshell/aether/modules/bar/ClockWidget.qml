@@ -20,7 +20,7 @@ Item {
     StyledText {
       Layout.fillHeight: true
       visible: root.showDate
-      font.pixelSize: Appearance.font.pixelSize.menuBar
+      style: Appearance.font.style.menubar
       font.family: Appearance.font.family.numbers
       color: root.color
       text: DateTime.longDate
@@ -29,15 +29,14 @@ Item {
     StyledText {
       Layout.fillHeight: true
       visible: root.showDate
-      font.pixelSize: Appearance.font.pixelSize.menuBar
       color: root.color
       text: " "
     }
 
     StyledText {
       Layout.fillHeight: true
-      font.pixelSize: Appearance.font.pixelSize.menuBar
-      font.family: Appearance.font.family.monospace
+      style: Appearance.font.style.menubar
+      font.family: Appearance.font.family.numbers
       color: root.color
       text: DateTime.time
     }

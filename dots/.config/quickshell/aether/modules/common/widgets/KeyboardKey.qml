@@ -9,7 +9,6 @@ Rectangle {
   property real verticalPadding: 1
   property real borderWidth: 1
   property real borderRadius: Appearance.rounding.verysmall
-  property real pixelSize: Appearance.font.pixelSize.smaller
 
   property color borderColor: Appearance.m3colors.m3onSecondaryFixedVariant
   property color keyColor: Appearance.m3colors.m3surfaceContainerLow
@@ -37,9 +36,7 @@ Rectangle {
     StyledText {
       id: keyText
       anchors.centerIn: parent
-      font.family: Appearance.font.family.monospace
       color: root.fontColor
-      font.pixelSize: root.pixelSize
       text: key
     }
   }

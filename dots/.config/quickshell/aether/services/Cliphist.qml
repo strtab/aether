@@ -96,7 +96,7 @@ Singleton {
 
   Process {
     id: textWatcherProc
-    command: ["bash", "-c", `wl-paste --type text --watch bash -c '${root.cliphistBinary} store && qs -c aether ipc call cliphistService update'`]
+    command: ["bash", "-c", `pkill 'wl-paste --type text'; wait; wl-paste --type text --watch bash -c '${root.cliphistBinary} store && qs -c aether ipc call cliphistService update'`]
     running: true
     onExited: (code, status) => {
       if (code !== 0)
@@ -106,7 +106,7 @@ Singleton {
 
   Process {
     id: imageWatcherProc
-    command: ["bash", "-c", `wl-paste --type image --watch bash -c '${root.cliphistBinary} store && qs -c aether ipc call cliphistService update'`]
+    command: ["bash", "-c", `pkill 'wl-paste --type image'; wait; wl-paste --type image --watch bash -c '${root.cliphistBinary} store && qs -c aether ipc call cliphistService update'`]
     running: true
     onExited: (code, status) => {
       if (code !== 0)

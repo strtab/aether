@@ -35,8 +35,6 @@ Singleton {
   property real backgroundTransparency: Config?.options.appearance.transparency.enable ? Config?.options.appearance.transparency.automatic ? autoBackgroundTransparency : Config?.options.appearance.transparency.backgroundTransparency : 0
   property real contentTransparency: Config?.options.appearance.transparency.automatic ? autoContentTransparency : Config?.options.appearance.transparency.contentTransparency
 
-  // Aether: calm optical glass material. Pearl background, graphite ink accents,
-  // one blue focus/interaction accent, and a soft aurora wash reserved for hero surfaces.
   m3colors: QtObject {
     property bool darkmode: false
     property bool transparent: false
@@ -185,8 +183,8 @@ Singleton {
     property color colOnSurface: m3colors.m3onSurface
     property color colOnSurfaceVariant: m3colors.m3onSurfaceVariant
     // Misc
-    property color colTooltip: m3colors.m3inverseSurface
-    property color colOnTooltip: m3colors.m3inverseOnSurface
+    property color colTooltip: m3colors.m3background
+    property color colOnTooltip: m3colors.m3onBackground
     property color colScrim: ColorUtils.transparentize(m3colors.m3scrim, 0.5)
     property color colShadow: ColorUtils.transparentize(m3colors.m3shadow, 0.82)
     property color colOutline: m3colors.m3outline
@@ -199,7 +197,7 @@ Singleton {
     property color colErrorContainerHover: ColorUtils.mix(m3colors.m3errorContainer, m3colors.m3onErrorContainer, 0.90)
     property color colErrorContainerActive: ColorUtils.mix(m3colors.m3errorContainer, m3colors.m3onErrorContainer, 0.70)
     property color colOnErrorContainer: m3colors.m3onErrorContainer
-    // Aether glass material tokens
+    // Glass material tokens
     property color colHairline: ColorUtils.transparentize(m3colors.m3onBackground, 0.92)
     property color colBevelLight: ColorUtils.transparentize(m3colors.m3surfaceContainerLowest, 0.1)
     property color colBevelSoft: ColorUtils.transparentize(m3colors.m3surfaceContainerLowest, 0.45)
@@ -231,6 +229,8 @@ Singleton {
   }
 
   animationCurves: QtObject {
+    readonly property list<real> riseCurve: [0.22, 0.61, 0.36, 1.0, 1.0, 1.0]
+    readonly property list<real> fallCurve: [0.64, 0.0, 0.78, 0.39, 1.0, 1.0]
     readonly property list<real> expressiveFastSpatial: [0.42, 1.67, 0.21, 0.90, 1, 1] // Default, 350ms
     readonly property list<real> expressiveDefaultSpatial: [0.38, 1.21, 0.22, 1.00, 1, 1] // Default, 500ms
     readonly property list<real> expressiveSlowSpatial: [0.39, 1.29, 0.35, 0.98, 1, 1] // Default, 650ms
@@ -247,13 +247,10 @@ Singleton {
     readonly property real expressiveDefaultSpatialDuration: 500
     readonly property real expressiveSlowSpatialDuration: 650
     readonly property real expressiveEffectsDuration: 200
-    // Aether glass motion: a calm ease-out for hover/state transitions,
-    // and a light spring for chip/thumb bounces (reserved for momentum-driven,
-    // "the user just touched this" interactions, not passive fades).
-    readonly property list<real> aetherEaseOut: [0.22, 0.61, 0.36, 1, 1, 1]
-    readonly property list<real> aetherEaseSpring: [0.5, 1.6, 0.4, 1, 1, 1]
-    readonly property real aetherFastDuration: 140
-    readonly property real aetherMedDuration: 220
+    readonly property list<real> easeOut: [0.22, 0.61, 0.36, 1, 1, 1]
+    readonly property list<real> easeSpring: [0.5, 1.6, 0.4, 1, 1, 1]
+    readonly property real fastDuration: 140
+    readonly property real mediumDuration: 220
   }
 
   animation: QtObject {
@@ -330,9 +327,9 @@ Singleton {
     }
 
     property QtObject elementMoveFast: QtObject {
-      property int duration: animationCurves.aetherMedDuration
+      property int duration: animationCurves.mediumDuration
       property int type: Easing.BezierSpline
-      property list<real> bezierCurve: animationCurves.aetherEaseOut
+      property list<real> bezierCurve: animationCurves.easeOut
       property int velocity: 850
       property Component colorAnimation: Component {
         ColorAnimation {
@@ -367,9 +364,9 @@ Singleton {
     }
 
     property QtObject clickBounce: QtObject {
-      property int duration: animationCurves.aetherMedDuration
+      property int duration: animationCurves.mediumDuration
       property int type: Easing.BezierSpline
-      property list<real> bezierCurve: animationCurves.aetherEaseSpring
+      property list<real> bezierCurve: animationCurves.easeSpring
       property int velocity: 850
       property Component numberAnimation: Component {
         NumberAnimation {
@@ -381,6 +378,20 @@ Singleton {
       }
     }
 
+    // Two-hop dock bounce (port of the web dock: 600 ms, first hop 58%)
+    property QtObject dockBounce: QtObject {
+      property int duration: 600
+      property real firstHopShare: 0.58
+      // Peak height relative to the dock icon size
+      property real peakRatio: 0.4
+      // Second hop height relative to the first one
+      property real decay: 0.38
+      readonly property int hop1Half: Math.round(duration * firstHopShare / 2)
+      readonly property int hop2Half: Math.round(duration * (1 - firstHopShare) / 2)
+      readonly property list<real> riseCurve: root.animationCurves.riseCurve
+      readonly property list<real> fallCurve: root.animationCurves.fallCurve
+    }
+
     property QtObject scroll: QtObject {
       property int duration: 200
       property int type: Easing.BezierSpline
@@ -388,9 +399,9 @@ Singleton {
     }
 
     property QtObject smooth: QtObject {
-      property int duration: animationCurves.aetherMedDuration
+      property int duration: animationCurves.mediumDuration
       property int type: Easing.BezierSpline
-      property list<real> bezierCurve: animationCurves.aetherEaseOut
+      property list<real> bezierCurve: animationCurves.easeOut
       property Component numberAnimation: Component {
         NumberAnimation {
           alwaysRunToEnd: true
@@ -402,9 +413,9 @@ Singleton {
     }
 
     property QtObject hover: QtObject {
-      property int duration: animationCurves.aetherFastDuration
+      property int duration: animationCurves.fastDuration
       property int type: Easing.BezierSpline
-      property list<real> bezierCurve: animationCurves.aetherEaseOut
+      property list<real> bezierCurve: animationCurves.easeOut
       property Component numberAnimation: Component {
         NumberAnimation {
           alwaysRunToEnd: true
@@ -455,10 +466,77 @@ Singleton {
       property int huge: Math.round(22 * root.fontSizeScale)
       property int title: huge
     }
+    property QtObject style: QtObject {
+      property QtObject largeTitle: QtObject {
+        property real pointSize: Math.round(26 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.title
+      }
+      property QtObject title1: QtObject {
+        property real pointSize: Math.round(22 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.title
+      }
+      property QtObject title2: QtObject {
+        property real pointSize: Math.round(17 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.title
+      }
+      property QtObject title3: QtObject {
+        property real pointSize: Math.round(15 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.title
+      }
+      property QtObject headline: QtObject {
+        property real pointSize: Math.round(13 * root.fontSizeScale)
+        property int weight: Font.Bold
+        property string family: root.font.family.main
+      }
+      property QtObject body: QtObject {
+        property real pointSize: Math.round(13 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.main
+      }
+      property QtObject callout: QtObject {
+        property real pointSize: Math.round(12 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.main
+      }
+      property QtObject subheadline: QtObject {
+        property real pointSize: Math.round(11 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.main
+      }
+      property QtObject footnote: QtObject {
+        property real pointSize: Math.round(10 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.main
+      }
+      property QtObject caption1: QtObject {
+        property real pointSize: Math.round(10 * root.fontSizeScale)
+        property int weight: Font.Normal
+        property string family: root.font.family.main
+      }
+      property QtObject caption2: QtObject {
+        property real pointSize: Math.round(10 * root.fontSizeScale)
+        property int weight: Font.Medium
+        property string family: root.font.family.main
+      }
+      property QtObject menubar: QtObject {
+        property real pointSize: Math.round(11 * root.fontSizeScale)
+        property int weight: Font.Medium
+        property string family: root.font.family.main
+      }
+      property QtObject menu: QtObject {
+        property real pointSize: Math.round(10 * root.fontSizeScale)
+        property int weight: Font.Medium
+        property string family: root.font.family.main
+      }
+    }
   }
 
   sizes: QtObject {
-    property real baseBarHeight: 29
+    property real baseBarHeight: 32
     property real barHeight: Config.options.bar.cornerStyle === 1 ? (baseBarHeight + root.sizes.hyprlandGapsOut * 2) : baseBarHeight
     property real elevationMargin: 10
     property real fabShadowRadius: 5
@@ -481,7 +559,7 @@ Singleton {
   layers: QtObject {
     property real background: WlrLayer.Background
     property real lockscreen: WlrLayer.Overlay
-    property real bar: WlrLayer.Bottom
+    property real bar: WlrLayer.Top
     property real overlay: WlrLayer.Overlay
     property real dock: WlrLayer.Bottom
   }

@@ -56,11 +56,11 @@ ContentPage {
           Config.options.appearance.palette.accentColor = text;
           debounceTimer.restart();
         }
-        RippleButtonWithIcon {
+        RippleButton {
           onClicked: {
             Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--noswitch", "--color"]);
           }
-          contentItem: MaterialSymbol {
+          MaterialSymbol {
             anchors.centerIn: parent
             color: Appearance.colors.colOnLayer1
             iconSize: Appearance.font.pixelSize.normal

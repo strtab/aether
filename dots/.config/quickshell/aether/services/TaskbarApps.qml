@@ -33,14 +33,6 @@ Singleton {
           }));
     }
 
-    // Separator
-    // if (pinnedApps.length > 0) {
-    //   map.set("SEPARATOR", {
-    //     pinned: false,
-    //     toplevels: []
-    //   });
-    // }
-
     // Ignored apps
     const ignoredRegexStrings = Config.options?.dock.ignoredAppRegexes ?? [];
     const ignoredRegexes = ignoredRegexStrings.map(pattern => new RegExp(pattern, "i"));

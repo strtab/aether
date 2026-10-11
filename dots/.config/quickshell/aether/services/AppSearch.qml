@@ -93,6 +93,7 @@ Singleton {
       // Office
       "wps": "wps-office2019-kprometheus",
       "wpsoffice": "wps-office2019-kprometheus",
+      "ONLYOFFICE": "org.onlyoffice.desktopeditors",
       "libreoffice-writer": "libreoffice-writer",
       "libreoffice-calc": "libreoffice-calc",
       "libreoffice-impress": "libreoffice-impress",

@@ -3,9 +3,7 @@
 //@ pragma Env QT_QUICK_CONTROLS_STYLE=Basic
 //@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
 //@ pragma DefaultEnv QT_LOGGING_RULES=quickshell.dbus.properties=false
-//@ pragma DefaultEnv QS_DROP_EXPENSIVE_FONTS=1
-
-// Remove two slashes below and adjust the value to change the UI scale
+//@ pragma DefaultEnv QS_DROP_EXPENSIVE_FONTS=false
 //@ pragma Env QT_SCALE_FACTOR=1
 
 import "modules/common"
@@ -19,13 +17,13 @@ import Quickshell.Hyprland
 import qs.modules.common
 import qs.modules.background
 import qs.modules.bar
-import qs.modules.cheatsheet
 import qs.modules.dock
 import qs.modules.lock
 import qs.modules.search
 import qs.modules.notificationCenter
 import qs.modules.mediaControls
 import qs.modules.notificationPopup
+import qs.modules.cheatsheet
 import qs.modules.onScreenDisplay
 import qs.modules.onScreenKeyboard
 // import qs.modules.overview
@@ -44,7 +42,6 @@ ShellRoot {
   Component.onCompleted: {
     MaterialThemeLoader.reapplyTheme();
     Hyprsunset.load();
-    FirstRunExperience.load();
     ConflictKiller.load();
     Cliphist.refresh();
     Wallpapers.load();
@@ -94,6 +91,9 @@ ShellRoot {
       component: OnScreenKeyboard {}
     }
     PanelLoader {
+      component: Cheatsheet {}
+    }
+    PanelLoader {
       component: RegionSelector {}
     }
     PanelLoader {
@@ -105,9 +105,6 @@ ShellRoot {
     }
     PanelLoader {
       component: NotificationCenter {}
-    }
-    PanelLoader {
-      component: Cheatsheet {}
     }
   }
 }

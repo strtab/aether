@@ -56,7 +56,7 @@ Scope {
         }
         property bool superShow: false
         property bool mustShow: hoverRegion.containsMouse || superShow
-        exclusionMode: ExclusionMode.Ignore
+        exclusionMode: (Config?.options.bar.autoHide.enable && (!mustShow || !Config?.options.bar.autoHide.pushWindows)) ? ExclusionMode.Ignore : ExclusionMode.Normal
         exclusiveZone: (Config?.options.bar.autoHide.enable && (!mustShow || !Config?.options.bar.autoHide.pushWindows)) ? 0 : Appearance.sizes.baseBarHeight
         WlrLayershell.namespace: "quickshell:bar"
         WlrLayershell.layer: Appearance.layers.bar

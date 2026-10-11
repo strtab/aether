@@ -5,11 +5,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATE_DIR="$XDG_STATE_HOME/quickshell"
 
 main() {
-  color_code=$1
+  color_code="$1"
   if [[ -z "$color_code" ]]; then
       color_code="$(kdialog --getcolor --title 'Choose color')"
       [[ -z "$color_code" ]] && exit 1
   fi
+  rm "$STATE_DIR/user/generated/wallpaper/monotone.png"
   magick -size 1920x1080 xc:"$color_code" "$STATE_DIR/user/generated/wallpaper/monotone.png"
   "$SCRIPT_DIR"/switchwall.sh "$STATE_DIR/user/generated/wallpaper/monotone.png"
 }

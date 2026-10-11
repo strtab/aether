@@ -36,7 +36,7 @@ Item {
 
     StyledText {
       Layout.fillHeight: true
-      font.family: Appearance.font.family.numbers
+      style: Appearance.font.style.menubar
       color: Appearance.colors.onMenubarBackground
       text: root.focusingThisMonitor && root.activeWindow?.activated && root.biggestWindow ? (root.clear(root.activeWindow?.appId)) : (root.clear(root.biggestWindow?.class)) ?? `${Translation.tr("Workspace")} ${monitor?.activeWorkspace?.id ?? 1}`
     }

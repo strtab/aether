@@ -18,8 +18,6 @@ Scope {
   PanelWindow {
     id: panelWindow
     property string searchingText: ""
-    readonly property HyprlandMonitor monitor: Hyprland.monitorFor(panelWindow.screen)
-    property bool monitorIsFocused: (Hyprland.focusedMonitor?.id == monitor?.id)
     visible: GlobalStates.searchOpen
 
     WlrLayershell.namespace: "quickshell:search"

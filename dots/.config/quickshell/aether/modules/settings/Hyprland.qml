@@ -15,15 +15,11 @@ ContentPage {
   Component.onCompleted: {
     const h = Config.options.hyprland;
     HyprlandConfig.setMany({
-      "decoration:rounding": h.decoration.rounding,
       "decoration:blur:enabled": h.decoration.blur.enabled ? 1 : 0,
       "decoration:blur:size": h.decoration.blur.size,
       "decoration:blur:passes": h.decoration.blur.passes,
       "decoration:active_opacity": h.decoration.activeOpacity,
       "decoration:inactive_opacity": h.decoration.inactiveOpacity,
-      "general:border_size": h.general.borderSize,
-      "general:gaps_in": h.general.gapsIn,
-      "general:gaps_out": h.general.gapsOut,
       "general:layout": h.general.layout,
       "animations:enabled": h.animations.enable ? 1 : 0,
       "input:kb_layout": h.input.kbLayout,
@@ -200,30 +196,6 @@ ContentPage {
     ContentSection {
       title: Translation.tr("Visual & Aesthetics")
 
-      ConfigSpinBox {
-        title: Translation.tr("Window Rounding")
-        value: Config.options.hyprland.decoration.rounding
-        from: 0
-        to: 30
-        stepSize: 1
-        onValueChanged: {
-          Config.options.hyprland.decoration.rounding = value;
-          HyprlandConfig.set("decoration:rounding", value);
-        }
-      }
-
-      ConfigSpinBox {
-        title: Translation.tr("Border Size")
-        value: Config.options.hyprland.general.borderSize
-        from: 0
-        to: 10
-        stepSize: 1
-        onValueChanged: {
-          Config.options.hyprland.general.borderSize = value;
-          HyprlandConfig.set("general:border_size", value);
-        }
-      }
-
       ContentSubsection {
         title: Translation.tr("Blur")
         ConfigSwitch {
@@ -256,34 +228,6 @@ ContentPage {
           onValueChanged: {
             Config.options.hyprland.decoration.blur.passes = value;
             HyprlandConfig.set("decoration:blur:passes", value);
-          }
-        }
-      }
-
-      ContentSubsection {
-        title: Translation.tr("Gaps")
-
-        ConfigSpinBox {
-          title: Translation.tr("Gaps In")
-          value: Config.options.hyprland.general.gapsIn
-          from: 0
-          to: 40
-          stepSize: 1
-          onValueChanged: {
-            Config.options.hyprland.general.gapsIn = value;
-            HyprlandConfig.set("general:gaps_in", value);
-          }
-        }
-
-        ConfigSpinBox {
-          title: Translation.tr("Gaps Out")
-          value: Config.options.hyprland.general.gapsOut
-          from: 0
-          to: 60
-          stepSize: 1
-          onValueChanged: {
-            Config.options.hyprland.general.gapsOut = value;
-            HyprlandConfig.set("general:gaps_out", value);
           }
         }
       }

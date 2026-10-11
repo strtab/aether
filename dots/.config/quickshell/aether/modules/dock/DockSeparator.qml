@@ -1,11 +1,8 @@
-import qs.modules.common
 import QtQuick
-import QtQuick.Layouts
+import qs.modules.common
 
 Rectangle {
-    Layout.topMargin: Appearance.sizes.elevationMargin + dockRow.padding + Appearance.rounding.normal
-    Layout.bottomMargin: Appearance.sizes.hyprlandGapsOut + dockRow.padding + Appearance.rounding.normal
-    Layout.fillHeight: true
-    implicitWidth: 1
-    color: Appearance.colors.colOutlineVariant
+  implicitWidth: 1
+  radius: 0.5
+  color: Appearance.colors.colOutlineVariant
 }
