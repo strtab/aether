@@ -7,7 +7,7 @@ import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 
-// Context menu for a dock slot. Opens above the given point of the dock window.
+// Context menu for a dock slot. Opens above the icon top of the slot and follows it.
 PopupWindow {
   id: root
 
@@ -18,14 +18,14 @@ PopupWindow {
   readonly property var app: DockApps.itemFor(root.appId)
   property bool open: false
 
-  // Anchor point in dock window coordinates (horizontal center and bottom edge of the menu)
-  property real anchorX: 0
-  property real anchorY: 0
+  // Slot the menu is attached to. Null once the slot is destroyed.
+  property Item slotItem: null
+  // Distance between the icon top and the menu, px
+  property real gap: 10
 
-  function openFor(id, x, y) {
+  function openFor(id, slot) {
     root.appId = id;
-    root.anchorX = x;
-    root.anchorY = y;
+    root.slotItem = slot;
     root.open = true;
   }
 
@@ -33,9 +33,10 @@ PopupWindow {
     root.open = false;
   }
 
+  // Horizontal center and bottom edge of the menu, in dock window coordinates
   anchor.window: root.dockWindow
-  anchor.rect.x: root.anchorX
-  anchor.rect.y: root.anchorY
+  anchor.rect.x: root.slotItem ? root.dockWindow.iconCenterX(root.slotItem) : 0
+  anchor.rect.y: root.slotItem ? root.dockWindow.iconTop(root.slotItem) - root.gap : 0
   anchor.rect.width: 1
   anchor.rect.height: 1
   anchor.edges: Edges.Top
@@ -113,20 +114,6 @@ PopupWindow {
     anchors.fill: parent
     anchors.margins: 6
     spacing: 2
-
-    StyledText {
-      Layout.fillWidth: true
-      Layout.leftMargin: 10
-      Layout.rightMargin: 10
-      Layout.preferredHeight: 24
-      verticalAlignment: Text.AlignVCenter
-      text: root.app.name
-      elide: Text.ElideRight
-      color: Appearance.colors.colSubtext
-      style: Appearance.font.style.menu
-    }
-
-    MenuSeparator {}
 
     MenuItem {
       label: Translation.tr("Open")

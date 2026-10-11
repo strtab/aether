@@ -210,7 +210,6 @@ Item { // Bar content region
           }
           MaterialSymbol {
             text: "mic_off"
-            style: Appearance.font.title3
             color: Appearance.colors.onMenubarBackground
           }
         }
@@ -224,7 +223,6 @@ Item { // Bar content region
         }
         MaterialSymbol {
           text: Network.materialSymbol
-          style: Appearance.font.title3
           color: Appearance.colors.onMenubarBackground
         }
       }

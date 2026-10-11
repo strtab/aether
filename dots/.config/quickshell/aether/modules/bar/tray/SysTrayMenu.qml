@@ -82,16 +82,6 @@ PopupWindow {
       implicitWidth: stackView.implicitWidth + popupBackground.padding * 2
       implicitHeight: stackView.implicitHeight + popupBackground.padding * 2
 
-      Behavior on opacity {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-      }
-      Behavior on implicitHeight {
-        animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
-      }
-      Behavior on implicitWidth {
-        animation: Appearance.animation.elementResize.numberAnimation.createObject(this)
-      }
-
       StackView {
         id: stackView
         anchors {

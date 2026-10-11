@@ -18,14 +18,26 @@ Singleton {
 
   readonly property string killScript: Qt.resolvedUrl("../scripts/kill_app.sh").toString().replace(/^file:\/\//, "")
 
-  // Ordered ids shown in the dock. Reassigned only when the list really changes,
-  // so Repeater delegates (hover, bounce, drag state) survive window events.
+  // Ordered ids shown in the dock, including slots that are still playing their leave animation.
+  // Reassigned only when the list really changes.
   property var slotIds: []
+  // Incrementally updated model for the Repeater. A plain array model would
+  // recreate every delegate on change and kill the enter/leave animations.
+  ListModel {
+    id: _slotModel
+  }
+  property alias slotModel: _slotModel
   // Live data per id. Rebuilt on every change; delegates read it through itemFor().
   property var _byId: ({})
   property int pinnedCount: 0
   // While true the model is frozen (a slot is being dragged)
   property bool dragging: false
+  // Ids that are already gone but still shown while their slot plays the leave animation
+  property var leavingIds: ({})
+  // False during startup so the initial slots do not animate in
+  property bool settled: false
+  // How long the indicator dots fade out before a leaving slot collapses
+  readonly property int dotsFadeDuration: 160
 
   readonly property var _emptyItem: ({
       appId: "",
@@ -33,6 +45,7 @@ Singleton {
       pinned: false,
       running: false,
       toplevels: [],
+      dotCount: 0,
       entry: null,
       name: "",
       icon: ""
@@ -58,6 +71,8 @@ Singleton {
       pinned: pinned,
       running: toplevels.length > 0,
       toplevels: toplevels,
+      // Kept separately so a leaving slot can still show its dots while they fade out
+      dotCount: toplevels.length,
       entry: entry,
       name: entry?.name ?? root._friendlyName(rawId),
       icon: AppSearch.resolveIcon(AppSearch.guessIcon(rawId), "application-x-executable")
@@ -79,11 +94,80 @@ Singleton {
         pinnedCount++;
       ids.push(id);
     }
+
+    // Keep removed ids at their old position so the slot can play its leave animation
+    const old = root.slotIds;
+    const result = ids.slice();
+    const leaving = {};
+    for (let i = 0; i < old.length; i++) {
+      const id = old[i];
+      if (ids.includes(id))
+        continue;
+      let at = 0;
+      for (let j = i - 1; j >= 0; j--) {
+        const p = result.indexOf(old[j]);
+        if (p !== -1) {
+          at = p + 1;
+          break;
+        }
+      }
+      result.splice(at, 0, id);
+      leaving[id] = true;
+      // Frozen copy of the last known data (name, icon, dot count) without live windows
+      byId[id] = Object.assign({}, root._byId[id], {
+        running: false,
+        toplevels: []
+      });
+    }
+
     // Data first, then the id list, so new delegates see fresh data
     root._byId = byId;
     root.pinnedCount = pinnedCount;
-    if (ids.join("|") !== root.slotIds.join("|"))
-      root.slotIds = ids;
+    root.leavingIds = leaving;
+    if (result.join("|") !== root.slotIds.join("|")) {
+      root.slotIds = result;
+      root._syncModel(result);
+    }
+    if (Object.keys(leaving).length > 0)
+      purgeTimer.restart();
+  }
+
+  // Applies insert / remove / move operations so existing delegates survive
+  function _syncModel(target) {
+    for (let i = _slotModel.count - 1; i >= 0; i--) {
+      if (!target.includes(_slotModel.get(i).appId))
+        _slotModel.remove(i);
+    }
+    for (let i = 0; i < target.length; i++) {
+      const id = target[i];
+      if (i < _slotModel.count && _slotModel.get(i).appId === id)
+        continue;
+      let from = -1;
+      for (let j = i + 1; j < _slotModel.count; j++) {
+        if (_slotModel.get(j).appId === id) {
+          from = j;
+          break;
+        }
+      }
+      if (from === -1)
+        _slotModel.insert(i, {
+          "appId": id
+        });
+      else
+        _slotModel.move(from, i, 1);
+    }
+  }
+
+  // Drops slots whose leave animation has finished
+  function _purge() {
+    if (root.dragging) {
+      purgeTimer.restart();
+      return;
+    }
+    const keep = root.slotIds.filter(id => !root.leavingIds[id]);
+    root.leavingIds = {};
+    root.slotIds = keep;
+    root._syncModel(keep);
   }
 
   function scheduleRebuild() {
@@ -97,6 +181,21 @@ Singleton {
     interval: 40
     repeat: false
     onTriggered: root.rebuild()
+  }
+
+  // Waits for the dots fade plus the collapse animation of a leaving slot
+  Timer {
+    id: purgeTimer
+    interval: root.dotsFadeDuration + Appearance.animation.elementMoveFast.duration + 80
+    repeat: false
+    onTriggered: root._purge()
+  }
+
+  Timer {
+    id: settleTimer
+    interval: 600
+    repeat: false
+    onTriggered: root.settled = true
   }
 
   Connections {
@@ -205,6 +304,8 @@ Singleton {
     if (n.length === 0)
       return null;
     for (const id of root.slotIds) {
+      if (root.leavingIds[id])
+        continue;
       const item = root._byId[id];
       const keys = [item.appId, item.rawId, item.name, item.entry?.id ?? ""].map(k => String(k).toLowerCase().replace(/\.desktop$/, "")).filter(k => k.length > 2);
       if (keys.some(k => n.includes(k) || k.includes(n)))
@@ -215,5 +316,6 @@ Singleton {
 
   Component.onCompleted: {
     root.rebuild();
+    settleTimer.start();
   }
 }

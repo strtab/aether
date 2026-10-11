@@ -11,15 +11,61 @@ import qs.modules.common.widgets
 Item {
   id: slot
 
-  required property var modelData
+  required property string appId
   required property int index
   // Dock PanelWindow: metrics, hover and drag state
   required property var dock
 
-  readonly property var app: DockApps.itemFor(slot.modelData)
+  readonly property var app: DockApps.itemFor(slot.appId)
 
-  Layout.preferredWidth: slot.dock.slotWidth
+  // ------------------------------------------------------------- presence
+
+  // True while the app is gone and the slot plays its leave animation
+  readonly property bool leaving: DockApps.leavingIds[slot.appId] === true
+  // 0 = collapsed, 1 = fully shown. Drives width, opacity and scale.
+  property real presence: DockApps.settled ? 0.0 : 1.0
+  // Opacity of the indicator dots. They fade out first, then the slot collapses.
+  property real dotsOpacity: 1.0
+
+  transformOrigin: Item.Center
+  // The slot is as wide as its icon is large, so the padding around the icon grows
+  // with the magnification and the capsule grows with the slots.
+  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.presence
   Layout.fillHeight: true
+  scale: 0.7 + 0.3 * slot.presence
+  opacity: slot.presence
+
+  Behavior on presence {
+    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+  }
+
+  Behavior on dotsOpacity {
+    NumberAnimation {
+      duration: DockApps.dotsFadeDuration
+      easing.type: Easing.OutQuad
+    }
+  }
+
+  onLeavingChanged: {
+    if (slot.leaving) {
+      slot.dotsOpacity = 0.0;
+      leaveTimer.restart();
+    } else {
+      leaveTimer.stop();
+      slot.dotsOpacity = 1.0;
+      slot.presence = 1.0;
+    }
+  }
+
+  // Collapses the slot once the dots are gone (no wait when there are no dots)
+  Timer {
+    id: leaveTimer
+    interval: slot.app.dotCount > 0 ? DockApps.dotsFadeDuration : 0
+    repeat: false
+    onTriggered: slot.presence = 0.0
+  }
+
+  Component.onCompleted: slot.presence = slot.leaving ? 0.0 : 1.0
 
   readonly property int maxDots: (Config.options?.dock?.iconSize / 10)
   readonly property real dotWidthFocused: (Config.options?.dock?.iconSize / 13)
@@ -56,21 +102,38 @@ Item {
 
   // ---------------------------------------------------------- magnification
 
-  readonly property bool hovered: slot.dock.zoomHoverX >= slot.x && slot.dock.zoomHoverX < slot.x + slot.width
-  // Distance from the cursor to the slot center, in slot widths
-  readonly property real distanceToCursor: slot.dock.zoomHoverX < 0 ? -1 : Math.abs(slot.dock.zoomHoverX - (slot.x + slot.width / 2)) / slot.dock.slotWidth
+  // Center of this slot in the resting layout, measured from the dock row center.
+  // Magnification is computed against the resting layout, not the live one: the live layout
+  // changes with the zoom itself, which would feed back into the zoom and make it jitter.
+  readonly property real restCenter: (slot.index + 0.5 - slot.dock.slotCount / 2) * slot.dock.slotWidth
+  // Distance from the cursor to the resting slot center, in resting slot widths
+  readonly property real distanceToCursor: slot.dock.zoomActive ? Math.abs(slot.dock.hoverOffset - slot.restCenter) / slot.dock.slotWidth : -1
+  readonly property bool hovered: slot.distanceToCursor >= 0 && slot.distanceToCursor < 0.5
+
+  // Magnetism reach, in resting slot widths: slots farther than this stay at normal size
+  readonly property real zoomRadius: slot.dock.zoomRadius
+  // Distance around the cursor where the slot gets the full zoom
+  readonly property real zoomPlateau: 0.3
+
   readonly property real zoomMultiplier: {
     const d = slot.distanceToCursor;
+    // console.log(appId, d)
     if (d < 0)
       return 0.0;
-    if (d <= 0.5)
-      return 1.0 - d;
-    if (d < 1.5)
-      return 0.5 * (1.5 - d);
-    return 0.0;
+    if (d <= slot.zoomPlateau)
+      return 1.0;
+    if (d >= slot.zoomRadius)
+      return 0.0;
+    // Smooth cosine falloff from 1 at the plateau edge to 0 at the radius
+    const t = (d - slot.zoomPlateau) / (slot.zoomRadius - slot.zoomPlateau);
+    return 0.5 * (1.0 + Math.cos(Math.PI * t));
   }
+
   property int growSize: Math.round(slot.zoomMultiplier * slot.dock.zoomPx)
   readonly property real iconPx: slot.dock.iconSize + slot.growSize
+  // Top edge of the icon in slot coordinates. The bounce offset is left out on purpose,
+  // so the tooltip and the menu do not jitter during a launch bounce.
+  readonly property real iconTop: slot.height - slot.dock.iconBottomMargin - slot.iconPx
 
   Behavior on growSize {
     NumberAnimation {
@@ -85,7 +148,7 @@ Item {
   readonly property bool isActive: slot.app.toplevels.some(t => t.activated === true)
   readonly property int focusedIndex: slot.app.toplevels.findIndex(t => t.activated === true)
   readonly property bool menuTarget: slot.dock.menuOpen && slot.dock.menuAppId === slot.app.appId
-  readonly property bool pressedRunning: mouseArea.pressed && (mouseArea.pressedButtons & Qt.LeftButton) && slot.running && !mouseArea.isDragging
+  readonly property bool pressedRunning: mouseArea.pressed && (mouseArea.pressedButtons & Qt.LeftButton) !== 0 && slot.running && !mouseArea.isDragging
   readonly property bool dimmed: slot.menuTarget || slot.pressedRunning
 
   property real bounceLift: 0.0
@@ -201,16 +264,18 @@ Item {
   }
 
   // Window indicator dots. Anchored to the slot bottom, never move with magnification.
+  // The count comes from the item data, so a leaving slot keeps its dots until they fade out.
   Row {
     id: dots
-    visible: slot.running && !mouseArea.isDragging
+    visible: !mouseArea.isDragging
+    opacity: slot.dotsOpacity
     spacing: 3
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
     anchors.bottomMargin: 4
 
     Repeater {
-      model: Math.min(slot.app.toplevels.length, slot.maxDots)
+      model: Math.min(slot.app.dotCount, slot.maxDots)
       delegate: Rectangle {
         id: dot
         required property int index
@@ -230,19 +295,20 @@ Item {
     }
   }
 
-  PopupToolTip {
-    id: tooltip
-    extraVisibleCondition: slot.hovered && slot.dock.dragSourceIndex === -1 && !slot.dock.menuOpen
-    text: slot.app.name
-    anchors.bottom: icon.top
-    anchors.horizontalCenter: icon.horizontalCenter
-    anchors.bottomMargin: 10
-  }
+  // PopupToolTip {
+  //   id: tooltip
+  //   extraVisibleCondition: slot.hovered && slot.dock.dragSourceIndex === -1 && !slot.dock.menuOpen
+  //   text: slot.app.name
+  //   anchors.bottom: icon.top
+  //   anchors.horizontalCenter: icon.horizontalCenter
+  //   anchors.bottomMargin: 10
+  // }
 
   // ----------------------------------------------------------------- input
 
   MouseArea {
     id: mouseArea
+    enabled: !slot.leaving
     anchors.fill: parent
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     preventStealing: true
