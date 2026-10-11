@@ -175,7 +175,6 @@ Singleton {
       return;
     const current = list.findIndex(t => t.activated);
     list[(current + 1) % list.length].activate();
-    root.clearBadge(item.appId);
   }
 
   function quit(item) {
@@ -212,15 +211,6 @@ Singleton {
         return item;
     }
     return null;
-  }
-
-  Connections {
-    target: Notifications
-    function onNotify(n) {
-      const item = root._matchItem(n.appName);
-      if (item)
-        root.incrementBadge(item.appId);
-    }
   }
 
   Component.onCompleted: {

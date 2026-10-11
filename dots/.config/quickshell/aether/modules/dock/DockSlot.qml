@@ -84,6 +84,9 @@ Item {
   readonly property bool running: slot.app.running
   readonly property bool isActive: slot.app.toplevels.some(t => t.activated === true)
   readonly property int focusedIndex: slot.app.toplevels.findIndex(t => t.activated === true)
+  readonly property bool menuTarget: slot.dock.menuOpen && slot.dock.menuAppId === slot.app.appId
+  readonly property bool pressedRunning: mouseArea.pressed && (mouseArea.pressedButtons & Qt.LeftButton) && slot.running && !mouseArea.isDragging
+  readonly property bool dimmed: slot.menuTarget || slot.pressedRunning
 
   property real bounceLift: 0.0
   property bool launching: false
@@ -176,16 +179,24 @@ Item {
     // Fixed raster size so magnification does not reload the image
     sourceSize: Qt.size(slot.dock.iconSize + slot.dock.zoomPx, slot.dock.iconSize + slot.dock.zoomPx)
     fillMode: Image.PreserveAspectFit
+    antialiasing: true
     asynchronous: true
     mipmap: true
     smooth: true
+    cache: true
 
-    layer.enabled: slot.dock.monochrome
+    layer.smooth: true
+    layer.enabled: slot.dock.monochrome || slot.dimmed
     layer.effect: MultiEffect {
-      saturation: -0.1
-      colorization: 1.0
-      colorizationColor: Appearance.colors.colPrimary
-      brightness: slot.dock.menuOpen ? -0.2 : 0
+      saturation: slot.dock.monochrome ? -1 : 0
+      brightness: slot.dimmed ? -0.25 : 0
+
+      Behavior on brightness {
+        NumberAnimation {
+          duration: Appearance.animation.hover.duration
+          easing.type: Easing.OutQuad
+        }
+      }
     }
   }
 

@@ -240,6 +240,8 @@ Singleton {
     readonly property list<real> emphasizedLastHalf: [5 / 24, 0.82, 0.25, 1, 1, 1]
     readonly property list<real> emphasizedAccel: [0.3, 0, 0.8, 0.15, 1, 1]
     readonly property list<real> emphasizedDecel: [0.05, 0.7, 0.1, 1, 1, 1]
+    readonly property list<real> easeOut: [0.22, 0.61, 0.36, 1, 1, 1]
+    readonly property list<real> easeSpring: [0.5, 1.6, 0.4, 1, 1, 1]
     readonly property list<real> standard: [0.2, 0, 0, 1, 1, 1]
     readonly property list<real> standardAccel: [0.3, 0, 1, 1, 1, 1]
     readonly property list<real> standardDecel: [0, 0, 0, 1, 1, 1]
@@ -247,10 +249,7 @@ Singleton {
     readonly property real expressiveDefaultSpatialDuration: 500
     readonly property real expressiveSlowSpatialDuration: 650
     readonly property real expressiveEffectsDuration: 200
-    readonly property list<real> easeOut: [0.22, 0.61, 0.36, 1, 1, 1]
-    readonly property list<real> easeSpring: [0.5, 1.6, 0.4, 1, 1, 1]
-    readonly property real fastDuration: 140
-    readonly property real mediumDuration: 220
+    readonly property real mediumDuration: 250
   }
 
   animation: QtObject {
@@ -413,7 +412,7 @@ Singleton {
     }
 
     property QtObject hover: QtObject {
-      property int duration: animationCurves.fastDuration
+      property int duration: 140
       property int type: Easing.BezierSpline
       property list<real> bezierCurve: animationCurves.easeOut
       property Component numberAnimation: Component {

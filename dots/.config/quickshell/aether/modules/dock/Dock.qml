@@ -37,8 +37,8 @@ Scope {
 
       readonly property real tooltipHeadroom: 34
 
-      Behavior on capsuleWidth {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+      Behavior on implicitWidth {
+        animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
       }
 
       // Anchored to the bottom edge only, so the compositor centers the surface horizontally
@@ -56,6 +56,8 @@ Scope {
       property int dragSourceIndex: -1
       property int dragTargetIndex: -1
       readonly property bool menuOpen: slotMenu.open
+      readonly property string menuAppId: slotMenu.appId
+
       // Cursor position used for magnification; disabled while dragging or with an open menu
       readonly property real zoomHoverX: dockRoot.dragSourceIndex === -1 && !dockRoot.menuOpen ? dockRoot.hoverX : -1
 
