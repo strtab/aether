@@ -185,11 +185,11 @@ Item {
       slot.launching = false;
   }
 
+  // Starts the bounce. When launching ends the running cycle is not cut: it plays to its end
+  // and bounceAnim stops itself (see onRunningChanged there).
   onLaunchingChanged: {
-    if (slot.launching)
-      bounceAnim.restart();
-    else
-      bounceAnim.stop();
+    if (slot.launching && !bounceAnim.running)
+      bounceAnim.start();
   }
 
   // Safety net: stop bouncing when the app never shows a window
@@ -207,12 +207,19 @@ Item {
   readonly property real bouncePeak1: slot.dock.iconSize * Appearance.animation.dockBounce.peakRatio
   readonly property real bouncePeak2: slot.bouncePeak1 * Appearance.animation.dockBounce.decay
 
+  // One bounce cycle. While the app is launching, a new cycle starts as soon as the previous one
+  // ends. `loops` and `running` are deliberately not bound to `launching`: the onLaunchingChanged
+  // handler runs before such bindings are re-evaluated, so the animation used to start with the
+  // old loop count and play only once.
   SequentialAnimation {
     id: bounceAnim
-    running: slot.launching
-    loops: slot.launching ? 9999 : 1
-    onStopped: {
+    loops: 1
+    onRunningChanged: {
+      if (bounceAnim.running)
+        return;
       slot.bounceLift = 0.0;
+      if (slot.launching)
+        Qt.callLater(bounceAnim.start);
     }
 
     // Hop 1: up
@@ -279,7 +286,7 @@ Item {
     layer.enabled: slot.dock.monochrome || slot.dimmed
     layer.effect: MultiEffect {
       saturation: slot.dock.monochrome ? -1 : 0
-      brightness: slot.dimmed ? -0.1 : 0
+      brightness: slot.dimmed ? -0.25 : 0
 
       Behavior on brightness {
         NumberAnimation {
