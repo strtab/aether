@@ -22,20 +22,31 @@ Item {
 
   // True while the app is gone and the slot plays its leave animation
   readonly property bool leaving: DockApps.leavingIds[slot.appId] === true
-  // 0 = collapsed, 1 = fully shown. Drives width, opacity and scale.
-  property real presence: DockApps.settled ? 0.0 : 1.0
-  // Opacity of the indicator dots. They fade out first, then the slot collapses.
+  // 0 = hidden, 1 = fully shown. Drives opacity and scale only. It starts at 1, so the icon of a
+  // new slot is shown at once; it is animated only by the leave sequence.
+  property real presence: 1.0
+  // 0 = collapsed, 1 = full width. Drives the layout width, so the capsule follows it.
+  // A new slot grows from 0, which expands the capsule smoothly (not during startup).
+  property real widthFactor: DockApps.settled ? 0.0 : 1.0
+  // Opacity of the indicator dots
   property real dotsOpacity: 1.0
 
   transformOrigin: Item.Center
+  // While the slot is narrower than its icon, the icon is revealed from the center instead of
+  // overlapping the neighbours. Off at full width, so a magnified icon can rise above the slot.
+  clip: slot.widthFactor < 1.0
   // The slot is as wide as its icon is large, so the padding around the icon grows
   // with the magnification and the capsule grows with the slots.
-  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.presence
+  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor
   Layout.fillHeight: true
   scale: 0.7 + 0.3 * slot.presence
   opacity: slot.presence
 
   Behavior on presence {
+    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+  }
+
+  Behavior on widthFactor {
     animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
   }
 
@@ -46,26 +57,41 @@ Item {
     }
   }
 
+  // Leave sequence: dots fade -> icon fades (width kept) -> width collapses
   onLeavingChanged: {
     if (slot.leaving) {
       slot.dotsOpacity = 0.0;
       leaveTimer.restart();
     } else {
       leaveTimer.stop();
+      collapseTimer.stop();
       slot.dotsOpacity = 1.0;
       slot.presence = 1.0;
+      slot.widthFactor = 1.0;
     }
   }
 
-  // Collapses the slot once the dots are gone (no wait when there are no dots)
+  // Starts the icon fade once the dots are gone (no wait when there are no dots)
   Timer {
     id: leaveTimer
     interval: slot.app.dotCount > 0 ? DockApps.dotsFadeDuration : 0
     repeat: false
-    onTriggered: slot.presence = 0.0
+    onTriggered: {
+      slot.presence = 0.0;
+      collapseTimer.restart();
+    }
   }
 
-  Component.onCompleted: slot.presence = slot.leaving ? 0.0 : 1.0
+  // Collapses the width, and with it the capsule, once the icon has faded out
+  Timer {
+    id: collapseTimer
+    interval: Appearance.animation.elementMoveFast.duration
+    repeat: false
+    onTriggered: slot.widthFactor = 0.0
+  }
+
+  // Enter animation: the width grows from 0 to 1
+  Component.onCompleted: slot.widthFactor = slot.leaving ? 0.0 : 1.0
 
   readonly property int maxDots: (Config.options?.dock?.iconSize / 10)
   readonly property real dotWidthFocused: (Config.options?.dock?.iconSize / 13)
@@ -105,7 +131,8 @@ Item {
   // Center of this slot in the resting layout, measured from the dock row center.
   // Magnification is computed against the resting layout, not the live one: the live layout
   // changes with the zoom itself, which would feed back into the zoom and make it jitter.
-  readonly property real restCenter: (slot.index + 0.5 - slot.dock.slotCount / 2) * slot.dock.slotWidth
+  // The resting layout uses the slot widths without zoom, so a collapsed slot takes no room.
+  readonly property real restCenter: slot.dock.restCenters[slot.appId] ?? 0
   // Distance from the cursor to the resting slot center, in resting slot widths
   readonly property real distanceToCursor: slot.dock.zoomActive ? Math.abs(slot.dock.hoverOffset - slot.restCenter) / slot.dock.slotWidth : -1
   readonly property bool hovered: slot.distanceToCursor >= 0 && slot.distanceToCursor < 0.5
@@ -117,7 +144,6 @@ Item {
 
   readonly property real zoomMultiplier: {
     const d = slot.distanceToCursor;
-    // console.log(appId, d)
     if (d < 0)
       return 0.0;
     if (d <= slot.zoomPlateau)
@@ -253,7 +279,7 @@ Item {
     layer.enabled: slot.dock.monochrome || slot.dimmed
     layer.effect: MultiEffect {
       saturation: slot.dock.monochrome ? -1 : 0
-      brightness: slot.dimmed ? -0.25 : 0
+      brightness: slot.dimmed ? -0.1 : 0
 
       Behavior on brightness {
         NumberAnimation {
@@ -295,6 +321,7 @@ Item {
       }
     }
   }
+
   // Icon top center in window coordinates: the same values the menu is anchored to.
   // The tooltip popup is anchored to an item, and Quickshell re-reads the item position only
   // when updateAnchor() is called. That position also depends on the capsule, which moves
@@ -310,6 +337,8 @@ Item {
   onAnchorWindowXChanged: Qt.callLater(slot.refreshTooltip)
   onAnchorWindowYChanged: Qt.callLater(slot.refreshTooltip)
 
+  // Invisible item that mirrors the icon rectangle (without the bounce offset).
+  // PopupToolTip anchors its popup to its parent, so the tooltip sits on the icon top.
   Item {
     id: iconAnchor
     x: (slot.width - slot.iconPx) / 2

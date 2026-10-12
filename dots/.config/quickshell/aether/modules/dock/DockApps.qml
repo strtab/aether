@@ -36,7 +36,7 @@ Singleton {
   property var leavingIds: ({})
   // False during startup so the initial slots do not animate in
   property bool settled: false
-  // How long the indicator dots fade out before a leaving slot collapses
+  // How long the indicator dots fade out before a leaving slot starts to fade
   readonly property int dotsFadeDuration: 300
 
   readonly property var _emptyItem: ({
@@ -183,10 +183,10 @@ Singleton {
     onTriggered: root.rebuild()
   }
 
-  // Waits for the dots fade plus the collapse animation of a leaving slot
+  // Waits for the whole leave sequence of a slot: dots fade, icon fade, width collapse
   Timer {
     id: purgeTimer
-    interval: root.dotsFadeDuration + Appearance.animation.elementMoveFast.duration + 80
+    interval: root.dotsFadeDuration + Appearance.animation.elementMoveFast.duration * 2 + 80
     repeat: false
     onTriggered: root._purge()
   }
