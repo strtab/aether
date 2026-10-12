@@ -37,7 +37,7 @@ Singleton {
   // False during startup so the initial slots do not animate in
   property bool settled: false
   // How long the indicator dots fade out before a leaving slot collapses
-  readonly property int dotsFadeDuration: 160
+  readonly property int dotsFadeDuration: 300
 
   readonly property var _emptyItem: ({
       appId: "",

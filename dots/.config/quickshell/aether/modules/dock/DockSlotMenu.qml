@@ -116,6 +116,16 @@ PopupWindow {
     spacing: 2
 
     MenuItem {
+      label: Translation.tr("Open new window")
+      visible: root.app.running
+      onTriggered: DockApps.launch(root.app)
+    }
+
+    MenuSeparator {
+      visible: root.app.running
+    }
+
+    MenuItem {
       label: Translation.tr("Open")
       visible: !root.app.running
       onTriggered: DockApps.launch(root.app)

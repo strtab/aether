@@ -183,7 +183,8 @@ Item {
 
   SequentialAnimation {
     id: bounceAnim
-    loops: slot.launching ? Animation.Infinite : 1
+    running: slot.launching
+    loops: slot.launching ? 9999 : 1
     onStopped: {
       slot.bounceLift = 0.0;
     }
@@ -294,15 +295,36 @@ Item {
       }
     }
   }
+  // Icon top center in window coordinates: the same values the menu is anchored to.
+  // The tooltip popup is anchored to an item, and Quickshell re-reads the item position only
+  // when updateAnchor() is called. That position also depends on the capsule, which moves
+  // after the slot geometry has already changed, so the refresh is deferred until all
+  // bindings have settled.
+  readonly property real anchorWindowX: slot.dock.iconCenterX(slot)
+  readonly property real anchorWindowY: slot.dock.iconTop(slot)
 
-  // PopupToolTip {
-  //   id: tooltip
-  //   extraVisibleCondition: slot.hovered && slot.dock.dragSourceIndex === -1 && !slot.dock.menuOpen
-  //   text: slot.app.name
-  //   anchors.bottom: icon.top
-  //   anchors.horizontalCenter: icon.horizontalCenter
-  //   anchors.bottomMargin: 10
-  // }
+  function refreshTooltip() {
+    tooltip.updateAnchor();
+  }
+
+  onAnchorWindowXChanged: Qt.callLater(slot.refreshTooltip)
+  onAnchorWindowYChanged: Qt.callLater(slot.refreshTooltip)
+
+  Item {
+    id: iconAnchor
+    x: (slot.width - slot.iconPx) / 2
+    y: slot.iconTop
+    width: slot.iconPx
+    height: slot.iconPx
+
+    PopupToolTip {
+      id: tooltip
+      extraVisibleCondition: slot.hovered && slot.dock.dragSourceIndex === -1 && !slot.dock.menuOpen
+      text: slot.app.name
+      // Gap between the icon top and the tooltip content
+      verticalMargin: 10
+    }
+  }
 
   // ----------------------------------------------------------------- input
 
@@ -377,10 +399,8 @@ Item {
         dragOccurred = false;
         return;
       }
-      if (mouse.button === Qt.RightButton) {
+      if (mouse.button === Qt.RightButton || mouse.button === Qt.MiddleButton) {
         slot.dock.openSlotMenu(slot);
-      } else if (mouse.button === Qt.MiddleButton) {
-        DockApps.launch(slot.app);
       } else if (slot.running) {
         DockApps.focus(slot.app);
       } else {
