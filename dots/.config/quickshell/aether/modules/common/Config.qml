@@ -321,17 +321,19 @@ Singleton {
       property JsonObject dock: JsonObject {
         property bool enable: true
         property bool monochromeIcons: true
-        property bool showPinButton: false
-        property bool showOverviewButton: false
-        property real iconSize: 65
-        property real hoverRegionHeight: 2
-        property bool magnification: true
-        property real magnificationZoom: 30
+        property real iconSize: 45
         property bool showPreview: true
         property bool pinnedOnStartup: true
-        property bool hoverToReveal: true // When false, only reveals on empty workspace
-        property list<string> pinnedApps: [ // IDs of pinned entries
-          "helium", "kitty", "obsidian", "anki", "org.telegram.desktop", "org.kde.dolphin", "ONLYOFFICE"]
+        property JsonObject magnification: JsonObject {
+          property bool enable: true
+          property real strength: 15
+          property real radius: 2.5
+        }
+        property JsonObject hoverToReveal: JsonObject {
+          property bool enable: true // When false, only reveals on empty workspace
+          property real height: 2
+        }
+        property list<string> pinnedApps: []
         property list<string> ignoredAppRegexes: []
       }
 

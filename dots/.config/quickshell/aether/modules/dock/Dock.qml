@@ -26,9 +26,9 @@ Scope {
       readonly property real iconSize: Config.options?.dock?.iconSize ?? 65
       readonly property bool monochrome: Config.options?.dock?.monochromeIcons ?? true
       // Extra icon size at the cursor. Set Config.options.dock.magnification to false to disable.
-      readonly property real zoomPx: (Config.options?.dock?.magnification ?? true) ? (Config.options?.dock?.magnificationZoom ?? 30) : 0
+      readonly property real zoomPx: (Config.options?.dock?.magnification.enable ?? true) ? (Config.options?.dock?.magnification.strength ?? 30) : 0
       // Magnetism reach in resting slot widths
-      readonly property real zoomRadius: Config.options?.dock?.magnificationRadius ?? 2.5
+      readonly property real zoomRadius: Config.options?.dock?.magnification.radius ?? 2.5
 
       // Slot width at rest. A magnified slot is wider in the same proportion as its icon.
       readonly property real slotWidth: dockRoot.iconSize + (dockRoot.iconSize / 4)
@@ -75,18 +75,23 @@ Scope {
       function computeRestCenters() {
         dockRoot.layoutRevision;
         const entries = [];
-        let total = 0;
         for (let i = 0; i < slotRepeater.count; i++) {
           const item = slotRepeater.itemAt(i);
           if (!item)
             continue;
-          const w = dockRoot.slotWidth * item.widthFactor;
           entries.push({
             "id": item.appId,
-            "w": w
+            "index": item.index,
+            "w": dockRoot.slotWidth * item.widthFactor
           });
-          total += w;
         }
+        // Order by the model index. Reading the index also re-evaluates this function when a slot
+        // is moved: a move changes neither the slot count nor any width, and without this the
+        // centers kept the old order until the next slot was added or removed.
+        entries.sort((a, b) => a.index - b.index);
+        let total = 0;
+        for (const e of entries)
+          total += e.w;
         const centers = {};
         let x = -total / 2;
         for (const e of entries) {
@@ -136,7 +141,18 @@ Scope {
           dockRoot.hoverActive = false;
       }
 
-      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal && hitArea.containsMouse) || dockRoot.menuOpen || (!ToplevelManager.activeToplevel?.activated)
+      // The pointer is over the dock. rowHover is checked as well as hitArea: a HoverHandler blocks
+      // hover for the items behind it, so while the pointer is over the slots, hitArea.containsMouse
+      // is false. Without rowHover the dock hid again as soon as the rising capsule reached the pointer.
+      readonly property bool dockHovered: hitArea.containsMouse || rowHover.hovered
+
+      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal.enable && dockRoot.dockHovered) || dockRoot.menuOpen || (!ToplevelManager.activeToplevel?.activated)
+
+      // Where the capsule slides to, and whether it has actually arrived in the revealed position.
+      // Tooltips wait for that: a popup created while the capsule is still sliding up sits in a
+      // half-hidden dock, near the pointer, and interferes with the reveal.
+      readonly property real capsuleBottomTarget: dockRoot.reveal ? Appearance.sizes.hyprlandGapsOut : -(dockRoot.capsuleHeight + Appearance.sizes.elevationMargin)
+      readonly property bool fullyRevealed: dockRoot.reveal && Math.abs(capsule.anchors.bottomMargin - dockRoot.capsuleBottomTarget) < 1
 
       function updateHover() {
         // Offset from the live capsule center, corrected by the capsule shift
@@ -167,6 +183,18 @@ Scope {
         return capsule.x + dockRow.x + slot.x + slot.width / 2;
       }
 
+      // Slot under the cursor, or null. Reads each slot's own `hovered`, so it stays live.
+      function findHoveredSlot() {
+        dockRoot.layoutRevision;
+        for (let i = 0; i < slotRepeater.count; i++) {
+          const item = slotRepeater.itemAt(i);
+          if (item && item.hovered && !item.leaving)
+            return item;
+        }
+        return null;
+      }
+      readonly property Item hoveredSlot: dockRoot.findHoveredSlot()
+
       function openSlotMenu(slot) {
         slotMenu.openFor(slot.app.appId, slot);
       }
@@ -181,7 +209,7 @@ Scope {
         anchors.horizontalCenter: capsule.horizontalCenter
         anchors.bottom: parent.bottom
         width: capsule.width + Appearance.sizes.elevationMargin * 2
-        height: dockRoot.reveal ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 + Appearance.sizes.elevationMargin + (dockRoot.zoomActive ? dockRoot.zoomPx + dockRoot.tooltipHeadroom : 0) : (Config.options?.dock?.hoverRegionHeight ?? 2)
+        height: dockRoot.reveal ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 + Appearance.sizes.elevationMargin + (dockRoot.zoomActive ? dockRoot.zoomPx + dockRoot.tooltipHeadroom : 0) : (Config.options?.dock?.hoverToReveal.height ?? 2)
         hoverEnabled: true
         acceptedButtons: Qt.NoButton
       }
@@ -199,7 +227,7 @@ Scope {
         anchors.horizontalCenterOffset: dockRoot.capsuleOffset
         anchors.bottom: parent.bottom
         // Slides below the screen edge when hidden
-        anchors.bottomMargin: dockRoot.reveal ? Appearance.sizes.hyprlandGapsOut : -(dockRoot.capsuleHeight + Appearance.sizes.elevationMargin)
+        anchors.bottomMargin: dockRoot.capsuleBottomTarget
 
         Behavior on anchors.bottomMargin {
           animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
@@ -248,6 +276,51 @@ Scope {
                 dockRoot.hoverActive = false;
             }
           }
+        }
+      }
+
+      // Tooltip drawn inside the dock window. A popup window is a separate Wayland surface, and
+      // creating one under the pointer while the dock auto-hides interferes with the reveal.
+      // The window already has headroom above the capsule for this.
+      Item {
+        id: tooltip
+
+        readonly property bool shown: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen
+        // Distance between the icon top and the tooltip, px
+        readonly property real gap: 10
+        // Last hovered slot, kept so the tooltip fades out in place
+        property Item slot: null
+
+        Connections {
+          target: dockRoot
+          function onHoveredSlotChanged() {
+            if (dockRoot.hoveredSlot)
+              tooltip.slot = dockRoot.hoveredSlot;
+          }
+        }
+
+        width: content.implicitWidth
+        height: content.implicitHeight
+        x: tooltip.slot ? Math.max(0, Math.min(dockRoot.width - tooltip.width, dockRoot.iconCenterX(tooltip.slot) - tooltip.width / 2)) : 0
+        y: tooltip.slot ? dockRoot.iconTop(tooltip.slot) - tooltip.gap - tooltip.height : 0
+        z: 100
+        opacity: tooltip.shown ? 1 : 0
+        visible: tooltip.opacity > 0
+
+        Behavior on opacity {
+          NumberAnimation {
+            duration: Appearance.animation.hover.duration
+            easing.type: Easing.OutQuad
+          }
+        }
+
+        StyledToolTipContent {
+          id: content
+          anchors.centerIn: parent
+          text: tooltip.slot?.app?.name ?? ""
+          shown: true
+          horizontalPadding: 10
+          verticalPadding: 5
         }
       }
     }

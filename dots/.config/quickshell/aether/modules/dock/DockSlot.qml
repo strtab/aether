@@ -355,7 +355,7 @@ Item {
 
     PopupToolTip {
       id: tooltip
-      extraVisibleCondition: slot.hovered && slot.dock.dragSourceIndex === -1 && !slot.dock.menuOpen
+      extraVisibleCondition: slot.hovered && slot.dock.fullyRevealed && slot.dock.dragSourceIndex === -1 && !slot.dock.menuOpen && !slot.leaving
       text: slot.app.name
       // Gap between the icon top and the tooltip content
       verticalMargin: 10
@@ -408,9 +408,11 @@ Item {
       if (isDragging) {
         const cursorX = slot.mapToItem(slot.parent, mouse.x, 0).x;
         slot.dragXOffset = cursorX - slot.x - grabX;
-        // Pinned apps stay inside the pinned area; a running-only app may land right after it
-        const maxIndex = slot.app.pinned ? DockApps.pinnedCount - 1 : DockApps.pinnedCount;
-        slot.dock.dragTargetIndex = Math.max(0, Math.min(maxIndex, slot.dock.slotIndexAt(cursorX)));
+        // Pinned apps stay inside the pinned area. Running-only apps stay after it and are only
+        // reordered, never pinned by dragging.
+        const minIndex = slot.app.pinned ? 0 : DockApps.pinnedCount;
+        const maxIndex = slot.app.pinned ? DockApps.pinnedCount - 1 : slot.dock.slotCount - 1;
+        slot.dock.dragTargetIndex = Math.max(minIndex, Math.min(maxIndex, slot.dock.slotIndexAt(cursorX)));
       }
     }
 
@@ -422,7 +424,7 @@ Item {
       const appId = slot.app.appId;
       endDrag();
       if (target !== -1 && target !== source)
-        DockApps.moveToPinnedIndex(appId, target);
+        DockApps.moveSlot(appId, target);
     }
 
     onCanceled: {

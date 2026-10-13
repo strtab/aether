@@ -119,9 +119,9 @@ ContentPage {
   }
   ConfigSwitch {
     title: Translation.tr("Hover to reveal")
-    checked: Config.options.dock.hoverToReveal
+    checked: Config.options.dock.hoverToReveal.enable
     onCheckedChanged: {
-      Config.options.dock.hoverToReveal = checked;
+      Config.options.dock.hoverToReveal.enable = checked;
     }
   }
   ConfigSwitch {

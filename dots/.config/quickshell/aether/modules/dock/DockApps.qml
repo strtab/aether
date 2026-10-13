@@ -34,6 +34,12 @@ Singleton {
   property bool dragging: false
   // Ids that are already gone but still shown while their slot plays the leave animation
   property var leavingIds: ({})
+  // Order of the running apps that are not pinned. Set by dragging and kept in Persistent, not in
+  // the config, so dragging never pins an app. Ids of closed apps stay in it until the next drag;
+  // a re-opened app then returns to its old place.
+  function _unpinnedOrder() {
+    return Array.from(Persistent.states?.dock?.unpinnedOrder ?? []);
+  }
   // False during startup so the initial slots do not animate in
   property bool settled: false
   // How long the indicator dots fade out before a leaving slot starts to fade
@@ -82,15 +88,59 @@ Singleton {
   function rebuild() {
     if (root.dragging)
       return;
-    const pinnedIds = Array.from(Config.options?.dock?.pinnedApps ?? []).map(id => String(id).toLowerCase());
+    // The order is built here and not taken from TaskbarApps: pinned apps first, in the order of
+    // the config list, then the running apps that are not pinned. This keeps pinnedCount and the
+    // real slot positions in sync even if TaskbarApps has not re-sorted its list yet.
+    const live = Object.create(null);
+    for (const app of TaskbarApps.apps) {
+      const key = String(app.appId).toLowerCase();
+      if (!live[key])
+        live[key] = app;
+    }
+    const ordered = [];
+    const seen = Object.create(null);
+    for (const pinnedId of root._pinnedList()) {
+      const key = String(pinnedId).toLowerCase();
+      if (live[key] && !seen[key]) {
+        seen[key] = true;
+        ordered.push({
+          "app": live[key],
+          "pinned": true
+        });
+      }
+    }
+    for (const app of TaskbarApps.apps) {
+      const key = String(app.appId).toLowerCase();
+      if (!seen[key]) {
+        seen[key] = true;
+        ordered.push({
+          "app": app,
+          "pinned": false
+        });
+      }
+    }
+
+    // Running-only apps follow the order set by dragging; apps that are not in that order
+    // keep the TaskbarApps order and come after the ones that are.
+    const rank = Object.create(null);
+    root._unpinnedOrder().forEach((id, i) => {
+      rank[id] = i;
+    });
+    const rankOf = id => (id in rank) ? rank[id] : Number.MAX_SAFE_INTEGER;
+    const loose = ordered.filter(e => !e.pinned).map((e, i) => ({
+          "e": e,
+          "i": i
+        }));
+    loose.sort((a, b) => (rankOf(a.e.app.appId) - rankOf(b.e.app.appId)) || (a.i - b.i));
+    const finalOrder = ordered.filter(e => e.pinned).concat(loose.map(x => x.e));
+
     const byId = {};
     const ids = [];
     let pinnedCount = 0;
-    for (const app of TaskbarApps.apps) {
-      const id = app.appId;
-      const item = root._makeItem(app, pinnedIds.includes(id.toLowerCase()));
-      byId[id] = item;
-      if (item.pinned)
+    for (const entry of finalOrder) {
+      const id = entry.app.appId;
+      byId[id] = root._makeItem(entry.app, entry.pinned);
+      if (entry.pinned)
         pinnedCount++;
       ids.push(id);
     }
@@ -219,6 +269,14 @@ Singleton {
     }
   }
 
+  // The saved order is loaded asynchronously and can also change from outside
+  Connections {
+    target: Persistent.states.dock
+    function onUnpinnedOrderChanged() {
+      root.scheduleRebuild();
+    }
+  }
+
   // ------------------------------------------------------------- pinning
 
   function _pinnedList() {
@@ -251,10 +309,24 @@ Singleton {
     Config.options.dock.pinnedApps = list;
   }
 
-  // Used by drag and drop: pins the app first when it is only running
-  function moveToPinnedIndex(appId, targetIndex) {
-    root.pinApp(appId);
-    root.movePinned(appId, targetIndex);
+  // Used by drag and drop. targetIndex is a position in the dock.
+  // - pinned app: reorders the pinned list in the config
+  // - running-only app: reorders the session-only list; the app is never pinned
+  // Then an immediate rebuild, so the dock is reordered in the same frame in which the
+  // dragged slot is released.
+  function moveSlot(appId, targetIndex) {
+    if (root.isPinned(appId)) {
+      const needle = String(appId).toLowerCase();
+      const list = root._pinnedList().filter(id => String(id).toLowerCase() !== needle);
+      list.splice(Math.max(0, Math.min(list.length, targetIndex)), 0, appId);
+      Config.options.dock.pinnedApps = list;
+    } else {
+      const ids = root.slotIds.filter(id => !root.leavingIds[id] && !root._byId[id]?.pinned && id !== appId);
+      const at = Math.max(0, Math.min(ids.length, targetIndex - root.pinnedCount));
+      ids.splice(at, 0, appId);
+      Persistent.states.dock.unpinnedOrder = ids;
+    }
+    root.rebuild();
   }
 
   // ------------------------------------------------------------- actions
