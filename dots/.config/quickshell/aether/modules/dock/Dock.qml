@@ -21,7 +21,7 @@ Scope {
       required property var modelData
       screen: modelData
 
-      visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked && TaskbarApps.apps.length > 1
+      visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked && TaskbarApps.slotIds.length > 1
 
       readonly property real iconSize: Config.options?.dock?.iconSize ?? 65
       readonly property bool monochrome: Config.options?.dock?.monochromeIcons ?? true
@@ -29,6 +29,7 @@ Scope {
       readonly property real zoomPx: (Config.options?.dock?.magnification.enable ?? true) ? (Config.options?.dock?.magnification.strength ?? 30) : 0
       // Magnetism reach in resting slot widths
       readonly property real zoomRadius: Config.options?.dock?.magnification.radius ?? 2.5
+      readonly property real zoomPlateau: Config.options?.dock?.magnification.plateau ?? 0.5
 
       // Slot width at rest. A magnified slot is wider in the same proportion as its icon.
       readonly property real slotWidth: dockRoot.iconSize + (dockRoot.iconSize / 4)
@@ -67,8 +68,60 @@ Scope {
         return w;
       }
 
+      // Shift of the capsule center from the window center
+      readonly property real capsuleOffset: (0.5 - dockRoot.pivot) * (dockRoot.capsuleWidth - dockRoot.restCapsuleWidth)
       readonly property real capsuleWidth: dockRoot.liveRowWidth() + dockRoot.capsulePadding * 2
       readonly property real restCapsuleWidth: dockRoot.restRowWidth() + dockRoot.capsulePadding * 2
+      readonly property var restCenters: dockRoot.computeRestCenters()
+
+      // Where the cursor is along the resting capsule: 0 = left end, 1 = right end.
+      // The capsule grows away from the cursor: the side the cursor is on stays in place.
+      property real pivot: 0.5
+      readonly property real tooltipHeadroom: 34
+
+      // The window spans the whole screen width and never resizes, so slots coming and going
+      // cannot move the capsule. The capsule is centered by an anchor, and the input mask
+      // limits input to the capsule.
+      anchors.left: true
+      anchors.right: true
+      anchors.bottom: true
+      implicitHeight: dockRoot.capsuleHeight + dockRoot.zoomPx + dockRoot.tooltipHeadroom + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
+      exclusiveZone: root.pinned ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 : 0
+
+      WlrLayershell.namespace: "quickshell:dock"
+      WlrLayershell.layer: Appearance.layers.dock
+      color: "transparent"
+
+      // Cursor offset from the center of the resting capsule, in px. It is a physical offset, so
+      // it stays valid while the capsule moves, grows or shrinks and when slots come and go.
+      property real hoverOffset: 0
+      property bool hoverActive: false
+      property int dragSourceIndex: -1
+      property int dragTargetIndex: -1
+
+      readonly property bool menuOpen: slotMenu.open
+      readonly property string menuAppId: slotMenu.appId
+
+      // Magnification is disabled only while dragging. With an open menu the last position is kept.
+      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.dragSourceIndex === -1
+
+      onMenuOpenChanged: {
+        if (!dockRoot.menuOpen && !rowHover.hovered)
+          dockRoot.hoverActive = false;
+      }
+
+      // The pointer is over the dock. rowHover is checked as well as hitArea: a HoverHandler blocks
+      // hover for the items behind it, so while the pointer is over the slots, hitArea.containsMouse
+      // is false. Without rowHover the dock hid again as soon as the rising capsule reached the pointer.
+      readonly property bool dockHovered: hitArea.containsMouse || rowHover.hovered
+
+      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal?.enable && dockRoot.dockHovered) || dockRoot.menuOpen || (!ToplevelManager.activeToplevel?.activated)
+
+      // Where the capsule slides to, and whether it has actually arrived in the revealed position.
+      // Tooltips wait for that: a popup created while the capsule is still sliding up sits in a
+      // half-hidden dock, near the pointer, and interferes with the reveal.
+      readonly property real capsuleBottomTarget: dockRoot.reveal ? Appearance.sizes.hyprlandGapsOut : -(dockRoot.capsuleHeight + Appearance.sizes.elevationMargin)
+      readonly property bool fullyRevealed: dockRoot.reveal && Math.abs(capsule.anchors.bottomMargin - dockRoot.capsuleBottomTarget) < 1
 
       // Slot centers in the resting layout (no magnification), measured from the row center and
       // keyed by app id. Keyed by id, not by index, so a removed slot cannot shift the others.
@@ -100,59 +153,6 @@ Scope {
         }
         return centers;
       }
-      readonly property var restCenters: dockRoot.computeRestCenters()
-
-      // Where the cursor is along the resting capsule: 0 = left end, 1 = right end.
-      // The capsule grows away from the cursor: the side the cursor is on stays in place.
-      property real pivot: 0.5
-      // Shift of the capsule center from the window center
-      readonly property real capsuleOffset: (0.5 - dockRoot.pivot) * (dockRoot.capsuleWidth - dockRoot.restCapsuleWidth)
-
-      readonly property real tooltipHeadroom: 34
-
-      // The window spans the whole screen width and never resizes, so slots coming and going
-      // cannot move the capsule. The capsule is centered by an anchor, and the input mask
-      // limits input to the capsule.
-      anchors.left: true
-      anchors.right: true
-      anchors.bottom: true
-      implicitHeight: dockRoot.capsuleHeight + dockRoot.zoomPx + dockRoot.tooltipHeadroom + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
-      exclusiveZone: root.pinned ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 : 0
-
-      WlrLayershell.namespace: "quickshell:dock"
-      WlrLayershell.layer: WlrLayer.Top
-      color: "transparent"
-
-      // Cursor offset from the center of the resting capsule, in px. It is a physical offset, so
-      // it stays valid while the capsule moves, grows or shrinks and when slots come and go.
-      property real hoverOffset: 0
-      property bool hoverActive: false
-      property int dragSourceIndex: -1
-      property int dragTargetIndex: -1
-
-      readonly property bool menuOpen: slotMenu.open
-      readonly property string menuAppId: slotMenu.appId
-
-      // Magnification is disabled only while dragging. With an open menu the last position is kept.
-      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.dragSourceIndex === -1
-
-      onMenuOpenChanged: {
-        if (!dockRoot.menuOpen && !rowHover.hovered)
-          dockRoot.hoverActive = false;
-      }
-
-      // The pointer is over the dock. rowHover is checked as well as hitArea: a HoverHandler blocks
-      // hover for the items behind it, so while the pointer is over the slots, hitArea.containsMouse
-      // is false. Without rowHover the dock hid again as soon as the rising capsule reached the pointer.
-      readonly property bool dockHovered: hitArea.containsMouse || rowHover.hovered
-
-      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal.enable && dockRoot.dockHovered) || dockRoot.menuOpen || (!ToplevelManager.activeToplevel?.activated)
-
-      // Where the capsule slides to, and whether it has actually arrived in the revealed position.
-      // Tooltips wait for that: a popup created while the capsule is still sliding up sits in a
-      // half-hidden dock, near the pointer, and interferes with the reveal.
-      readonly property real capsuleBottomTarget: dockRoot.reveal ? Appearance.sizes.hyprlandGapsOut : -(dockRoot.capsuleHeight + Appearance.sizes.elevationMargin)
-      readonly property bool fullyRevealed: dockRoot.reveal && Math.abs(capsule.anchors.bottomMargin - dockRoot.capsuleBottomTarget) < 1
 
       function updateHover() {
         // Offset from the live capsule center, corrected by the capsule shift
@@ -209,7 +209,7 @@ Scope {
         anchors.horizontalCenter: capsule.horizontalCenter
         anchors.bottom: parent.bottom
         width: capsule.width + Appearance.sizes.elevationMargin * 2
-        height: dockRoot.reveal ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 + Appearance.sizes.elevationMargin + (dockRoot.zoomActive ? dockRoot.zoomPx + dockRoot.tooltipHeadroom : 0) : (Config.options?.dock?.hoverToReveal.height ?? 2)
+        height: dockRoot.reveal ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 + Appearance.sizes.elevationMargin + (dockRoot.zoomActive ? dockRoot.zoomPx + dockRoot.tooltipHeadroom : 0) : (Config.options?.dock?.hoverToReveal?.height ?? 5)
         hoverEnabled: true
         acceptedButtons: Qt.NoButton
       }

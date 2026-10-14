@@ -28,8 +28,6 @@ Item {
   // 0 = collapsed, 1 = full width. Drives the layout width, so the capsule follows it.
   // A new slot grows from 0, which expands the capsule smoothly (not during startup).
   property real widthFactor: DockApps.settled ? 0.0 : 1.0
-  // Opacity of the indicator dots
-  property real dotsOpacity: 1.0
 
   transformOrigin: Item.Center
   // While the slot is narrower than its icon, the icon is revealed from the center instead of
@@ -50,38 +48,6 @@ Item {
     animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
   }
 
-  Behavior on dotsOpacity {
-    NumberAnimation {
-      duration: DockApps.dotsFadeDuration
-      easing.type: Easing.OutQuad
-    }
-  }
-
-  // Leave sequence: dots fade -> icon fades (width kept) -> width collapses
-  onLeavingChanged: {
-    if (slot.leaving) {
-      slot.dotsOpacity = 0.0;
-      leaveTimer.restart();
-    } else {
-      leaveTimer.stop();
-      collapseTimer.stop();
-      slot.dotsOpacity = 1.0;
-      slot.presence = 1.0;
-      slot.widthFactor = 1.0;
-    }
-  }
-
-  // Starts the icon fade once the dots are gone (no wait when there are no dots)
-  Timer {
-    id: leaveTimer
-    interval: slot.app.dotCount > 0 ? DockApps.dotsFadeDuration : 0
-    repeat: false
-    onTriggered: {
-      slot.presence = 0.0;
-      collapseTimer.restart();
-    }
-  }
-
   // Collapses the width, and with it the capsule, once the icon has faded out
   Timer {
     id: collapseTimer
@@ -89,14 +55,6 @@ Item {
     repeat: false
     onTriggered: slot.widthFactor = 0.0
   }
-
-  // Enter animation: the width grows from 0 to 1
-  Component.onCompleted: slot.widthFactor = slot.leaving ? 0.0 : 1.0
-
-  readonly property int maxDots: (Config.options?.dock?.iconSize / 10)
-  readonly property real dotWidthFocused: (Config.options?.dock?.iconSize / 13)
-  readonly property real dotWidthInactive: (Config.options?.dock?.iconSize / 13)
-  readonly property real dotHeight: (Config.options?.dock?.iconSize / 13)
 
   // ------------------------------------------------------------ drag shift
 
@@ -140,7 +98,7 @@ Item {
   // Magnetism reach, in resting slot widths: slots farther than this stay at normal size
   readonly property real zoomRadius: slot.dock.zoomRadius
   // Distance around the cursor where the slot gets the full zoom
-  readonly property real zoomPlateau: 0.3
+  readonly property real zoomPlateau: slot.dock.zoomPlateau
 
   readonly property real zoomMultiplier: {
     const d = slot.distanceToCursor;
@@ -264,6 +222,8 @@ Item {
     }
   }
 
+  // ---------------------------------------------------------------- icon
+
   Image {
     id: icon
     anchors.horizontalCenter: parent.horizontalCenter
@@ -280,20 +240,57 @@ Item {
     asynchronous: true
     mipmap: true
     smooth: true
-    cache: true
 
     layer.smooth: true
     layer.enabled: slot.dock.monochrome || slot.dimmed
     layer.effect: MultiEffect {
       saturation: slot.dock.monochrome ? -1 : 0
       brightness: slot.dimmed ? -0.25 : 0
+    }
+  }
 
-      Behavior on brightness {
-        NumberAnimation {
-          duration: Appearance.animation.hover.duration
-          easing.type: Easing.OutQuad
-        }
-      }
+  // ---------------------------------------------------------------- dots
+
+  // Enter animation: the width grows from 0 to 1
+  Component.onCompleted: slot.widthFactor = slot.leaving ? 0.0 : 1.0
+
+  readonly property int maxDots: (Config.options?.dock?.iconSize / 10)
+  readonly property real dotWidthFocused: (Config.options?.dock?.iconSize / 13)
+  readonly property real dotWidthInactive: (Config.options?.dock?.iconSize / 13)
+  readonly property real dotHeight: (Config.options?.dock?.iconSize / 13)
+
+  // Opacity of the indicator dots
+  property real dotsOpacity: 1.0
+
+  Behavior on dotsOpacity {
+    NumberAnimation {
+      duration: DockApps.dotsFadeDuration
+      easing.type: Easing.OutQuad
+    }
+  }
+
+  // Leave sequence: dots fade -> icon fades (width kept) -> width collapses
+  onLeavingChanged: {
+    if (slot.leaving) {
+      slot.dotsOpacity = 0.0;
+      leaveTimer.restart();
+    } else {
+      leaveTimer.stop();
+      collapseTimer.stop();
+      slot.dotsOpacity = 1.0;
+      slot.presence = 1.0;
+      slot.widthFactor = 1.0;
+    }
+  }
+
+  // Starts the icon fade once the dots are gone (no wait when there are no dots)
+  Timer {
+    id: leaveTimer
+    interval: slot.app.dotCount > 0 ? DockApps.dotsFadeDuration : 0
+    repeat: false
+    onTriggered: {
+      slot.presence = 0.0;
+      collapseTimer.restart();
     }
   }
 

@@ -43,7 +43,7 @@ PopupWindow {
   anchor.gravity: Edges.Top
   anchor.adjustment: PopupAdjustment.Slide
 
-  implicitWidth: 220
+  implicitWidth: 200
   implicitHeight: menuCol.implicitHeight + 12
   visible: root.open
   color: "transparent"
@@ -70,14 +70,17 @@ PopupWindow {
 
     Layout.fillWidth: true
     Layout.preferredHeight: 28
-    radius: Appearance.rounding.unsharpenmore
+    radius: Appearance.rounding.unsharpen
     color: area.containsMouse ? Appearance.colors.colLayer1Hover : "transparent"
 
     StyledText {
       anchors.left: parent.left
+      anchors.right: parent.right
       anchors.leftMargin: 10
+      anchors.rightMargin: 10
       anchors.verticalCenter: parent.verticalCenter
       text: item.label
+      elide: Text.ElideRight
       color: item.danger ? Appearance.colors.colError : Appearance.colors.colOnLayer1
       style: Appearance.font.style.menu
     }
@@ -115,36 +118,25 @@ PopupWindow {
     anchors.margins: 6
     spacing: 2
 
+    // [Desktop Action ...] groups of the .desktop file (or of the system entry for unpinned apps)
+    Repeater {
+      model: root.app.actions
+      delegate: MenuItem {
+        required property var modelData
+        label: modelData.name
+        onTriggered: DockApps.runAction(root.app, modelData)
+      }
+    }
+
     MenuItem {
-      label: Translation.tr("Open new window")
-      visible: root.app.running
+      label: Translation.tr("New window")
+      visible: root.app.running && !(root.app.actions.length > 0)
       onTriggered: DockApps.launch(root.app)
     }
 
     MenuSeparator {
-      visible: root.app.running
+      visible: root.app.running || (root.app.actions.length > 0)
     }
-
-    MenuItem {
-      label: Translation.tr("Open")
-      visible: !root.app.running
-      onTriggered: DockApps.launch(root.app)
-    }
-
-    MenuItem {
-      label: Translation.tr("Quit")
-      visible: root.app.running
-      onTriggered: DockApps.quit(root.app)
-    }
-
-    MenuItem {
-      label: Translation.tr("Force quit")
-      danger: true
-      visible: root.app.running
-      onTriggered: DockApps.forceKill(root.app)
-    }
-
-    MenuSeparator {}
 
     MenuItem {
       readonly property bool pinned: DockApps.isPinned(root.app.appId)
@@ -155,6 +147,27 @@ PopupWindow {
         else
           DockApps.pinApp(root.app.appId);
       }
+    }
+
+    MenuSeparator {}
+
+    MenuItem {
+      label: Translation.tr("Force quit")
+      danger: true
+      visible: root.app.running
+      onTriggered: DockApps.forceKill(root.app)
+    }
+
+    MenuItem {
+      label: Translation.tr("Quit")
+      visible: root.app.running
+      onTriggered: DockApps.quit(root.app)
+    }
+
+    MenuItem {
+      label: Translation.tr("Open")
+      visible: !root.app.running
+      onTriggered: DockApps.launch(root.app)
     }
   }
 }

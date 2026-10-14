@@ -331,10 +331,9 @@ Singleton {
         }
         property JsonObject hoverToReveal: JsonObject {
           property bool enable: true // When false, only reveals on empty workspace
-          property real height: 2
+          property real height: 5
         }
-        property list<string> pinnedApps: []
-        property list<string> ignoredAppRegexes: []
+        property list<string> pinnedOrder: []
       }
 
       property JsonObject interactions: JsonObject {

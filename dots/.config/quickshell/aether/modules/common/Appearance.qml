@@ -560,6 +560,6 @@ Singleton {
     property real lockscreen: WlrLayer.Overlay
     property real bar: WlrLayer.Top
     property real overlay: WlrLayer.Overlay
-    property real dock: WlrLayer.Bottom
+    property real dock: WlrLayer.Top
   }
 }
