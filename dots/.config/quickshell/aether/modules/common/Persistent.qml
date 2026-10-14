@@ -62,11 +62,6 @@ Singleton {
         property int tabIndex: 0
       }
 
-      property JsonObject dock: JsonObject {
-        // Order of the running apps that are not pinned, set by dragging in the dock
-        property list<string> unpinnedOrder: []
-      }
-
       property JsonObject sidebar: JsonObject {
         property JsonObject bottomGroup: JsonObject {
           property bool collapsed: false
