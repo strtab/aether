@@ -10,10 +10,11 @@ import qs.services
 
 /**
  * Data adapter for the file section of the dock (services/DockFiles.qml).
- * - Links: symbolic links in <shell config>/dock-files. Dropping files on the dock creates them.
- *   Removing an item from the dock deletes only the link, never the target.
+ * - Items: files and directories listed in Config.options.dock.files.items, in that order.
+ *   Dropping files on the dock appends their paths to the list. Removing an item from the dock
+ *   only removes the path from the list, the file itself is never touched.
+ *   Paths that do not exist are not shown, but stay in the list.
  * - Trash: the XDG trash directory. Used for the full/empty icon and for the trash actions.
- * The order of the links is the file name order of the links directory.
  */
 Singleton {
   id: root
@@ -22,15 +23,33 @@ Singleton {
   readonly property bool trashEnabled: root.enabled && (Config.options?.dock?.files?.showTrash ?? true)
   readonly property bool showPreviews: Config.options?.dock?.files?.showPreviews ?? true
 
-  readonly property string linksDir: `${Directories.shellConfig}/dock-files`
   readonly property string dataHome: Quickshell.env("XDG_DATA_HOME") || `${Quickshell.env("HOME")}/.local/share`
   readonly property string trashRoot: `${root.dataHome}/Trash`
   readonly property string trashDir: `${root.trashRoot}/files`
 
-  property alias linksModel: _links
-  readonly property int linkCount: _links.count
+  // Paths from the config without duplicates, in config order
+  readonly property var configured: {
+    const list = Array.from(Config.options?.dock?.files?.items ?? []);
+    return list.filter((p, i) => p.length > 0 && list.indexOf(p) === i);
+  }
+
+  // Incrementally updated model for the Repeater (role: path). A plain array model would
+  // recreate every delegate on change and kill the enter animations.
+  ListModel {
+    id: _model
+  }
+  property alias itemsModel: _model
+
+  // Facts about each existing path, keyed by path: { isDir, name, suffix }
+  property var _info: ({})
+  readonly property var _emptyInfo: ({
+      isDir: false,
+      name: "",
+      suffix: ""
+    })
+
   // Number of slots in the section. Zero hides the section and its separator.
-  readonly property int itemCount: root.enabled ? root.linkCount + (root.trashEnabled ? 1 : 0) : 0
+  readonly property int itemCount: root.enabled ? _model.count + (root.trashEnabled ? 1 : 0) : 0
   readonly property bool trashFull: _trash.count > 0
   readonly property string trashIcon: AppSearch.resolveIcon(root.trashFull ? "user-trash-full" : "user-trash", "user-trash")
 
@@ -57,24 +76,14 @@ Singleton {
     return map;
   }
 
-  // Makes sure both directories exist before the folder models start watching them.
+  // ------------------------------------------------------------- trash watcher
+
+  // Makes sure the trash directory exists before the folder model starts watching it.
   // Mode 700: the trash directory must stay private, same as the one created by GLib.
   Process {
-    command: ["mkdir", "-p", "-m", "700", root.linksDir, root.trashRoot, root.trashDir]
+    command: ["mkdir", "-p", "-m", "700", root.trashRoot, root.trashDir]
     running: true
-    onExited: {
-      _links.folder = "file://" + root.linksDir;
-      _trash.folder = "file://" + root.trashDir;
-    }
-  }
-
-  FolderListModel {
-    id: _links
-    showDirs: true
-    showFiles: true
-    showHidden: false
-    sortField: FolderListModel.Name
-    sortCaseSensitive: false
+    onExited: _trash.folder = "file://" + root.trashDir
   }
 
   FolderListModel {
@@ -83,6 +92,117 @@ Singleton {
     showFiles: true
     showHidden: true
   }
+
+  // ------------------------------------------------------------- items
+
+  // Prints "d<TAB>path" for a directory and "f<TAB>path" for anything else that exists
+  readonly property string _statScript: [
+    'for p in "$@"; do',
+    '  if [ -d "$p" ]; then',
+    '    printf "d\\t%s\\n" "$p"',
+    '  elif [ -e "$p" ]; then',
+    '    printf "f\\t%s\\n" "$p"',
+    '  fi',
+    'done'
+  ].join("\n")
+
+  property bool _refreshPending: false
+
+  function refresh() {
+    if (statProc.running) {
+      root._refreshPending = true;
+      return;
+    }
+    const paths = root.configured;
+    if (paths.length === 0) {
+      root._info = {};
+      root._syncModel([]);
+      return;
+    }
+    statProc.command = ["bash", "-c", root._statScript, "dock-files-stat"].concat(paths);
+    statProc.running = true;
+  }
+
+  Process {
+    id: statProc
+    running: false
+    stdout: StdioCollector {
+      onStreamFinished: root._ingest(this.text)
+    }
+    onExited: {
+      if (root._refreshPending) {
+        root._refreshPending = false;
+        root.refresh();
+      }
+    }
+  }
+
+  function _ingest(text) {
+    const info = {};
+    for (const line of String(text).split("\n")) {
+      if (line.length < 3)
+        continue;
+      const isDir = line[0] === "d";
+      const path = line.slice(2);
+      const name = path.replace(/\/+$/, "").split("/").pop() || path;
+      const dot = name.lastIndexOf(".");
+      info[path] = {
+        "isDir": isDir,
+        "name": name,
+        "suffix": (!isDir && dot > 0) ? name.slice(dot + 1) : ""
+      };
+    }
+    // Data first, then the model, so new delegates see fresh data
+    root._info = info;
+    root._syncModel(root.configured.filter(p => p in info));
+  }
+
+  // Applies insert / remove / move operations so existing delegates survive
+  function _syncModel(target) {
+    for (let i = _model.count - 1; i >= 0; i--) {
+      if (!target.includes(_model.get(i).path))
+        _model.remove(i);
+    }
+    for (let i = 0; i < target.length; i++) {
+      const path = target[i];
+      if (i < _model.count && _model.get(i).path === path)
+        continue;
+      let from = -1;
+      for (let j = i + 1; j < _model.count; j++) {
+        if (_model.get(j).path === path) {
+          from = j;
+          break;
+        }
+      }
+      if (from === -1)
+        _model.insert(i, {
+          "path": path
+        });
+      else
+        _model.move(from, i, 1);
+    }
+  }
+
+  function infoFor(path) {
+    return root._info[path] ?? root._emptyInfo;
+  }
+
+  Connections {
+    target: Config.options?.dock?.files ?? null
+    function onItemsChanged() {
+      root.refresh();
+    }
+  }
+
+  Connections {
+    target: Config
+    function onReadyChanged() {
+      if (Config.ready)
+        root.refresh();
+    }
+  }
+
+  Component.onCompleted: root.refresh()
 
   // ------------------------------------------------------------- icons
 
@@ -93,6 +213,11 @@ Singleton {
   function iconFor(isDir, suffix) {
     const name = isDir ? "folder" : (root._suffixIcons[String(suffix).toLowerCase()] ?? "text-x-generic");
     return AppSearch.resolveIcon(name, "text-x-generic");
+  }
+
+  // file:// url of a path, with every segment percent-encoded
+  function fileUrl(path) {
+    return "file://" + String(path).split("/").map(s => encodeURIComponent(s)).join("/");
   }
 
   // ------------------------------------------------------------- paths
@@ -113,29 +238,39 @@ Singleton {
     return Array.from(urls).map(u => root.urlToPath(u)).filter(p => p.length > 0);
   }
 
-  // ------------------------------------------------------------- links
+  // ------------------------------------------------------------- config list
 
-  // Creates one link per path. A target that is already linked is skipped, a name clash gets " (n)".
-  readonly property string _addScript: ['dir="$1"; shift', 'mkdir -p "$dir"', 'shopt -s nullglob', 'for src in "$@"; do', '  src="$(readlink -f -- "$src")"', '  [ -e "$src" ] || continue', '  dupe=0', '  for l in "$dir"/*; do', '    if [ -L "$l" ] && [ "$(readlink -f -- "$l")" = "$src" ]; then dupe=1; break; fi', '  done', '  [ "$dupe" = 1 ] && continue', '  base="$(basename -- "$src")"', '  dest="$dir/$base"', '  n=2', '  while [ -e "$dest" ] || [ -L "$dest" ]; do', '    dest="$dir/$base ($n)"', '    n=$((n + 1))', '  done', '  ln -s -- "$src" "$dest"', 'done'].join("\n")
-
-  function addUrls(urls) {
-    const paths = root._paths(urls);
-    if (paths.length === 0)
-      return;
-    Quickshell.execDetached(["bash", "-c", root._addScript, "dock-files-add", root.linksDir].concat(paths));
+  function _write(list) {
+    Config.options.dock.files.items = list;
   }
 
-  // Deletes the link only. A regular file that ended up in the directory is left alone.
-  function removeLink(path) {
-    Quickshell.execDetached(["bash", "-c", '[ -L "$1" ] && rm -f -- "$1"', "dock-files-remove", path]);
+  // Appends the dropped paths to the config list. Paths that are already listed are skipped.
+  function addUrls(urls) {
+    const list = root.configured.slice();
+    for (const p of root._paths(urls)) {
+      const path = p.length > 1 ? p.replace(/\/+$/, "") : p;
+      if (!list.includes(path))
+        list.push(path);
+    }
+    if (list.length !== root.configured.length)
+      root._write(list);
+  }
+
+  // Removes the path from the list only
+  function remove(path) {
+    root._write(root.configured.filter(p => p !== path));
   }
 
   function open(path) {
     Quickshell.execDetached(["xdg-open", path]);
   }
 
+  // Opens the directory that contains the path
   function showInFolder(path) {
-    Quickshell.execDetached(["bash", "-c", 'xdg-open "$(dirname "$(readlink -f -- "$1")")"', "dock-files-show", path]);
+    const trimmed = String(path).replace(/\/+$/, "");
+    const cut = trimmed.lastIndexOf("/");
+    const parent = cut > 0 ? trimmed.slice(0, cut) : "/";
+    Quickshell.execDetached(["xdg-open", parent]);
   }
 
   // ------------------------------------------------------------- trash
@@ -148,7 +283,13 @@ Singleton {
 
   // Empties the XDG trash directly. `gio trash --empty` needs the GVfs trash backend,
   // which is not always installed. Dolphin (KIO) uses the same directory.
-  readonly property string _emptyTrashScript: ['root="$1"', '[ -n "$root" ] && [ -d "$root/files" ] || exit 0', 'chmod -R u+w "$root/files" 2>/dev/null', 'find "$root/files" "$root/info" -mindepth 1 -delete 2>/dev/null', 'rm -f "$root/directorysizes"'].join("\n")
+  readonly property string _emptyTrashScript: [
+    'root="$1"',
+    '[ -n "$root" ] && [ -d "$root/files" ] || exit 0',
+    'chmod -R u+w "$root/files" 2>/dev/null',
+    'find "$root/files" "$root/info" -mindepth 1 -delete 2>/dev/null',
+    'rm -f "$root/directorysizes"'
+  ].join("\n")
 
   function emptyTrash() {
     Quickshell.execDetached(["bash", "-c", root._emptyTrashScript, "dock-files-empty-trash", root.trashRoot]);

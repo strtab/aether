@@ -330,6 +330,7 @@ Singleton {
           property bool showTrash: true
           property bool showPreviews: true // Images are shown as their own picture
           property string openTrashCommand: "gio open trash:///"
+          property list<string> items: []
         }
         property JsonObject magnification: JsonObject {
           property bool enable: true

@@ -38,7 +38,7 @@ Scope {
       readonly property real iconBottomMargin: (dockRoot.capsuleHeight - dockRoot.iconSize) / 2
       readonly property int slotCount: slotRepeater.count
 
-      // File section (links and trash) after the apps, split from them by a thin separator.
+      // File section (files, directories and trash) after the apps, split from them by a thin separator.
       // The separator width is animated, so the capsule grows smoothly when the section appears.
       readonly property bool hasFileSection: DockFiles.itemCount > 0
       readonly property real separatorFullWidth: 13
@@ -52,7 +52,7 @@ Scope {
       // bindings that use them are re-evaluated for slots that did not exist before.
       property int layoutRevision: 0
 
-      // Every slot of the row in creation order: apps, links, trash. File slots expose slotKey
+      // Every slot of the row in creation order: apps, files, trash. File slots expose slotKey
       // and sortKey, app slots expose appId and index.
       function slotItems() {
         dockRoot.layoutRevision;
@@ -244,7 +244,7 @@ Scope {
         acceptedButtons: Qt.NoButton
       }
 
-      // Files dropped anywhere on the dock become links in the file section. It covers the same
+      // Files dropped anywhere on the dock are added to the file section. It covers the same
       // area as the hover area, so a drag also reveals a hidden dock. The trash has its own
       // DropArea on top of this one.
       DropArea {
@@ -333,30 +333,27 @@ Scope {
             }
           }
 
-          // Links from the links directory
+          // Files and directories from Config.options.dock.files.items
           Repeater {
             id: fileRepeater
-            model: DockFiles.enabled ? DockFiles.linksModel : null
+            model: DockFiles.enabled ? DockFiles.itemsModel : null
             onItemAdded: dockRoot.layoutRevision++
             onItemRemoved: dockRoot.layoutRevision++
             delegate: DockFileSlot {
               id: fileSlot
               required property int index
-              required property string fileName
-              required property string filePath
-              required property url fileUrl
-              required property string fileSuffix
-              required property bool fileIsDir
+              required property string path
 
-              readonly property bool preview: DockFiles.isPreviewable(fileSlot.fileIsDir, fileSlot.fileSuffix)
+              readonly property var meta: DockFiles.infoFor(fileSlot.path)
+              readonly property bool preview: DockFiles.isPreviewable(fileSlot.meta.isDir, fileSlot.meta.suffix)
 
               dock: dockRoot
               order: fileSlot.index
-              slotKey: "dock-file:" + fileSlot.filePath
-              label: fileSlot.fileName
-              linkPath: fileSlot.filePath
+              slotKey: "dock-file:" + fileSlot.path
+              label: fileSlot.meta.name
+              itemPath: fileSlot.path
               isPreview: fileSlot.preview
-              iconSource: fileSlot.preview ? String(fileSlot.fileUrl) : DockFiles.iconFor(fileSlot.fileIsDir, fileSlot.fileSuffix)
+              iconSource: fileSlot.preview ? DockFiles.fileUrl(fileSlot.path) : DockFiles.iconFor(fileSlot.meta.isDir, fileSlot.meta.suffix)
             }
           }
 
@@ -396,6 +393,9 @@ Scope {
       Item {
         id: tooltip
 
+        readonly property bool shown: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen
+        // Distance between the icon top and the tooltip, px
+        readonly property real gap: 10
         // Last hovered slot, kept so the tooltip fades out in place
         property Item slot: null
 
@@ -407,10 +407,20 @@ Scope {
           }
         }
 
-        visible: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen && content.text !== ""
-        x: tooltip.slot ? Math.max(0, Math.min(dockRoot.width - tooltip.width, dockRoot.iconCenterX(tooltip.slot) - tooltip.width / 2)) : 0
-        y: tooltip.slot ? dockRoot.iconTop(tooltip.slot) - 10 - tooltip.height : 0
+        width: content.implicitWidth
         height: content.implicitHeight
+        x: tooltip.slot ? Math.max(0, Math.min(dockRoot.width - tooltip.width, dockRoot.iconCenterX(tooltip.slot) - tooltip.width / 2)) : 0
+        y: tooltip.slot ? dockRoot.iconTop(tooltip.slot) - tooltip.gap - tooltip.height : 0
+        z: 100
+        opacity: tooltip.shown ? 1 : 0
+        visible: tooltip.opacity > 0
+
+        Behavior on opacity {
+          NumberAnimation {
+            duration: Appearance.animation.hover.duration
+            easing.type: Easing.OutQuad
+          }
+        }
 
         StyledToolTipContent {
           id: content

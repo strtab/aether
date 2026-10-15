@@ -14,7 +14,7 @@ PopupWindow {
   required property var dockWindow
 
   property string slotKey: ""
-  property string linkPath: ""
+  property string itemPath: ""
   property bool isTrash: false
   property bool open: false
 
@@ -25,7 +25,7 @@ PopupWindow {
 
   function openFor(slot) {
     root.slotKey = slot.slotKey;
-    root.linkPath = slot.linkPath;
+    root.itemPath = slot.itemPath;
     root.isTrash = slot.isTrash;
     root.slotItem = slot;
     root.open = true;
@@ -125,14 +125,14 @@ PopupWindow {
         if (root.isTrash)
           DockFiles.openTrash();
         else
-          DockFiles.open(root.linkPath);
+          DockFiles.open(root.itemPath);
       }
     }
 
     MenuItem {
       label: Translation.tr("Show in folder")
       visible: !root.isTrash
-      onTriggered: DockFiles.showInFolder(root.linkPath)
+      onTriggered: DockFiles.showInFolder(root.itemPath)
     }
 
     MenuSeparator {
@@ -142,11 +142,12 @@ PopupWindow {
     MenuItem {
       label: Translation.tr("Remove from dock")
       visible: !root.isTrash
-      onTriggered: DockFiles.removeLink(root.linkPath)
+      onTriggered: DockFiles.remove(root.itemPath)
     }
 
     MenuItem {
       label: Translation.tr("Empty Trash")
+      danger: true
       visible: root.isTrash && DockFiles.trashFull
       onTriggered: DockFiles.emptyTrash()
     }

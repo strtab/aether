@@ -6,7 +6,7 @@ import QtQuick.Layouts
 import qs.services
 import qs.modules.common
 
-// One slot of the file section: a link to a file or a folder, or the trash.
+// One slot of the file section: a file or a directory from the config list, or the trash.
 // Follows the same layout and magnification protocol as DockSlot (restCenters, iconPx, widthFactor).
 Item {
   id: slot
@@ -22,10 +22,10 @@ Item {
   property string iconSource: ""
   // The icon is the file itself (an image), so it is not desaturated
   property bool isPreview: false
-  // Path of the link in the links directory. Empty for the trash.
-  property string linkPath: ""
+  // Path of the file or directory. Empty for the trash.
+  property string itemPath: ""
 
-  // Position in the row. Links come after the apps, the trash comes last.
+  // Position in the row. Files come after the apps, the trash comes last.
   readonly property real sortKey: slot.isTrash ? 100000 : 1000 + slot.order
   // The dock reads this on every slot kind
   readonly property bool leaving: false
@@ -125,7 +125,7 @@ Item {
     if (slot.isTrash)
       DockFiles.openTrash();
     else
-      DockFiles.open(slot.linkPath);
+      DockFiles.open(slot.itemPath);
   }
 
   MouseArea {
@@ -141,7 +141,7 @@ Item {
   }
 
   // Dropping on the trash moves the files to the trash. Dropping anywhere else on the dock
-  // is handled by the dock window and creates links.
+  // is handled by the dock window and adds the paths to the config list.
   DropArea {
     id: dropArea
     anchors.fill: parent
