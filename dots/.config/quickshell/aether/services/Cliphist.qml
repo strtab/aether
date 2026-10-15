@@ -94,26 +94,6 @@ Singleton {
     }
   }
 
-  Process {
-    id: textWatcherProc
-    command: ["bash", "-c", `pkill 'wl-paste --type text'; wait; wl-paste --type text --watch bash -c '${root.cliphistBinary} store && qs -c aether ipc call cliphistService update'`]
-    running: true
-    onExited: (code, status) => {
-      if (code !== 0)
-        textWatcherProc.running = true;
-    }
-  }
-
-  Process {
-    id: imageWatcherProc
-    command: ["bash", "-c", `pkill 'wl-paste --type image'; wait; wl-paste --type image --watch bash -c '${root.cliphistBinary} store && qs -c aether ipc call cliphistService update'`]
-    running: true
-    onExited: (code, status) => {
-      if (code !== 0)
-        imageWatcherProc.running = true;
-    }
-  }
-
   function deleteEntry(entry) {
     deleteProc.deleteEntry(entry);
   }

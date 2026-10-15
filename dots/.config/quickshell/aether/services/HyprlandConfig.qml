@@ -7,59 +7,46 @@ import qs.modules.common
 import qs.modules.common.functions
 
 Singleton {
-    id: root
-    signal reloaded()
+  signal reloaded
 
-    readonly property string configuratorScriptPath: Quickshell.shellPath("scripts/hyprland/hyprconfigurator.py")
-    readonly property string shellOverridesPath: FileUtils.trimFileProtocol(`${Directories.config}/hypr/hyprland/shellOverrides/main.lua`)
-    readonly property string animOverridesPath: FileUtils.trimFileProtocol(`${Directories.config}/hypr/hyprland/shellOverrides/animations.lua`)
+  readonly property string configuratorScriptPath: Directories.hyprlandConfiguratorScritpPath
+  readonly property string shellOverridesPath: Directories.shellOverridesPath
+  readonly property string animOverridesPath: Directories.animOverridesPath
 
-    function set(key: string, value: var) {
-        Quickshell.execDetached([
-            "python3", root.configuratorScriptPath,
-            "--file", root.shellOverridesPath,
-            "--set", key, String(value)
-        ])
+  function set(key: string, value: var) {
+    Quickshell.execDetached(["python3", root.configuratorScriptPath, "--file", root.shellOverridesPath, "--set", key, String(value)]);
+  }
+
+  function setMany(entries: var) {
+    let args = ["python3", root.configuratorScriptPath, "--file", root.shellOverridesPath];
+    for (let key in entries) {
+      args.push("--set", key, String(entries[key]));
     }
+    Quickshell.execDetached(args);
+  }
 
-    function setMany(entries: var) {
-        let args = ["python3", root.configuratorScriptPath, "--file", root.shellOverridesPath]
-        for (let key in entries) {
-            args.push("--set", key, String(entries[key]))
-        }
-        Quickshell.execDetached(args)
-    }
+  function reset(key: string) {
+    Quickshell.execDetached(["python3", root.configuratorScriptPath, "--file", root.shellOverridesPath, "--reset", key]);
+  }
 
-    function reset(key: string) {
-        Quickshell.execDetached([
-            "python3", root.configuratorScriptPath,
-            "--file", root.shellOverridesPath,
-            "--reset", key
-        ])
+  function resetMany(keys: list<string>) {
+    let args = ["python3", root.configuratorScriptPath, "--file", root.shellOverridesPath];
+    for (let i = 0; i < keys.length; i++) {
+      args.push("--reset", keys[i]);
     }
+    Quickshell.execDetached(args);
+  }
 
-    function resetMany(keys: list<string>) {
-        let args = ["python3", root.configuratorScriptPath, "--file", root.shellOverridesPath]
-        for (let i = 0; i < keys.length; i++) {
-            args.push("--reset", keys[i])
-        }
-        Quickshell.execDetached(args)
-    }
+  function setAnimPreset(preset: string) {
+    Quickshell.execDetached(["python3", root.configuratorScriptPath, "--anim-preset", preset, "--anim-file", root.animOverridesPath]);
+  }
 
-    function setAnimPreset(preset: string) {
-        Quickshell.execDetached([
-            "python3", root.configuratorScriptPath,
-            "--anim-preset", preset,
-            "--anim-file", root.animOverridesPath
-        ])
+  Connections {
+    target: Hyprland
+    function onRawEvent(event) {
+      if (event.name == "configreloaded") {
+        root.reloaded();
+      }
     }
-
-    Connections {
-        target: Hyprland
-        function onRawEvent(event) {
-            if (event.name == "configreloaded") {
-                root.reloaded()
-            }
-        }
-    }
+  }
 }

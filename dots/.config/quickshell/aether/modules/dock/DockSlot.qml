@@ -3,6 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Widgets
 import qs.services
 import qs.modules.common
 import qs.modules.common.functions
@@ -224,28 +226,31 @@ Item {
 
   // ---------------------------------------------------------------- icon
 
-  Image {
-    id: icon
+  Loader {
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
     anchors.bottomMargin: slot.dock.iconBottomMargin + slot.bounceLift
-    width: slot.iconPx
-    height: slot.iconPx
-    transformOrigin: Item.Bottom
-    source: slot.app.icon
-    // Fixed raster size so magnification does not reload the image
-    sourceSize: Qt.size(slot.dock.iconSize + slot.dock.zoomPx, slot.dock.iconSize + slot.dock.zoomPx)
-    fillMode: Image.PreserveAspectFit
-    antialiasing: true
     asynchronous: true
-    mipmap: true
-    smooth: true
+    sourceComponent: Image {
+      id: icon
+      width: slot.iconPx
+      height: slot.iconPx
+      transformOrigin: Item.Bottom
+      source: slot.app.icon
+      sourceSize: Qt.size(slot.dock.iconSize + slot.dock.zoomPx, slot.dock.iconSize + slot.dock.zoomPx)
+      fillMode: Image.PreserveAspectFit
 
-    layer.smooth: true
-    layer.enabled: slot.dock.monochrome || slot.dimmed
-    layer.effect: MultiEffect {
-      saturation: slot.dock.monochrome ? -1 : 0
-      brightness: slot.dimmed ? -0.25 : 0
+      antialiasing: true
+      asynchronous: true
+      mipmap: true
+      smooth: true
+
+      layer.smooth: true
+      layer.enabled: slot.dock.monochrome || slot.dimmed
+      layer.effect: MultiEffect {
+        saturation: slot.dock.monochrome ? -1 : 0
+        brightness: slot.dimmed ? -0.25 : 0
+      }
     }
   }
 

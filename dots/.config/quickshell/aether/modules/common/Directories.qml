@@ -21,27 +21,35 @@ Singleton {
   readonly property string videos: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
 
   // Other dirs used by the shell, without "file://"
-  property string shellConfig: FileUtils.trimFileProtocol(`${Directories.config}/aether`)
-  property string shellConfigPath: `${Directories.shellConfig}/config.json`
+  readonly property string shellConfig: FileUtils.trimFileProtocol(`${Directories.config}/aether`)
+  readonly property string shellConfigPath: `${Directories.shellConfig}/config.json`
 
-  property string assetsPath: Quickshell.shellPath("assets")
-  property string scriptPath: Quickshell.shellPath("scripts")
-  property string favicons: FileUtils.trimFileProtocol(`${Directories.cache}/media/favicons`)
-  property string coverArt: FileUtils.trimFileProtocol(`${Directories.cache}/media/coverart`)
+  readonly property string assetsPath: Quickshell.shellPath("assets")
+  readonly property string scriptPath: Quickshell.shellPath("scripts")
+  readonly property string dockPath: FileUtils.trimFileProtocol(`${Directories.shellConfig}/dock`)
+  readonly property string favicons: FileUtils.trimFileProtocol(`${Directories.cache}/media/favicons`)
+  readonly property string coverArt: FileUtils.trimFileProtocol(`${Directories.cache}/media/coverart`)
 
-  property string tempImages: "/tmp/quickshell/media/images"
-  property string tempScreenshots: "/tmp/quickshell/media/screenshots"
-  property string latexOutput: FileUtils.trimFileProtocol(`${Directories.cache}/media/latex`)
-  property string todoPath: FileUtils.trimFileProtocol(`${Directories.state}/user/todo.json`)
-  property string notificationsPath: FileUtils.trimFileProtocol(`${Directories.cache}/notifications/notifications.json`)
-  property string generatedMaterialThemePath: FileUtils.trimFileProtocol(`${Directories.state}/user/generated/colors.json`)
-  property string generatedWallpaperCategoryPath: FileUtils.trimFileProtocol(`${Directories.state}/user/generated/wallpaper/category.txt`)
-  property string cliphistDecode: FileUtils.trimFileProtocol(`/tmp/quickshell/media/cliphist`)
-  property string userActions: FileUtils.trimFileProtocol(`${Directories.shellConfig}/actions`)
-  property string userAvatarPathAccountsService: FileUtils.trimFileProtocol(`/var/lib/AccountsService/icons/${SystemInfo.username}`)
+  readonly property string tempImages: "/tmp/quickshell/media/images"
+  readonly property string tempScreenshots: "/tmp/quickshell/media/screenshots"
+  readonly property string latexOutput: FileUtils.trimFileProtocol(`${Directories.cache}/media/latex`)
+  readonly property string userActions: FileUtils.trimFileProtocol(`${Directories.shellConfig}/actions`)
+  readonly property string cliphistDecode: FileUtils.trimFileProtocol(`/tmp/quickshell/media/cliphist`)
 
-  property string recordScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/videos/record.sh`)
-  property string wallpaperSwitchScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/colors/switchwall.sh`)
+  readonly property string todoPath: FileUtils.trimFileProtocol(`${Directories.state}/user/todo.json`)
+  readonly property string notificationsPath: FileUtils.trimFileProtocol(`${Directories.cache}/notifications/notifications.json`)
+  readonly property string generatedMaterialThemePath: FileUtils.trimFileProtocol(`${Directories.state}/user/generated/colors.json`)
+  readonly property string generatedWallpaperCategoryPath: FileUtils.trimFileProtocol(`${Directories.state}/user/generated/wallpaper/category.txt`)
+  readonly property string userAvatarPathAccountsService: FileUtils.trimFileProtocol(`/var/lib/AccountsService/icons/${SystemInfo.username}`)
+
+  readonly property string recordScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/videos/record.sh`)
+  readonly property string wallpaperSwitchScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/colors/switchwall.sh`)
+  readonly property string appKillScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/apps/kill.py`)
+  readonly property string appBadgeReaderScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/apps/badge_reader.py`)
+
+  readonly property string hyprlandConfiguratorScriptPath: FileUtils.trimFileProtocol(`${Directories.scriptPath}/hyprland/hyprconfigurator.py`)
+  readonly property string shellOverridesPath: FileUtils.trimFileProtocol(`${Directories.config}/hypr/hyprland/shellOverrides/main.lua`)
+  readonly property string animOverridesPath: FileUtils.trimFileProtocol(`${Directories.config}/hypr/hyprland/shellOverrides/animations.lua`)
 
   // Cleanup on init
   Component.onCompleted: {

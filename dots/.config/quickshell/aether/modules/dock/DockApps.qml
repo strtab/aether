@@ -22,10 +22,6 @@ import qs.services
 Singleton {
   id: root
 
-  readonly property string killScript: Qt.resolvedUrl("../scripts/kill_app.sh").toString().replace(/^file:\/\//, "")
-
-  // Directory with the pinned .desktop files
-  readonly property string pinnedDir: `${Directories.shellConfig}/dock`
   // Executables that say nothing about the app when used as a match key
   readonly property var _genericExecs: ["bash", "sh", "env", "python", "python3", "java", "electron", "node", "flatpak", "snap", "gtk-launch", "xdg-open"]
 
@@ -84,9 +80,9 @@ Singleton {
   // Makes sure the directory exists before the folder model starts watching it
   Process {
     id: ensureDirProc
-    command: ["mkdir", "-p", root.pinnedDir]
+    command: ["mkdir", "-p", Directories.dockPath]
     running: true
-    onExited: folderModel.folder = "file://" + root.pinnedDir
+    onExited: folderModel.folder = "file://" + Directories.dockPath
   }
 
   FolderListModel {
@@ -260,6 +256,7 @@ Singleton {
   // id is the slot id; it is not always the file stem (see _carryOverId)
   function _makePinnedItem(id, file, toplevels) {
     const rawId = toplevels.length > 0 && toplevels[0].appId ? toplevels[0].appId : file.stem;
+    console.log("Pinned: ", AppSearch.resolveIcon(file.icon.length > 0 ? file.icon : AppSearch.guessIcon(file.stem), "application-x-executable"));
     return {
       appId: id,
       stem: file.stem,
@@ -290,6 +287,7 @@ Singleton {
     // Prefer the real window appId (keeps original casing) over the lowercased key
     const rawId = toplevels.length > 0 && toplevels[0].appId ? toplevels[0].appId : key;
     const entry = AppSearch.lookupDesktopEntry(rawId) ?? AppSearch.lookupDesktopEntry(key);
+    console.log("Running: ", AppSearch.resolveIcon(AppSearch.guessIcon(rawId), "application-x-executable"));
     return {
       appId: id,
       stem: "",
@@ -557,7 +555,7 @@ Singleton {
   function _createPinFile(item) {
     const sourceId = item.entry?.id ? String(item.entry.id).replace(/\.desktop$/, "") : "";
     const stem = (sourceId || String(item.rawId || item.appId)).replace(/[^A-Za-z0-9._@+-]/g, "_");
-    Quickshell.execDetached(["bash", "-c", root._pinScript, "dock-pin", root.pinnedDir, stem, sourceId, String(item.name), String(item.rawId), String(AppSearch.guessIcon(item.rawId)), String(item.rawId)]);
+    Quickshell.execDetached(["bash", "-c", root._pinScript, "dock-pin", Directories.dockPath, stem, sourceId, String(item.name), String(item.rawId), String(AppSearch.guessIcon(appToplevel.appId), "image-missing"), String(item.rawId)]);
     return stem;
   }
 
@@ -692,15 +690,9 @@ Singleton {
     const ids = [item.rawId, item.appId];
     for (const t of item.toplevels)
       ids.push(t.appId);
-    const unique = ids.filter((id, i) => id && ids.indexOf(id) === i);
-    _killProc.command = ["bash", root.killScript].concat(unique);
-    _killProc.running = true;
-  }
-
-  Process {
-    id: _killProc
-    running: false
-    stdout: StdioCollector {}
+    const unique = (ids.filter((id, i) => id && ids.indexOf(id) === i)).join(' ');
+    console.log("Killing: ", Directories.appKillScriptPath, unique, "\n");
+    Quickshell.execDetached(["python3", Directories.appKillScriptPath, unique]);
   }
 
   // Finds the dock item that a window class or a notification app name belongs to
