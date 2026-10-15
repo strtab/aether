@@ -326,39 +326,6 @@ Item {
     }
   }
 
-  // Icon top center in window coordinates: the same values the menu is anchored to.
-  // The tooltip popup is anchored to an item, and Quickshell re-reads the item position only
-  // when updateAnchor() is called. That position also depends on the capsule, which moves
-  // after the slot geometry has already changed, so the refresh is deferred until all
-  // bindings have settled.
-  readonly property real anchorWindowX: slot.dock.iconCenterX(slot)
-  readonly property real anchorWindowY: slot.dock.iconTop(slot)
-
-  function refreshTooltip() {
-    tooltip.updateAnchor();
-  }
-
-  onAnchorWindowXChanged: Qt.callLater(slot.refreshTooltip)
-  onAnchorWindowYChanged: Qt.callLater(slot.refreshTooltip)
-
-  // Invisible item that mirrors the icon rectangle (without the bounce offset).
-  // PopupToolTip anchors its popup to its parent, so the tooltip sits on the icon top.
-  Item {
-    id: iconAnchor
-    x: (slot.width - slot.iconPx) / 2
-    y: slot.iconTop
-    width: slot.iconPx
-    height: slot.iconPx
-
-    PopupToolTip {
-      id: tooltip
-      extraVisibleCondition: slot.hovered && slot.dock.fullyRevealed && slot.dock.dragSourceIndex === -1 && !slot.dock.menuOpen && !slot.leaving
-      text: slot.app.name
-      // Gap between the icon top and the tooltip content
-      verticalMargin: 10
-    }
-  }
-
   // ----------------------------------------------------------------- input
 
   MouseArea {

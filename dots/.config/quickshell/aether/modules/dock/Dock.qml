@@ -38,33 +38,50 @@ Scope {
       readonly property real iconBottomMargin: (dockRoot.capsuleHeight - dockRoot.iconSize) / 2
       readonly property int slotCount: slotRepeater.count
 
+      // File section (links and trash) after the apps, split from them by a thin separator.
+      // The separator width is animated, so the capsule grows smoothly when the section appears.
+      readonly property bool hasFileSection: DockFiles.itemCount > 0
+      readonly property real separatorFullWidth: 13
+      property real separatorWidth: dockRoot.hasFileSection ? dockRoot.separatorFullWidth : 0
+
+      Behavior on separatorWidth {
+        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+      }
+
       // Bumped whenever a slot is created or destroyed. The functions below read it, so
       // bindings that use them are re-evaluated for slots that did not exist before.
       property int layoutRevision: 0
+
+      // Every slot of the row in creation order: apps, links, trash. File slots expose slotKey
+      // and sortKey, app slots expose appId and index.
+      function slotItems() {
+        dockRoot.layoutRevision;
+        const items = [];
+        for (const repeater of [slotRepeater, fileRepeater, trashRepeater]) {
+          for (let i = 0; i < repeater.count; i++) {
+            const item = repeater.itemAt(i);
+            if (item)
+              items.push(item);
+          }
+        }
+        return items;
+      }
 
       // Capsule and resting widths are both summed straight from the slots. Reading the layout's
       // implicitWidth instead would lag behind the slot properties and leave a transient
       // difference between the two, which shows up as the capsule shaking while it resizes.
       function liveRowWidth() {
-        dockRoot.layoutRevision;
-        let w = 0;
-        for (let i = 0; i < slotRepeater.count; i++) {
-          const item = slotRepeater.itemAt(i);
-          if (item)
-            w += dockRoot.slotWidth * (item.iconPx / dockRoot.iconSize) * item.widthFactor;
-        }
+        let w = dockRoot.separatorWidth;
+        for (const item of dockRoot.slotItems())
+          w += dockRoot.slotWidth * (item.iconPx / dockRoot.iconSize) * item.widthFactor;
         return w;
       }
 
       // Width of the slots without any magnification (follows the leave animation)
       function restRowWidth() {
-        dockRoot.layoutRevision;
-        let w = 0;
-        for (let i = 0; i < slotRepeater.count; i++) {
-          const item = slotRepeater.itemAt(i);
-          if (item)
-            w += dockRoot.slotWidth * item.widthFactor;
-        }
+        let w = dockRoot.separatorWidth;
+        for (const item of dockRoot.slotItems())
+          w += dockRoot.slotWidth * item.widthFactor;
         return w;
       }
 
@@ -98,9 +115,13 @@ Scope {
       property bool hoverActive: false
       property int dragSourceIndex: -1
       property int dragTargetIndex: -1
+      // A file from another application is dragged over the dock
+      property bool dropHover: false
 
-      readonly property bool menuOpen: slotMenu.open
-      readonly property string menuAppId: slotMenu.appId
+      readonly property bool menuOpen: slotMenu.open || fileMenu.open
+      // Only the menu that is open names its target, so the other kind of slot is never dimmed
+      readonly property string menuAppId: slotMenu.open ? slotMenu.appId : ""
+      readonly property string menuFileKey: fileMenu.open ? fileMenu.slotKey : ""
 
       // Magnification is disabled only while dragging. With an open menu the last position is kept.
       readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.dragSourceIndex === -1
@@ -115,7 +136,8 @@ Scope {
       // is false. Without rowHover the dock hid again as soon as the rising capsule reached the pointer.
       readonly property bool dockHovered: hitArea.containsMouse || rowHover.hovered
 
-      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal?.enable && dockRoot.dockHovered) || dockRoot.menuOpen || (!ToplevelManager.activeToplevel?.activated)
+      // A drag from another application sends no pointer hover events, so dropHover keeps the dock open
+      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal?.enable && dockRoot.dockHovered) || dockRoot.menuOpen || dockRoot.dropHover || (!ToplevelManager.activeToplevel?.activated)
 
       // Where the capsule slides to, and whether it has actually arrived in the revealed position.
       // Tooltips wait for that: a popup created while the capsule is still sliding up sits in a
@@ -124,30 +146,34 @@ Scope {
       readonly property bool fullyRevealed: dockRoot.reveal && Math.abs(capsule.anchors.bottomMargin - dockRoot.capsuleBottomTarget) < 1
 
       // Slot centers in the resting layout (no magnification), measured from the row center and
-      // keyed by app id. Keyed by id, not by index, so a removed slot cannot shift the others.
+      // keyed by slot key (app id or file slot key). Keyed by key, not by index, so a removed slot
+      // cannot shift the others.
       function computeRestCenters() {
-        dockRoot.layoutRevision;
         const entries = [];
-        for (let i = 0; i < slotRepeater.count; i++) {
-          const item = slotRepeater.itemAt(i);
-          if (!item)
-            continue;
+        for (const item of dockRoot.slotItems()) {
           entries.push({
-            "id": item.appId,
-            "index": item.index,
+            "id": item.slotKey ?? item.appId,
+            "order": item.sortKey ?? item.index,
             "w": dockRoot.slotWidth * item.widthFactor
           });
         }
         // Order by the model index. Reading the index also re-evaluates this function when a slot
         // is moved: a move changes neither the slot count nor any width, and without this the
         // centers kept the old order until the next slot was added or removed.
-        entries.sort((a, b) => a.index - b.index);
-        let total = 0;
+        entries.sort((a, b) => a.order - b.order);
+        const sep = dockRoot.separatorWidth;
+        let total = sep;
         for (const e of entries)
           total += e.w;
         const centers = {};
         let x = -total / 2;
+        let sepPlaced = false;
         for (const e of entries) {
+          // The separator sits between the apps (order < 1000) and the file section
+          if (!sepPlaced && e.order >= 1000) {
+            x += sep;
+            sepPlaced = true;
+          }
           centers[e.id] = x + e.w / 2;
           x += e.w;
         }
@@ -185,10 +211,8 @@ Scope {
 
       // Slot under the cursor, or null. Reads each slot's own `hovered`, so it stays live.
       function findHoveredSlot() {
-        dockRoot.layoutRevision;
-        for (let i = 0; i < slotRepeater.count; i++) {
-          const item = slotRepeater.itemAt(i);
-          if (item && item.hovered && !item.leaving)
+        for (const item of dockRoot.slotItems()) {
+          if (item.hovered && !item.leaving)
             return item;
         }
         return null;
@@ -196,7 +220,13 @@ Scope {
       readonly property Item hoveredSlot: dockRoot.findHoveredSlot()
 
       function openSlotMenu(slot) {
+        fileMenu.dismiss();
         slotMenu.openFor(slot.app.appId, slot);
+      }
+
+      function openFileMenu(slot) {
+        slotMenu.dismiss();
+        fileMenu.openFor(slot);
       }
 
       // Only the hover area receives input; it follows the capsule and grows while the dock is revealed
@@ -214,8 +244,35 @@ Scope {
         acceptedButtons: Qt.NoButton
       }
 
+      // Files dropped anywhere on the dock become links in the file section. It covers the same
+      // area as the hover area, so a drag also reveals a hidden dock. The trash has its own
+      // DropArea on top of this one.
+      DropArea {
+        anchors.fill: hitArea
+        enabled: DockFiles.enabled
+        keys: ["text/uri-list"]
+        onEntered: drag => {
+          drag.accept(Qt.CopyAction);
+          dockRoot.dropHover = true;
+        }
+        onExited: dockRoot.dropHover = false
+        onDropped: drop => {
+          dockRoot.dropHover = false;
+          if (!drop.hasUrls)
+            return;
+          // Copy, so the source file manager never removes the original itself
+          drop.accept(Qt.CopyAction);
+          DockFiles.addUrls(drop.urls);
+        }
+      }
+
       DockSlotMenu {
         id: slotMenu
+        dockWindow: dockRoot
+      }
+
+      DockFileSlotMenu {
+        id: fileMenu
         dockWindow: dockRoot
       }
 
@@ -241,8 +298,8 @@ Scope {
           id: capsuleBackground
           anchors.fill: parent
           color: Appearance.colors.colLayer0
-          border.width: 1
-          border.color: Appearance.colors.colLayer0Border
+          border.width: dockRoot.dropHover ? 2 : 1
+          border.color: dockRoot.dropHover ? Appearance.colors.colPrimary : Appearance.colors.colLayer0Border
           radius: (Config.options?.dock?.iconSize / 2.2)
         }
 
@@ -260,6 +317,60 @@ Scope {
             onItemRemoved: dockRoot.layoutRevision++
             delegate: DockSlot {
               dock: dockRoot
+            }
+          }
+
+          Item {
+            id: fileSeparator
+            Layout.preferredWidth: dockRoot.separatorWidth
+            Layout.fillHeight: true
+            visible: dockRoot.separatorWidth > 0
+            opacity: dockRoot.separatorWidth / dockRoot.separatorFullWidth
+
+            DockSeparator {
+              anchors.centerIn: parent
+              height: dockRoot.iconSize 
+            }
+          }
+
+          // Links from the links directory
+          Repeater {
+            id: fileRepeater
+            model: DockFiles.enabled ? DockFiles.linksModel : null
+            onItemAdded: dockRoot.layoutRevision++
+            onItemRemoved: dockRoot.layoutRevision++
+            delegate: DockFileSlot {
+              id: fileSlot
+              required property int index
+              required property string fileName
+              required property string filePath
+              required property url fileUrl
+              required property string fileSuffix
+              required property bool fileIsDir
+
+              readonly property bool preview: DockFiles.isPreviewable(fileSlot.fileIsDir, fileSlot.fileSuffix)
+
+              dock: dockRoot
+              order: fileSlot.index
+              slotKey: "dock-file:" + fileSlot.filePath
+              label: fileSlot.fileName
+              linkPath: fileSlot.filePath
+              isPreview: fileSlot.preview
+              iconSource: fileSlot.preview ? String(fileSlot.fileUrl) : DockFiles.iconFor(fileSlot.fileIsDir, fileSlot.fileSuffix)
+            }
+          }
+
+          Repeater {
+            id: trashRepeater
+            model: DockFiles.trashEnabled ? 1 : 0
+            onItemAdded: dockRoot.layoutRevision++
+            onItemRemoved: dockRoot.layoutRevision++
+            delegate: DockFileSlot {
+              dock: dockRoot
+              isTrash: true
+              slotKey: "dock-trash"
+              label: Translation.tr("Trash")
+              iconSource: DockFiles.trashIcon
             }
           }
 
@@ -285,9 +396,6 @@ Scope {
       Item {
         id: tooltip
 
-        readonly property bool shown: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen
-        // Distance between the icon top and the tooltip, px
-        readonly property real gap: 10
         // Last hovered slot, kept so the tooltip fades out in place
         property Item slot: null
 
@@ -299,25 +407,16 @@ Scope {
           }
         }
 
-        width: content.implicitWidth
-        height: content.implicitHeight
+        visible: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen && content.text !== ""
         x: tooltip.slot ? Math.max(0, Math.min(dockRoot.width - tooltip.width, dockRoot.iconCenterX(tooltip.slot) - tooltip.width / 2)) : 0
-        y: tooltip.slot ? dockRoot.iconTop(tooltip.slot) - tooltip.gap - tooltip.height : 0
-        z: 100
-        opacity: tooltip.shown ? 1 : 0
-        visible: tooltip.opacity > 0
-
-        Behavior on opacity {
-          NumberAnimation {
-            duration: Appearance.animation.hover.duration
-            easing.type: Easing.OutQuad
-          }
-        }
+        y: tooltip.slot ? dockRoot.iconTop(tooltip.slot) - 10 - tooltip.height : 0
+        height: content.implicitHeight
 
         StyledToolTipContent {
           id: content
           anchors.centerIn: parent
-          text: tooltip.slot?.app?.name ?? ""
+          // File slots expose tooltipText, app slots expose app.name
+          text: tooltip.slot?.tooltipText ?? tooltip.slot?.app?.name ?? ""
           shown: true
           horizontalPadding: 10
           verticalPadding: 5

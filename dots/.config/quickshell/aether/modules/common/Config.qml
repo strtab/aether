@@ -326,7 +326,10 @@ Singleton {
         property bool pinnedOnStartup: true
         property list<string> pinnedOrder: []
         property JsonObject files: JsonObject {
-          property bool enable: true
+          property bool enable: true // macOS-style section after the apps: links and trash
+          property bool showTrash: true
+          property bool showPreviews: true // Images are shown as their own picture
+          property string openTrashCommand: "gio open trash:///"
         }
         property JsonObject magnification: JsonObject {
           property bool enable: true
