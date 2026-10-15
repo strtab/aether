@@ -622,6 +622,13 @@ Singleton {
     if (iconNameOrPath.startsWith("/") || iconNameOrPath.startsWith("file://")) {
       const path = iconNameOrPath.startsWith("file://") ? iconNameOrPath.substring(7) : iconNameOrPath;
 
+      // Files in the Nix store and in system or user icon directories are stable and valid.
+      // Use them as they are: the Electron and volatile-path rules below would replace many of
+      // them (anything under .../resources/ or containing /code/, /zed/, /cursor/ ...) with a
+      // generic or wrong icon.
+      if (path.startsWith("/nix/store/") || path.startsWith("/run/current-system/") || path.startsWith("/etc/profiles/") || path.startsWith("/usr/share/") || path.includes("/.local/share/icons/") || path.includes("/.icons/"))
+        return "file://" + path;
+
       // Known Electron app patterns - return proper icon name
       if (path.includes("/Windsurf/") || path.includes("/windsurf/")) {
         return Quickshell.iconPath("visual-studio-code", fallback);

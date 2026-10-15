@@ -324,6 +324,10 @@ Singleton {
         property real iconSize: 45
         property bool showPreview: true
         property bool pinnedOnStartup: true
+        property list<string> pinnedOrder: []
+        property JsonObject files: JsonObject {
+          property bool enable: true
+        }
         property JsonObject magnification: JsonObject {
           property bool enable: true
           property real strength: 15
@@ -333,7 +337,6 @@ Singleton {
           property bool enable: true // When false, only reveals on empty workspace
           property real height: 5
         }
-        property list<string> pinnedOrder: []
       }
 
       property JsonObject interactions: JsonObject {

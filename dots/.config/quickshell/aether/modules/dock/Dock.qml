@@ -21,7 +21,7 @@ Scope {
       required property var modelData
       screen: modelData
 
-      visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked && TaskbarApps.slotIds.length > 1
+      visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked
 
       readonly property real iconSize: Config.options?.dock?.iconSize ?? 65
       readonly property bool monochrome: Config.options?.dock?.monochromeIcons ?? true

@@ -358,7 +358,6 @@ Singleton {
     if (root.dragging)
       return;
 
-    const ignored = (Config.options?.dock?.ignoredAppRegexes ?? []).map(p => new RegExp(p, "i"));
     const pinnedFiles = root._orderedPinned();
 
     // Every window goes to the first pinned file that matches it. Windows without a match are
@@ -368,7 +367,7 @@ Singleton {
     const extraByKey = Object.create(null);
     for (const t of ToplevelManager.toplevels.values) {
       const rawAppId = String(t.appId ?? "");
-      if (rawAppId.length === 0 || ignored.some(re => re.test(rawAppId)))
+      if (rawAppId.length === 0)
         continue;
       const key = rawAppId.toLowerCase();
       const entryKey = root._entryKey(AppSearch.lookupDesktopEntry(rawAppId));
@@ -535,9 +534,6 @@ Singleton {
     function onPinnedOrderChanged() {
       root.scheduleRebuild();
     }
-    function onIgnoredAppRegexesChanged() {
-      root.scheduleRebuild();
-    }
   }
 
   Connections {
@@ -556,29 +552,7 @@ Singleton {
   // Creates the .desktop file for a running-only app and returns its file name without the suffix.
   // The original file is copied from the XDG data dirs; when the app has none, a minimal file is
   // generated from the window class.
-  readonly property string _pinScript: [
-    'dir="$1"; stem="$2"; src="$3"; name="$4"; cmd="$5"; icon="$6"; wmclass="$7"',
-    'mkdir -p "$dir"',
-    'dest="$dir/$stem.desktop"',
-    '[ -e "$dest" ] && exit 0',
-    'if [ -n "$src" ]; then',
-    '  IFS=: read -ra dirs <<< "${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"',
-    '  for d in "${dirs[@]}"; do',
-    '    if [ -f "$d/applications/$src.desktop" ]; then',
-    '      cat "$d/applications/$src.desktop" > "$dest"',
-    '      exit 0',
-    '    fi',
-    '  done',
-    'fi',
-    '{',
-    '  echo "[Desktop Entry]"',
-    '  echo "Type=Application"',
-    '  echo "Name=$name"',
-    '  echo "Exec=$cmd"',
-    '  [ -n "$icon" ] && echo "Icon=$icon"',
-    '  [ -n "$wmclass" ] && echo "StartupWMClass=$wmclass"',
-    '} > "$dest"'
-  ].join("\n")
+  readonly property string _pinScript: ['dir="$1"; stem="$2"; src="$3"; name="$4"; cmd="$5"; icon="$6"; wmclass="$7"', 'mkdir -p "$dir"', 'dest="$dir/$stem.desktop"', '[ -e "$dest" ] && exit 0', 'if [ -n "$src" ]; then', '  IFS=: read -ra dirs <<< "${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"', '  for d in "${dirs[@]}"; do', '    if [ -f "$d/applications/$src.desktop" ]; then', '      cat "$d/applications/$src.desktop" > "$dest"', '      exit 0', '    fi', '  done', 'fi', '{', '  echo "[Desktop Entry]"', '  echo "Type=Application"', '  echo "Name=$name"', '  echo "Exec=$cmd"', '  [ -n "$icon" ] && echo "Icon=$icon"', '  [ -n "$wmclass" ] && echo "StartupWMClass=$wmclass"', '} > "$dest"'].join("\n")
 
   function _createPinFile(item) {
     const sourceId = item.entry?.id ? String(item.entry.id).replace(/\.desktop$/, "") : "";
