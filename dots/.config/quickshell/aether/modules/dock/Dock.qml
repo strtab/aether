@@ -24,8 +24,8 @@ Scope {
       visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked
 
       // Icon size limits for the resize drag on the separator
-      readonly property real iconSizeMin: 24
-      readonly property real iconSizeMax: 96
+      readonly property real iconSizeMin: 25
+      readonly property real iconSizeMax: 58
       // While the separator is dragged, the new size lives here and is written to the config on release
       property bool resizing: false
       property real resizeSize: -1
@@ -47,6 +47,10 @@ Scope {
           easing.type: Easing.OutCubic
         }
       }
+
+      // Distance between the icon top and the tooltip or menu above it. Follows the icon size,
+      // including the resize animation (10 px at the default size of 45).
+      readonly property real popupGap: dockRoot.iconSize * 0.4
 
       // Largest size the dock can have. The window is sized for it and never resizes during the animation.
       readonly property real maxIconSize: Math.max(dockRoot.iconSizeMax, dockRoot.committedIconSize)
@@ -275,13 +279,13 @@ Scope {
       function openSlotMenu(slot) {
         fileMenu.dismiss();
         separatorMenu.dismiss();
-        slotMenu.openFor(slot.app.appId, slot);
+        slotMenu.openForApp(slot.app.appId, slot);
       }
 
       function openFileMenu(slot) {
         slotMenu.dismiss();
         separatorMenu.dismiss();
-        fileMenu.openFor(slot);
+        fileMenu.openForFile(slot);
       }
 
       function openSeparatorMenu(item) {
@@ -329,17 +333,17 @@ Scope {
 
       DockSlotMenu {
         id: slotMenu
-        dockWindow: dockRoot
+        gap: dockRoot.popupGap
       }
 
       DockFileSlotMenu {
         id: fileMenu
-        dockWindow: dockRoot
+        gap: dockRoot.popupGap
       }
 
       DockSeparatorMenu {
         id: separatorMenu
-        dockWindow: dockRoot
+        gap: dockRoot.popupGap
       }
 
       Item {
@@ -520,7 +524,7 @@ Scope {
 
         readonly property bool shown: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen
         // Distance between the icon top and the tooltip, px
-        readonly property real gap: 10
+        readonly property real gap: dockRoot.popupGap
         // Last hovered slot, kept so the tooltip fades out in place
         property Item slot: null
 
