@@ -231,19 +231,14 @@ Item {
     anchors.bottom: parent.bottom
     anchors.bottomMargin: slot.dock.iconBottomMargin + slot.bounceLift
     asynchronous: true
-    sourceComponent: Image {
-      id: icon
+    sourceComponent: DockIcon {
       width: slot.iconPx
       height: slot.iconPx
       transformOrigin: Item.Bottom
-      source: slot.app.icon
+      iconSource: slot.app.icon
+      resetToken: DockApps.iconEpoch
+      // Fixed raster size so magnification does not reload the image
       sourceSize: Qt.size(slot.dock.iconSize + slot.dock.zoomPx, slot.dock.iconSize + slot.dock.zoomPx)
-      fillMode: Image.PreserveAspectFit
-
-      antialiasing: true
-      asynchronous: true
-      mipmap: true
-      smooth: true
 
       layer.smooth: true
       layer.enabled: slot.dock.monochrome || slot.dimmed

@@ -43,6 +43,8 @@ Singleton {
   property bool dragging: false
   // Ids that are already gone but still shown while their slot plays the leave animation
   property var leavingIds: ({})
+  // Bumped when icons may have become resolvable (app list or config changed). Dock icons retry on it.
+  property int iconEpoch: 0
   // False during startup so the initial slots do not animate in
   property bool settled: false
   // How long the indicator dots fade out before a leaving slot starts to fade
@@ -537,7 +539,16 @@ Singleton {
   Connections {
     target: AppSearch
     function onListChanged() {
+      root.iconEpoch++;
       root.scheduleRebuild();
+    }
+  }
+
+  Connections {
+    target: Config
+    function onReadyChanged() {
+      if (Config.ready)
+        root.iconEpoch++;
     }
   }
 

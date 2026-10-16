@@ -20,6 +20,8 @@ Item {
   property bool isTrash: false
   property string label: ""
   property string iconSource: ""
+  // Shown when iconSource cannot be loaded (the type icon of an image preview)
+  property string fallbackSource: ""
   // The icon is the file itself (an image), so it is not desaturated
   property bool isPreview: false
   // Path of the file or directory. Empty for the trash.
@@ -94,7 +96,7 @@ Item {
 
   // ---------------------------------------------------------------- icon
 
-  Image {
+  DockIcon {
     id: icon
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
@@ -102,14 +104,11 @@ Item {
     width: slot.iconPx
     height: slot.iconPx
     transformOrigin: Item.Bottom
-    source: slot.iconSource
+    iconSource: slot.iconSource
+    fallbackSource: slot.fallbackSource
+    resetToken: DockApps.iconEpoch
     // Fixed raster size so magnification does not reload the image
     sourceSize: Qt.size(slot.dock.iconSize + slot.dock.zoomPx, slot.dock.iconSize + slot.dock.zoomPx)
-    fillMode: Image.PreserveAspectFit
-    antialiasing: true
-    asynchronous: true
-    mipmap: true
-    smooth: true
 
     layer.smooth: true
     layer.enabled: slot.desaturate || slot.dimmed

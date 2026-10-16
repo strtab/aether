@@ -354,6 +354,7 @@ Scope {
               itemPath: fileSlot.path
               isPreview: fileSlot.preview
               iconSource: fileSlot.preview ? DockFiles.fileUrl(fileSlot.path) : DockFiles.iconFor(fileSlot.meta.isDir, fileSlot.meta.suffix)
+              fallbackSource: fileSlot.preview ? DockFiles.iconFor(fileSlot.meta.isDir, fileSlot.meta.suffix) : ""
             }
           }
 
