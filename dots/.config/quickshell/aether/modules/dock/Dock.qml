@@ -24,8 +24,8 @@ Scope {
       visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked
 
       // Icon size limits for the resize drag on the separator
-      readonly property real iconSizeMin: 25
-      readonly property real iconSizeMax: 58
+      readonly property real iconSizeMin: 24
+      readonly property real iconSizeMax: 96
       // While the separator is dragged, the new size lives here and is written to the config on release
       property bool resizing: false
       property real resizeSize: -1
@@ -50,7 +50,7 @@ Scope {
 
       // Distance between the icon top and the tooltip or menu above it. Follows the icon size,
       // including the resize animation (10 px at the default size of 45).
-      readonly property real popupGap: dockRoot.iconSize * 0.4
+      readonly property real popupGap: dockRoot.iconSize * 0.22
 
       // Largest size the dock can have. The window is sized for it and never resizes during the animation.
       readonly property real maxIconSize: Math.max(dockRoot.iconSizeMax, dockRoot.committedIconSize)
@@ -255,6 +255,15 @@ Scope {
         return x < 0 ? 0 : Math.max(0, slotRepeater.count - 1);
       }
 
+      // Index in the pinned list for a drop at x (dockRow coordinates): before the app slot under
+      // the cursor, or after it when the cursor is in its right half
+      function dropPinIndex(x) {
+        const i = dockRoot.slotIndexAt(x);
+        const item = slotRepeater.itemAt(i);
+        const index = (item && x > item.x + item.width / 2) ? i + 1 : i;
+        return Math.max(0, Math.min(DockApps.pinnedCount, index));
+      }
+
       // Top edge of a slot icon in window coordinates. Only plain property reads,
       // so every binding that calls this stays live.
       function iconTop(slot) {
@@ -309,12 +318,12 @@ Scope {
         acceptedButtons: Qt.NoButton
       }
 
-      // Files dropped anywhere on the dock are added to the file section. It covers the same
-      // area as the hover area, so a drag also reveals a hidden dock. The trash has its own
-      // DropArea on top of this one.
+      // Files dropped anywhere on the dock: .desktop files are pinned as apps at the drop position,
+      // everything else is added to the file section. It covers the same area as the hover area,
+      // so a drag also reveals a hidden dock. The trash has its own DropArea on top of this one.
       DropArea {
+        id: dockDrop
         anchors.fill: hitArea
-        enabled: DockFiles.enabled
         keys: ["text/uri-list"]
         onEntered: drag => {
           drag.accept(Qt.CopyAction);
@@ -327,7 +336,10 @@ Scope {
             return;
           // Copy, so the source file manager never removes the original itself
           drop.accept(Qt.CopyAction);
-          DockFiles.addUrls(drop.urls);
+          const local = dockRow.mapFromItem(dockDrop, drop.x, drop.y);
+          const rest = DockApps.pinDesktopUrls(drop.urls, dockRoot.dropPinIndex(local.x));
+          if (rest.length > 0 && DockFiles.enabled)
+            DockFiles.addUrls(rest);
         }
       }
 

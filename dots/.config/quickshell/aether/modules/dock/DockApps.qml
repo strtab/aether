@@ -566,8 +566,37 @@ Singleton {
   function _createPinFile(item) {
     const sourceId = item.entry?.id ? String(item.entry.id).replace(/\.desktop$/, "") : "";
     const stem = (sourceId || String(item.rawId || item.appId)).replace(/[^A-Za-z0-9._@+-]/g, "_");
-    Quickshell.execDetached(["bash", "-c", root._pinScript, "dock-pin", Directories.dockPath, stem, sourceId, String(item.name), String(item.rawId), String(AppSearch.guessIcon(appToplevel.appId), "image-missing"), String(item.rawId)]);
+    Quickshell.execDetached(["bash", "-c", root._pinScript, "dock-pin", Directories.dockPath, stem, sourceId, String(item.name), String(item.rawId), String(AppSearch.guessIcon(item.rawId) ?? ""), String(item.rawId)]);
     return stem;
+  }
+
+  // Copies a .desktop file into the dock directory unless a file with that name is already there
+  readonly property string _copyScript: ['dir="$1"; src="$2"; stem="$3"', 'mkdir -p "$dir"', 'dest="$dir/$stem.desktop"', '[ -e "$dest" ] || { cp --no-preserve=mode -- "$src" "$dest" && chmod u+rw "$dest"; }'].join("\n")
+
+  // Pins the .desktop files among dropped urls and puts them at targetIndex of the pinned list.
+  // Returns the urls that are not .desktop files, for the caller to handle.
+  function pinDesktopUrls(urls, targetIndex) {
+    const rest = [];
+    const stems = [];
+    for (const url of Array.from(urls)) {
+      const path = DockFiles.urlToPath(url);
+      if (!path.endsWith(".desktop")) {
+        rest.push(url);
+        continue;
+      }
+      const stem = path.split("/").pop().replace(/\.desktop$/, "").replace(/[^A-Za-z0-9._@+-]/g, "_");
+      if (stem.length === 0 || stems.includes(stem))
+        continue;
+      Quickshell.execDetached(["bash", "-c", root._copyScript, "dock-pin-file", Directories.dockPath, path, stem]);
+      stems.push(stem);
+    }
+    if (stems.length > 0) {
+      // The order is written first, the files may appear a moment later
+      const list = root._orderedPinned().map(p => p.stem).filter(s => !stems.includes(s));
+      list.splice(Math.max(0, Math.min(list.length, targetIndex)), 0, ...stems);
+      root._writeOrder(list);
+    }
+    return rest;
   }
 
   function pinApp(appId) {
