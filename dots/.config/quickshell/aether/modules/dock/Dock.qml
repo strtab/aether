@@ -30,6 +30,10 @@ Scope {
       // Magnetism reach in resting slot widths
       readonly property real zoomRadius: Config.options?.dock?.magnification.radius ?? 2.5
       readonly property real zoomPlateau: Config.options?.dock?.magnification.plateau ?? 0.5
+      // Pause between the cursor entering the dock and the magnification starting, ms
+      readonly property int zoomDelay: Config.options?.dock?.magnification.delay ?? 120
+      // Duration of one size step of a slot, ms. Higher = slower size changes.
+      readonly property int zoomDuration: Config.options?.dock?.magnification.duration ?? 60
 
       // Slot width at rest. A magnified slot is wider in the same proportion as its icon.
       readonly property real slotWidth: dockRoot.iconSize + (dockRoot.iconSize / 4)
@@ -124,7 +128,28 @@ Scope {
       readonly property string menuFileKey: fileMenu.open ? fileMenu.slotKey : ""
 
       // Magnification is disabled only while dragging. With an open menu the last position is kept.
-      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.dragSourceIndex === -1
+      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.zoomArmed && dockRoot.dragSourceIndex === -1
+
+      // True once the entry delay has passed. Reset as soon as the cursor leaves.
+      property bool zoomArmed: false
+
+      onHoverActiveChanged: {
+        if (dockRoot.hoverActive) {
+          dockRoot.zoomArmed = dockRoot.zoomDelay <= 0;
+          if (!dockRoot.zoomArmed)
+            zoomDelayTimer.restart();
+        } else {
+          zoomDelayTimer.stop();
+          dockRoot.zoomArmed = false;
+        }
+      }
+
+      Timer {
+        id: zoomDelayTimer
+        interval: dockRoot.zoomDelay
+        repeat: false
+        onTriggered: dockRoot.zoomArmed = true
+      }
 
       onMenuOpenChanged: {
         if (!dockRoot.menuOpen && !rowHover.hovered)

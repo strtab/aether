@@ -82,7 +82,7 @@ Item {
 
   Behavior on growSize {
     NumberAnimation {
-      duration: 30
+      duration: slot.dock.zoomDuration
       easing.type: Easing.InOutQuad
     }
   }
