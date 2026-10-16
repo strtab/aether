@@ -50,7 +50,7 @@ Scope {
 
       // Distance between the icon top and the tooltip or menu above it. Follows the icon size,
       // including the resize animation (10 px at the default size of 45).
-      readonly property real popupGap: dockRoot.iconSize * 0.22
+      readonly property real popupGap: dockRoot.iconSize * 0.4
 
       // Largest size the dock can have. The window is sized for it and never resizes during the animation.
       readonly property real maxIconSize: Math.max(dockRoot.iconSizeMax, dockRoot.committedIconSize)
