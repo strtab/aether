@@ -23,7 +23,35 @@ Scope {
 
       visible: (Config.options?.dock?.enable ?? true) && !GlobalStates.screenLocked
 
-      readonly property real iconSize: Config.options?.dock?.iconSize ?? 65
+      // Icon size limits for the resize drag on the separator
+      readonly property real iconSizeMin: 24
+      readonly property real iconSizeMax: 96
+      // While the separator is dragged, the new size lives here and is written to the config on release
+      property bool resizing: false
+      property real resizeSize: -1
+      // Size saved in the config. Changes once per resize, so the window and the exclusive zone
+      // are not reconfigured on every frame of the animation.
+      readonly property real committedIconSize: Config.options?.dock?.iconSize ?? 65
+      // Size the dock is heading to: the drag value while resizing, the config value otherwise
+      readonly property real targetIconSize: (dockRoot.resizing && dockRoot.resizeSize > 0) ? dockRoot.resizeSize : dockRoot.committedIconSize
+      // Size every metric of the dock is derived from. It is animated here, once, so the capsule,
+      // the slots and the icons all change together. A Behavior on the capsule width or height
+      // would lag behind the slots, which are summed from the same size.
+      property real iconSize: dockRoot.targetIconSize
+
+      Behavior on iconSize {
+        // Not at startup, where the config value arrives after the default
+        enabled: Config.ready && DockApps.settled
+        NumberAnimation {
+          duration: 110
+          easing.type: Easing.OutCubic
+        }
+      }
+
+      // Largest size the dock can have. The window is sized for it and never resizes during the animation.
+      readonly property real maxIconSize: Math.max(dockRoot.iconSizeMax, dockRoot.committedIconSize)
+      // Fixed raster size of the icon images, so neither magnification nor resizing reloads them
+      readonly property real rasterSize: dockRoot.maxIconSize + dockRoot.zoomPx
       readonly property bool monochrome: Config.options?.dock?.monochromeIcons ?? true
       // Extra icon size at the cursor. Set Config.options.dock.magnification to false to disable.
       readonly property real zoomPx: (Config.options?.dock?.magnification.enable ?? true) ? (Config.options?.dock?.magnification.strength ?? 30) : 0
@@ -106,8 +134,8 @@ Scope {
       anchors.left: true
       anchors.right: true
       anchors.bottom: true
-      implicitHeight: dockRoot.capsuleHeight + dockRoot.zoomPx + dockRoot.tooltipHeadroom + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
-      exclusiveZone: root.pinned ? dockRoot.capsuleHeight + Appearance.sizes.hyprlandGapsOut * 2 : 0
+      implicitHeight: dockRoot.maxIconSize * 1.5 + dockRoot.zoomPx + dockRoot.tooltipHeadroom + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
+      exclusiveZone: root.pinned ? dockRoot.committedIconSize * 1.5 + Appearance.sizes.hyprlandGapsOut * 2 : 0
 
       WlrLayershell.namespace: "quickshell:dock"
       WlrLayershell.layer: Appearance.layers.dock
@@ -122,13 +150,13 @@ Scope {
       // A file from another application is dragged over the dock
       property bool dropHover: false
 
-      readonly property bool menuOpen: slotMenu.open || fileMenu.open
+      readonly property bool menuOpen: slotMenu.open || fileMenu.open || separatorMenu.open
       // Only the menu that is open names its target, so the other kind of slot is never dimmed
       readonly property string menuAppId: slotMenu.open ? slotMenu.appId : ""
       readonly property string menuFileKey: fileMenu.open ? fileMenu.slotKey : ""
 
       // Magnification is disabled only while dragging. With an open menu the last position is kept.
-      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.zoomArmed && dockRoot.dragSourceIndex === -1
+      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.zoomArmed && dockRoot.dragSourceIndex === -1 && !dockRoot.resizing
 
       // True once the entry delay has passed. Reset as soon as the cursor leaves.
       property bool zoomArmed: false
@@ -162,7 +190,7 @@ Scope {
       readonly property bool dockHovered: hitArea.containsMouse || rowHover.hovered
 
       // A drag from another application sends no pointer hover events, so dropHover keeps the dock open
-      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal?.enable && dockRoot.dockHovered) || dockRoot.menuOpen || dockRoot.dropHover || (!ToplevelManager.activeToplevel?.activated)
+      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal?.enable && dockRoot.dockHovered) || dockRoot.menuOpen || dockRoot.dropHover || dockRoot.resizing || (!ToplevelManager.activeToplevel?.activated)
 
       // Where the capsule slides to, and whether it has actually arrived in the revealed position.
       // Tooltips wait for that: a popup created while the capsule is still sliding up sits in a
@@ -246,12 +274,20 @@ Scope {
 
       function openSlotMenu(slot) {
         fileMenu.dismiss();
+        separatorMenu.dismiss();
         slotMenu.openFor(slot.app.appId, slot);
       }
 
       function openFileMenu(slot) {
         slotMenu.dismiss();
+        separatorMenu.dismiss();
         fileMenu.openFor(slot);
+      }
+
+      function openSeparatorMenu(item) {
+        slotMenu.dismiss();
+        fileMenu.dismiss();
+        separatorMenu.openFor(item);
       }
 
       // Only the hover area receives input; it follows the capsule and grows while the dock is revealed
@@ -301,6 +337,11 @@ Scope {
         dockWindow: dockRoot
       }
 
+      DockSeparatorMenu {
+        id: separatorMenu
+        dockWindow: dockRoot
+      }
+
       Item {
         id: capsule
         width: dockRoot.capsuleWidth
@@ -325,7 +366,7 @@ Scope {
           color: Appearance.colors.colLayer0
           border.width: dockRoot.dropHover ? 2 : 1
           border.color: dockRoot.dropHover ? Appearance.colors.colPrimary : Appearance.colors.colLayer0Border
-          radius: (Config.options?.dock?.iconSize / 2.2)
+          radius: dockRoot.iconSize / 2.2
         }
 
         RowLayout {
@@ -352,9 +393,67 @@ Scope {
             visible: dockRoot.separatorWidth > 0
             opacity: dockRoot.separatorWidth / dockRoot.separatorFullWidth
 
+            // Same meaning as iconTop of a slot, so the separator menu can use the shared anchor math
+            readonly property real iconTop: fileSeparator.height - dockRoot.iconBottomMargin - dockRoot.iconSize
+
             DockSeparator {
               anchors.centerIn: parent
-              height: dockRoot.iconSize 
+              height: dockRoot.iconSize
+              active: separatorArea.containsMouse || dockRoot.resizing
+            }
+
+            // Left drag (up = bigger) resizes the icons, right click opens the dock menu
+            MouseArea {
+              id: separatorArea
+              anchors.fill: parent
+              hoverEnabled: true
+              preventStealing: true
+              acceptedButtons: Qt.LeftButton | Qt.RightButton
+              cursorShape: Qt.SizeVerCursor
+
+              property real pressFromBottom: 0
+              property real pressSize: 0
+
+              function finishResize(commit) {
+                if (dockRoot.resizing && commit)
+                  Config.options.dock.iconSize = dockRoot.resizeSize;
+                dockRoot.resizing = false;
+                dockRoot.resizeSize = -1;
+              }
+
+              // The distance from the bottom edge does not depend on the item geometry,
+              // which changes under the cursor while the size changes
+              onPressed: mouse => {
+                if (mouse.button !== Qt.LeftButton)
+                  return;
+                separatorArea.pressFromBottom = separatorArea.height - mouse.y;
+                separatorArea.pressSize = dockRoot.iconSize;
+              }
+
+              onPositionChanged: mouse => {
+                if (!(mouse.buttons & Qt.LeftButton))
+                  return;
+                const delta = (separatorArea.height - mouse.y) - separatorArea.pressFromBottom;
+                if (!dockRoot.resizing && Math.abs(delta) < 4)
+                  return;
+                // The separator is centered in the capsule, 0.75 of the icon size above the bottom,
+                // so dividing by 0.75 keeps it under the cursor
+                const size = separatorArea.pressSize + delta / 0.75;
+                dockRoot.resizeSize = Math.max(dockRoot.iconSizeMin, Math.min(dockRoot.iconSizeMax, Math.round(size)));
+                dockRoot.resizing = true;
+              }
+
+              onReleased: mouse => {
+                if (mouse.button === Qt.LeftButton)
+                  separatorArea.finishResize(true);
+              }
+
+              onCanceled: separatorArea.finishResize(false)
+
+              onClicked: mouse => {
+                if (mouse.button === Qt.RightButton)
+                  dockRoot.openSeparatorMenu(fileSeparator);
+              }
             }
           }
 

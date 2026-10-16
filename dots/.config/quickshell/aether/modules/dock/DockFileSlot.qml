@@ -107,8 +107,8 @@ Item {
     iconSource: slot.iconSource
     fallbackSource: slot.fallbackSource
     resetToken: DockApps.iconEpoch
-    // Fixed raster size so magnification does not reload the image
-    sourceSize: Qt.size(slot.dock.iconSize + slot.dock.zoomPx, slot.dock.iconSize + slot.dock.zoomPx)
+    // Fixed raster size so magnification and resizing do not reload the image
+    sourceSize: Qt.size(slot.dock.rasterSize, slot.dock.rasterSize)
 
     layer.smooth: true
     layer.enabled: slot.desaturate || slot.dimmed

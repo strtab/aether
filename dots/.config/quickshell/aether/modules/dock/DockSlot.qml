@@ -237,8 +237,8 @@ Item {
       transformOrigin: Item.Bottom
       iconSource: slot.app.icon
       resetToken: DockApps.iconEpoch
-      // Fixed raster size so magnification does not reload the image
-      sourceSize: Qt.size(slot.dock.iconSize + slot.dock.zoomPx, slot.dock.iconSize + slot.dock.zoomPx)
+      // Fixed raster size so magnification and resizing do not reload the image
+      sourceSize: Qt.size(slot.dock.rasterSize, slot.dock.rasterSize)
 
       layer.smooth: true
       layer.enabled: slot.dock.monochrome || slot.dimmed
@@ -254,10 +254,10 @@ Item {
   // Enter animation: the width grows from 0 to 1
   Component.onCompleted: slot.widthFactor = slot.leaving ? 0.0 : 1.0
 
-  readonly property int maxDots: (Config.options?.dock?.iconSize / 10)
-  readonly property real dotWidthFocused: (Config.options?.dock?.iconSize / 13)
-  readonly property real dotWidthInactive: (Config.options?.dock?.iconSize / 13)
-  readonly property real dotHeight: (Config.options?.dock?.iconSize / 13)
+  readonly property int maxDots: (slot.dock.iconSize / 10)
+  readonly property real dotWidthFocused: (slot.dock.iconSize / 13)
+  readonly property real dotWidthInactive: (slot.dock.iconSize / 13)
+  readonly property real dotHeight: (slot.dock.iconSize / 13)
 
   // Opacity of the indicator dots
   property real dotsOpacity: 1.0

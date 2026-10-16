@@ -21,7 +21,7 @@ PopupWindow {
   // Slot the menu is attached to. Null once the slot is destroyed.
   property Item slotItem: null
   // Distance between the icon top and the menu, px
-  property real gap: 10
+  property real gap: 20
 
   function openFor(slot) {
     root.slotKey = slot.slotKey;
