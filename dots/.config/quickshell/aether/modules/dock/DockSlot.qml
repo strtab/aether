@@ -29,7 +29,7 @@ Item {
   property real presence: 1.0
   // 0 = collapsed, 1 = full width. Drives the layout width, so the capsule follows it.
   // A new slot grows from 0, which expands the capsule smoothly (not during startup).
-  property real widthFactor: DockApps.settled ? 0.0 : 1.0
+  property real widthFactor: (DockApps.settled && !slot.dock.dropHold) ? 0.0 : 1.0
 
   transformOrigin: Item.Center
   // While the slot is narrower than its icon, the icon is revealed from the center instead of
@@ -37,7 +37,7 @@ Item {
   clip: slot.widthFactor < 1.0
   // The slot is as wide as its icon is large, so the padding around the icon grows
   // with the magnification and the capsule grows with the slots.
-  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor
+  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor + slot.leadingGap
   Layout.fillHeight: true
   scale: 0.7 + 0.3 * slot.presence
   opacity: slot.presence
@@ -74,9 +74,22 @@ Item {
   }
 
   Behavior on shiftOffset {
+    enabled: !slot.dock.dragSnap
     NumberAnimation {
       duration: Appearance.animation.hover.duration
       easing.type: Easing.OutQuad
+    }
+  }
+
+  // Free space in front of the slot while a file from another application is over the dock.
+  // It is part of the slot width, so the layout and the capsule follow it by themselves.
+  property real leadingGap: slot.dock.gapHolder === slot.appId ? slot.dock.gapSize : 0
+
+  Behavior on leadingGap {
+    enabled: !slot.dock.dropSnap
+    NumberAnimation {
+      duration: slot.dock.gapDuration
+      easing.type: Easing.OutCubic
     }
   }
 
@@ -228,6 +241,7 @@ Item {
 
   Loader {
     anchors.horizontalCenter: parent.horizontalCenter
+    anchors.horizontalCenterOffset: slot.leadingGap / 2
     anchors.bottom: parent.bottom
     anchors.bottomMargin: slot.dock.iconBottomMargin + slot.bounceLift
     asynchronous: true
@@ -302,6 +316,7 @@ Item {
     opacity: slot.dotsOpacity
     spacing: 3
     anchors.horizontalCenter: parent.horizontalCenter
+    anchors.horizontalCenterOffset: slot.leadingGap / 2
     anchors.bottom: parent.bottom
     anchors.bottomMargin: 4
 
@@ -332,6 +347,7 @@ Item {
     id: mouseArea
     enabled: !slot.leaving
     anchors.fill: parent
+    anchors.leftMargin: slot.leadingGap
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     preventStealing: true
 
@@ -384,6 +400,7 @@ Item {
       const source = slot.dock.dragSourceIndex;
       const target = slot.dock.dragTargetIndex;
       const appId = slot.app.appId;
+      slot.dock.beginDragSettle();
       endDrag();
       if (target !== -1 && target !== source)
         DockApps.moveToPinnedIndex(appId, target);

@@ -325,6 +325,11 @@ Singleton {
         property bool showPreview: true
         property bool pinnedOnStartup: true
         property list<string> pinnedOrder: []
+        property JsonObject dropGap: JsonObject {
+          property int delay: 250
+          property int moveDelay: 120
+          property int duration: 420
+        }
         property JsonObject files: JsonObject {
           property bool enable: true // macOS-style section after the apps: links and trash
           property bool showTrash: true

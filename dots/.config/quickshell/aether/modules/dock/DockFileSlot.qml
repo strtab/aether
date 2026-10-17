@@ -37,7 +37,7 @@ Item {
 
   // 0 = collapsed, 1 = full width. A new slot grows from 0, which expands the capsule smoothly
   // (not during startup).
-  property real widthFactor: DockApps.settled ? 0.0 : 1.0
+  property real widthFactor: (DockApps.settled && !slot.dock.dropHold) ? 0.0 : 1.0
 
   Component.onCompleted: slot.widthFactor = 1.0
 
@@ -46,9 +46,21 @@ Item {
   }
 
   clip: slot.widthFactor < 1.0
-  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor
+  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor + slot.leadingGap
   Layout.fillHeight: true
   z: slot.hovered ? 20 : (slot.growSize > 0 ? 10 : 0)
+
+  // Free space in front of the slot while a file from another application is over the dock.
+  // It is part of the slot width, so the layout and the capsule follow it by themselves.
+  property real leadingGap: slot.dock.gapHolder === slot.slotKey ? slot.dock.gapSize : 0
+
+  Behavior on leadingGap {
+    enabled: !slot.dock.dropSnap
+    NumberAnimation {
+      duration: slot.dock.gapDuration
+      easing.type: Easing.OutCubic
+    }
+  }
 
   // ---------------------------------------------------------- magnification
 
@@ -99,6 +111,7 @@ Item {
   DockIcon {
     id: icon
     anchors.horizontalCenter: parent.horizontalCenter
+    anchors.horizontalCenterOffset: slot.leadingGap / 2
     anchors.bottom: parent.bottom
     anchors.bottomMargin: slot.dock.iconBottomMargin
     width: slot.iconPx
@@ -130,6 +143,7 @@ Item {
   MouseArea {
     id: mouseArea
     anchors.fill: parent
+    anchors.leftMargin: slot.leadingGap
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
       if (mouse.button === Qt.LeftButton)
@@ -144,6 +158,7 @@ Item {
   DropArea {
     id: dropArea
     anchors.fill: parent
+    anchors.leftMargin: slot.leadingGap
     enabled: slot.isTrash
     keys: ["text/uri-list"]
     onEntered: drag => drag.accept(Qt.CopyAction)

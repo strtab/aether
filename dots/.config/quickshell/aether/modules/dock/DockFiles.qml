@@ -245,15 +245,27 @@ Singleton {
   }
 
   // Appends the dropped paths to the config list. Paths that are already listed are skipped.
-  function addUrls(urls) {
+  // modelIndex is the position among the shown items to insert before; without it the paths go to
+  // the end. Returns how many paths were new.
+  function addUrls(urls, modelIndex) {
     const list = root.configured.slice();
+    let at = list.length;
+    if (modelIndex !== undefined && modelIndex >= 0 && modelIndex < _model.count) {
+      const ref = list.indexOf(_model.get(modelIndex).path);
+      if (ref >= 0)
+        at = ref;
+    }
+    let added = 0;
     for (const p of root._paths(urls)) {
       const path = p.length > 1 ? p.replace(/\/+$/, "") : p;
-      if (!list.includes(path))
-        list.push(path);
+      if (!list.includes(path)) {
+        list.splice(at + added, 0, path);
+        added++;
+      }
     }
-    if (list.length !== root.configured.length)
+    if (added > 0)
       root._write(list);
+    return added;
   }
 
   // Removes the path from the list only

@@ -107,17 +107,17 @@ Scope {
       // implicitWidth instead would lag behind the slot properties and leave a transient
       // difference between the two, which shows up as the capsule shaking while it resizes.
       function liveRowWidth() {
-        let w = dockRoot.separatorWidth;
+        let w = dockRoot.separatorWidth + dockRoot.separatorGap + dockRoot.tailGap;
         for (const item of dockRoot.slotItems())
-          w += dockRoot.slotWidth * (item.iconPx / dockRoot.iconSize) * item.widthFactor;
+          w += dockRoot.slotWidth * (item.iconPx / dockRoot.iconSize) * item.widthFactor + item.leadingGap;
         return w;
       }
 
       // Width of the slots without any magnification (follows the leave animation)
       function restRowWidth() {
-        let w = dockRoot.separatorWidth;
+        let w = dockRoot.separatorWidth + dockRoot.separatorGap + dockRoot.tailGap;
         for (const item of dockRoot.slotItems())
-          w += dockRoot.slotWidth * item.widthFactor;
+          w += dockRoot.slotWidth * item.widthFactor + item.leadingGap;
         return w;
       }
 
@@ -153,6 +153,52 @@ Scope {
       property int dragTargetIndex: -1
       // A file from another application is dragged over the dock
       property bool dropHover: false
+      // What is being dragged over the dock: "app" (.desktop files), "file" or "" (not accepted)
+      property string dropKind: ""
+      // False while the urls of the drag could not be read yet (some sources offer them late)
+      property bool dropKindKnown: false
+      // Slot order the drop gap is opened before, -1 = no gap. Apps use their model index,
+      // files use 1000 + position, the trash comes after every position.
+      property int dropOrder: -1
+      // The files were dropped and the new slot has not arrived yet: the gap stays open for it
+      property bool dropHold: false
+      // True for a moment when the new slot replaces the gap, so both change without animation
+      property bool dropSnap: false
+      // True for a moment when a dragged slot is released, see beginDragSettle()
+      property bool dragSnap: false
+
+      // Gap opening. delay: how long the cursor must rest before the gap opens, moveDelay: before it
+      // moves to another position, duration: how long it takes to open or close. All in ms.
+      readonly property int gapDelay: Config.options?.dock?.dropGap?.delay ?? 250
+      readonly property int gapMoveDelay: Config.options?.dock?.dropGap?.moveDelay ?? 120
+      readonly property int gapDuration: Config.options?.dock?.dropGap?.duration ?? 420
+      // The gap is one slot wide
+      readonly property real gapSize: dockRoot.slotWidth
+      // Slot order the cursor points at, and the one the gap is open at (see dropOrder)
+      property int dropTarget: -1
+      // The element that holds the gap in front of itself: an app id, a file slot key, "@separator"
+      // or "@tail" (after the last element). The gap is part of that element's own width, so the
+      // layout and the capsule follow it without any extra bookkeeping.
+      readonly property string gapHolder: dockRoot.gapHolderKey()
+      // The separator and the end of the row are not slots, so their gap lives here
+      property real separatorGap: dockRoot.gapHolder === "@separator" ? dockRoot.gapSize : 0
+      property real tailGap: dockRoot.gapHolder === "@tail" ? dockRoot.gapSize : 0
+
+      Behavior on separatorGap {
+        enabled: !dockRoot.dropSnap
+        NumberAnimation {
+          duration: dockRoot.gapDuration
+          easing.type: Easing.OutCubic
+        }
+      }
+
+      Behavior on tailGap {
+        enabled: !dockRoot.dropSnap
+        NumberAnimation {
+          duration: dockRoot.gapDuration
+          easing.type: Easing.OutCubic
+        }
+      }
 
       readonly property bool menuOpen: slotMenu.open || fileMenu.open || separatorMenu.open
       // Only the menu that is open names its target, so the other kind of slot is never dimmed
@@ -160,7 +206,7 @@ Scope {
       readonly property string menuFileKey: fileMenu.open ? fileMenu.slotKey : ""
 
       // Magnification is disabled only while dragging. With an open menu the last position is kept.
-      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.zoomArmed && dockRoot.dragSourceIndex === -1 && !dockRoot.resizing
+      readonly property bool zoomActive: dockRoot.hoverActive && dockRoot.zoomArmed && dockRoot.dragSourceIndex === -1 && !dockRoot.resizing && !dockRoot.dropHover
 
       // True once the entry delay has passed. Reset as soon as the cursor leaves.
       property bool zoomArmed: false
@@ -218,6 +264,8 @@ Scope {
         // is moved: a move changes neither the slot count nor any width, and without this the
         // centers kept the old order until the next slot was added or removed.
         entries.sort((a, b) => a.order - b.order);
+        // The drop gap is left out on purpose. These centers are also what the drop position is
+        // measured against, and a gap that moves around must not move the thing it is measured by.
         const sep = dockRoot.separatorWidth;
         let total = sep;
         for (const e of entries)
@@ -255,13 +303,134 @@ Scope {
         return x < 0 ? 0 : Math.max(0, slotRepeater.count - 1);
       }
 
-      // Index in the pinned list for a drop at x (dockRow coordinates): before the app slot under
-      // the cursor, or after it when the cursor is in its right half
-      function dropPinIndex(x) {
-        const i = dockRoot.slotIndexAt(x);
-        const item = slotRepeater.itemAt(i);
-        const index = (item && x > item.x + item.width / 2) ? i + 1 : i;
-        return Math.max(0, Math.min(DockApps.pinnedCount, index));
+      // Cursor offset from the center of the capsule, for a point in the drop area. Like hoverOffset it
+      // is a physical offset: it does not change when the capsule grows or shrinks around its center.
+      function dropOffset(x, y) {
+        return dockRow.mapFromItem(dockDrop, x, y).x - dockRow.width / 2 + dockRoot.capsuleOffset;
+      }
+
+      // Number of slots of a repeater whose center is left of the cursor offset. It is measured
+      // against the resting layout (restCenters, no gap), so the gap opening or moving cannot
+      // change the answer and make the gap jump back and forth.
+      function slotsBefore(repeater, offset) {
+        let count = 0;
+        for (let i = 0; i < repeater.count; i++) {
+          const item = repeater.itemAt(i);
+          if (item && offset > (dockRoot.restCenters[item.slotKey ?? item.appId] ?? 0))
+            count = i + 1;
+        }
+        return count;
+      }
+
+      // Index in the pinned list for a drop at x. Pinned apps live in the pinned block, so the
+      // index stops at its end, in front of the first app that is only running.
+      function dropPinIndex(offset) {
+        return Math.min(DockApps.pinnedCount, dockRoot.slotsBefore(slotRepeater, offset));
+      }
+
+      // Index in the file section for a drop at x: 0 is next to the separator, the count is the end
+      function fileDropIndex(offset) {
+        return dockRoot.slotsBefore(fileRepeater, offset);
+      }
+
+      // See gapHolder. Finds the first element at or behind dropOrder.
+      function gapHolderKey() {
+        dockRoot.layoutRevision;
+        const order = dockRoot.dropOrder;
+        if (order < 0)
+          return "";
+        let holder = "@tail";
+        let holderOrder = Infinity;
+        for (const item of dockRoot.slotItems()) {
+          const o = item.sortKey ?? item.index;
+          if (o >= order && o < holderOrder) {
+            holderOrder = o;
+            holder = item.slotKey ?? item.appId;
+          }
+        }
+        // The separator sits at 999.5, between the apps and the file section
+        if (dockRoot.hasFileSection && 999.5 >= order && 999.5 < holderOrder)
+          holder = "@separator";
+        return holder;
+      }
+
+      // Sets dropKind from the dragged urls. Until the urls are readable it guesses "file" and
+      // is asked again on the next pointer move.
+      function resolveDropKind(drag) {
+        const list = drag.hasUrls ? Array.from(drag.urls) : [];
+        dockRoot.dropKindKnown = list.length > 0;
+        if (list.some(u => DockFiles.urlToPath(u).endsWith(".desktop")))
+          dockRoot.dropKind = "app";
+        else
+          dockRoot.dropKind = DockFiles.enabled ? "file" : "";
+      }
+
+      // The gap opens after the cursor has rested at a position for a while, so passing over the
+      // dock does not make everything move. Order is -1 for no gap.
+      function setDropTarget(order) {
+        if (order === dockRoot.dropTarget)
+          return;
+        dockRoot.dropTarget = order;
+        if (order === dockRoot.dropOrder) {
+          gapDelayTimer.stop();
+          return;
+        }
+        gapDelayTimer.interval = dockRoot.dropOrder >= 0 ? dockRoot.gapMoveDelay : dockRoot.gapDelay;
+        gapDelayTimer.restart();
+      }
+
+      // offset is the cursor offset from the capsule center (see dropOffset)
+      function updateDropGap(offset) {
+        let order = -1;
+        if (dockRoot.dropKind === "app")
+          order = dockRoot.dropPinIndex(offset);
+        else if (dockRoot.dropKind === "file")
+          order = 1000 + dockRoot.fileDropIndex(offset);
+        dockRoot.setDropTarget(order);
+      }
+
+      // Closes the gap. With snap the new slot has just taken its place, so nothing is animated.
+      function releaseDropGap(snap) {
+        dropHoldTimer.stop();
+        gapDelayTimer.stop();
+        dockRoot.dropTarget = -1;
+        dockRoot.dropHold = false;
+        if (snap)
+          dockRoot.dropSnap = true;
+        dockRoot.dropOrder = -1;
+        if (snap)
+          Qt.callLater(() => dockRoot.dropSnap = false);
+      }
+
+      // Called when a slot is created
+      function slotArrived() {
+        if (dockRoot.dropHold)
+          dockRoot.releaseDropGap(true);
+      }
+
+      // A dragged slot is released and the model is reordered in the same moment. The layout moves
+      // the neighbours by itself, so their drag shift must drop to zero at once. Animating it would
+      // push them a slot away from their place and slide them back, which looked like a twitch.
+      function beginDragSettle() {
+        dockRoot.dragSnap = true;
+        Qt.callLater(() => dockRoot.dragSnap = false);
+      }
+
+      Timer {
+        id: gapDelayTimer
+        repeat: false
+        onTriggered: {
+          if (Quickshell.env("QS_DEBUG") === "1")
+            console.log("dock drop gap:", dockRoot.dropKind, dockRoot.dropOrder, "->", dockRoot.dropTarget);
+          dockRoot.dropOrder = dockRoot.dropTarget;
+        }
+      }
+
+      Timer {
+        id: dropHoldTimer
+        interval: 1500
+        repeat: false
+        onTriggered: dockRoot.releaseDropGap(false)
       }
 
       // Top edge of a slot icon in window coordinates. Only plain property reads,
@@ -328,18 +497,46 @@ Scope {
         onEntered: drag => {
           drag.accept(Qt.CopyAction);
           dockRoot.dropHover = true;
+          // No magnification while a file is dragged over: it would widen the slots instead of
+          // leaving one free slot at the drop position
+          dockRoot.hoverActive = false;
+          dockRoot.dropHold = false;
+          dockRoot.resolveDropKind(drag);
+          dockRoot.updateDropGap(dockRoot.dropOffset(drag.x, drag.y));
         }
-        onExited: dockRoot.dropHover = false
+        onPositionChanged: drag => {
+          if (!dockRoot.dropKindKnown)
+            dockRoot.resolveDropKind(drag);
+          dockRoot.updateDropGap(dockRoot.dropOffset(drag.x, drag.y));
+        }
+        onExited: {
+          dockRoot.dropHover = false;
+          if (!dockRoot.dropHold)
+            dockRoot.releaseDropGap(false);
+        }
         onDropped: drop => {
           dockRoot.dropHover = false;
-          if (!drop.hasUrls)
+          if (!drop.hasUrls) {
+            dockRoot.releaseDropGap(false);
             return;
+          }
           // Copy, so the source file manager never removes the original itself
           drop.accept(Qt.CopyAction);
-          const local = dockRow.mapFromItem(dockDrop, drop.x, drop.y);
-          const rest = DockApps.pinDesktopUrls(drop.urls, dockRoot.dropPinIndex(local.x));
-          if (rest.length > 0 && DockFiles.enabled)
-            DockFiles.addUrls(rest);
+          const offset = dockRoot.dropOffset(drop.x, drop.y);
+          const holding = dockRoot.dropOrder >= 0;
+          gapDelayTimer.stop();
+          const pinIndex = dockRoot.dropPinIndex(offset);
+          const fileIndex = dockRoot.fileDropIndex(offset);
+          const pinned = DockApps.pinDesktopUrls(drop.urls, pinIndex);
+          const filesAdded = (DockFiles.enabled && pinned.rest.length > 0) ? DockFiles.addUrls(pinned.rest, fileIndex) : 0;
+          if (holding && pinned.added + filesAdded > 0) {
+            // Keep the gap where the new slot will appear, until it arrives and takes the gap's place
+            dockRoot.dropOrder = pinned.added > 0 ? pinIndex : 1000 + fileIndex;
+            dockRoot.dropHold = true;
+            dropHoldTimer.restart();
+          } else {
+            dockRoot.releaseDropGap(false);
+          }
         }
       }
 
@@ -395,7 +592,10 @@ Scope {
           Repeater {
             id: slotRepeater
             model: DockApps.slotModel
-            onItemAdded: dockRoot.layoutRevision++
+            onItemAdded: {
+              dockRoot.layoutRevision++;
+              dockRoot.slotArrived();
+            }
             onItemRemoved: dockRoot.layoutRevision++
             delegate: DockSlot {
               dock: dockRoot
@@ -404,7 +604,7 @@ Scope {
 
           Item {
             id: fileSeparator
-            Layout.preferredWidth: dockRoot.separatorWidth
+            Layout.preferredWidth: dockRoot.separatorWidth + dockRoot.separatorGap
             Layout.fillHeight: true
             visible: dockRoot.separatorWidth > 0
             opacity: dockRoot.separatorWidth / dockRoot.separatorFullWidth
@@ -413,7 +613,10 @@ Scope {
             readonly property real iconTop: fileSeparator.height - dockRoot.iconBottomMargin - dockRoot.iconSize
 
             DockSeparator {
-              anchors.centerIn: parent
+              // The gap is in front of the line, so the line sits in the right part of the item
+              anchors.horizontalCenter: parent.horizontalCenter
+              anchors.horizontalCenterOffset: dockRoot.separatorGap / 2
+              anchors.verticalCenter: parent.verticalCenter
               height: dockRoot.iconSize
               active: separatorArea.containsMouse || dockRoot.resizing
             }
@@ -422,6 +625,7 @@ Scope {
             MouseArea {
               id: separatorArea
               anchors.fill: parent
+              anchors.leftMargin: dockRoot.separatorGap
               hoverEnabled: true
               preventStealing: true
               acceptedButtons: Qt.LeftButton | Qt.RightButton
@@ -477,7 +681,10 @@ Scope {
           Repeater {
             id: fileRepeater
             model: DockFiles.enabled ? DockFiles.itemsModel : null
-            onItemAdded: dockRoot.layoutRevision++
+            onItemAdded: {
+              dockRoot.layoutRevision++;
+              dockRoot.slotArrived();
+            }
             onItemRemoved: dockRoot.layoutRevision++
             delegate: DockFileSlot {
               id: fileSlot
@@ -510,6 +717,12 @@ Scope {
               label: Translation.tr("Trash")
               iconSource: DockFiles.trashIcon
             }
+          }
+
+          // Holds the gap at the very end of the row
+          Item {
+            Layout.preferredWidth: dockRoot.tailGap
+            Layout.fillHeight: true
           }
 
           HoverHandler {

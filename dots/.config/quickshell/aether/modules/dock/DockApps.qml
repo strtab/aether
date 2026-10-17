@@ -574,10 +574,11 @@ Singleton {
   readonly property string _copyScript: ['dir="$1"; src="$2"; stem="$3"', 'mkdir -p "$dir"', 'dest="$dir/$stem.desktop"', '[ -e "$dest" ] || { cp --no-preserve=mode -- "$src" "$dest" && chmod u+rw "$dest"; }'].join("\n")
 
   // Pins the .desktop files among dropped urls and puts them at targetIndex of the pinned list.
-  // Returns the urls that are not .desktop files, for the caller to handle.
+  // Returns { rest: the urls that are not .desktop files, added: how many files were not pinned yet }.
   function pinDesktopUrls(urls, targetIndex) {
     const rest = [];
     const stems = [];
+    let added = 0;
     for (const url of Array.from(urls)) {
       const path = DockFiles.urlToPath(url);
       if (!path.endsWith(".desktop")) {
@@ -587,6 +588,8 @@ Singleton {
       const stem = path.split("/").pop().replace(/\.desktop$/, "").replace(/[^A-Za-z0-9._@+-]/g, "_");
       if (stem.length === 0 || stems.includes(stem))
         continue;
+      if (!(stem in root._files))
+        added++;
       Quickshell.execDetached(["bash", "-c", root._copyScript, "dock-pin-file", Directories.dockPath, path, stem]);
       stems.push(stem);
     }
@@ -596,7 +599,10 @@ Singleton {
       list.splice(Math.max(0, Math.min(list.length, targetIndex)), 0, ...stems);
       root._writeOrder(list);
     }
-    return rest;
+    return {
+      "rest": rest,
+      "added": added
+    };
   }
 
   function pinApp(appId) {
