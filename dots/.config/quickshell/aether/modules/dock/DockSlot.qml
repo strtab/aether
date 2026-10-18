@@ -148,8 +148,8 @@ Item {
   readonly property bool isActive: slot.app.toplevels.some(t => t.activated === true)
   readonly property int focusedIndex: slot.app.toplevels.findIndex(t => t.activated === true)
   readonly property bool menuTarget: slot.dock.menuOpen && slot.dock.menuAppId === slot.app.appId
-  readonly property bool pressedRunning: mouseArea.pressed && (mouseArea.pressedButtons & Qt.LeftButton) !== 0 && slot.running && !mouseArea.isDragging
-  readonly property bool dimmed: slot.menuTarget || slot.pressedRunning
+  readonly property bool pressed: mouseArea.pressed && (mouseArea.pressedButtons & Qt.LeftButton) !== 0 && !mouseArea.isDragging
+  readonly property bool dimmed: slot.menuTarget || slot.pressed
 
   property real bounceLift: 0.0
   property bool launching: false
@@ -162,7 +162,7 @@ Item {
   // Starts the bounce. When launching ends the running cycle is not cut: it plays to its end
   // and bounceAnim stops itself (see onRunningChanged there).
   onLaunchingChanged: {
-    if (slot.launching && !bounceAnim.running)
+    if (slot.launching && !bounceAnim.running && !slot.app.terminal)
       bounceAnim.start();
   }
 
