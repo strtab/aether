@@ -702,8 +702,9 @@ Scope {
               itemPath: fileSlot.path
               isPreview: fileSlot.preview
               isDir: fileSlot.meta.isDir
-              iconSource: fileSlot.preview ? DockFiles.fileUrl(fileSlot.path) : DockFiles.iconFor(fileSlot.meta.isDir, fileSlot.meta.suffix)
-              fallbackSource: fileSlot.preview ? DockFiles.iconFor(fileSlot.meta.isDir, fileSlot.meta.suffix) : ""
+              iconSource: fileSlot.preview ? DockFiles.fileUrl(fileSlot.path) : DockFiles.iconForMeta(fileSlot.meta)
+              // The plain type icon, when a preview or a custom directory icon cannot be loaded
+              fallbackSource: (fileSlot.preview || fileSlot.meta.icon.length > 0) ? DockFiles.iconFor(fileSlot.meta.isDir, fileSlot.meta.suffix) : ""
             }
           }
 
