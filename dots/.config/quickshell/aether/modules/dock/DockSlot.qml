@@ -37,7 +37,7 @@ Item {
   clip: slot.widthFactor < 1.0
   // The slot is as wide as its icon is large, so the padding around the icon grows
   // with the magnification and the capsule grows with the slots.
-  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor + slot.leadingGap
+  Layout.preferredWidth: Math.round(slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor)
   Layout.fillHeight: true
   scale: 0.7 + 0.3 * slot.presence
   opacity: slot.presence
@@ -81,11 +81,12 @@ Item {
     }
   }
 
-  // Free space in front of the slot while a file from another application is over the dock.
-  // It is part of the slot width, so the layout and the capsule follow it by themselves.
-  property real leadingGap: slot.dock.gapHolder === slot.appId ? slot.dock.gapSize : 0
+  // Slides aside for the gap while a file from another application is over the dock. A transform,
+  // not a layout width: it moves smoothly in sub-pixel steps, and the capsule width stays the same
+  // while the gap moves from one place to another.
+  property real gapOffset: slot.dock.gapShift(slot.index)
 
-  Behavior on leadingGap {
+  Behavior on gapOffset {
     enabled: !slot.dock.dropSnap
     NumberAnimation {
       duration: slot.dock.gapDuration
@@ -94,7 +95,7 @@ Item {
   }
 
   transform: Translate {
-    x: slot.index === slot.dock.dragSourceIndex ? slot.dragXOffset : slot.shiftOffset
+    x: (slot.index === slot.dock.dragSourceIndex ? slot.dragXOffset : slot.shiftOffset) + slot.gapOffset
   }
 
   z: slot.index === slot.dock.dragSourceIndex ? 100 : (slot.hovered ? 20 : (slot.growSize > 0 ? 10 : 0))
@@ -241,7 +242,6 @@ Item {
 
   Loader {
     anchors.horizontalCenter: parent.horizontalCenter
-    anchors.horizontalCenterOffset: slot.leadingGap / 2
     anchors.bottom: parent.bottom
     anchors.bottomMargin: slot.dock.iconBottomMargin + slot.bounceLift
     asynchronous: true
@@ -316,7 +316,6 @@ Item {
     opacity: slot.dotsOpacity
     spacing: 3
     anchors.horizontalCenter: parent.horizontalCenter
-    anchors.horizontalCenterOffset: slot.leadingGap / 2
     anchors.bottom: parent.bottom
     anchors.bottomMargin: 4
 
@@ -347,7 +346,6 @@ Item {
     id: mouseArea
     enabled: !slot.leaving
     anchors.fill: parent
-    anchors.leftMargin: slot.leadingGap
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     preventStealing: true
 

@@ -96,15 +96,7 @@ Singleton {
   // ------------------------------------------------------------- items
 
   // Prints "d<TAB>path" for a directory and "f<TAB>path" for anything else that exists
-  readonly property string _statScript: [
-    'for p in "$@"; do',
-    '  if [ -d "$p" ]; then',
-    '    printf "d\\t%s\\n" "$p"',
-    '  elif [ -e "$p" ]; then',
-    '    printf "f\\t%s\\n" "$p"',
-    '  fi',
-    'done'
-  ].join("\n")
+  readonly property string _statScript: ['for p in "$@"; do', '  if [ -d "$p" ]; then', '    printf "d\\t%s\\n" "$p"', '  elif [ -e "$p" ]; then', '    printf "f\\t%s\\n" "$p"', '  fi', 'done'].join("\n")
 
   property bool _refreshPending: false
 
@@ -274,7 +266,8 @@ Singleton {
   }
 
   function open(path) {
-    Quickshell.execDetached(["xdg-open", path]);
+    console.log("Opening", path);
+    Quickshell.execDetached(["gio", "open", path]);
   }
 
   // Opens the directory that contains the path
@@ -288,23 +281,13 @@ Singleton {
   // ------------------------------------------------------------- trash
 
   function openTrash() {
-    const cmd = String(Config.options?.dock?.files?.openTrashCommand ?? "dolphin trash:/").trim().split(/\s+/);
+    const cmd = String(Config.options?.dock?.files?.openTrashCommand ?? "gio open trash:/").trim().split(/\s+/);
     if (cmd.length > 0 && cmd[0].length > 0)
       Quickshell.execDetached(cmd);
   }
 
-  // Empties the XDG trash directly. `gio trash --empty` needs the GVfs trash backend,
-  // which is not always installed. Dolphin (KIO) uses the same directory.
-  readonly property string _emptyTrashScript: [
-    'root="$1"',
-    '[ -n "$root" ] && [ -d "$root/files" ] || exit 0',
-    'chmod -R u+w "$root/files" 2>/dev/null',
-    'find "$root/files" "$root/info" -mindepth 1 -delete 2>/dev/null',
-    'rm -f "$root/directorysizes"'
-  ].join("\n")
-
   function emptyTrash() {
-    Quickshell.execDetached(["bash", "-c", root._emptyTrashScript, "dock-files-empty-trash", root.trashRoot]);
+    Quickshell.execDetached(["gio", "trash", "--empty"]);
   }
 
   function trashUrls(urls) {

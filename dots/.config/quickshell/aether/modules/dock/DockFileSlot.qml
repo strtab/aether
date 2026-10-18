@@ -26,6 +26,8 @@ Item {
   property bool isPreview: false
   // Path of the file or directory. Empty for the trash.
   property string itemPath: ""
+  // The slot is a directory: files dropped on it are copied into it
+  property bool isDir: false
 
   // Position in the row. Files come after the apps, the trash comes last.
   readonly property real sortKey: slot.isTrash ? 100000 : 1000 + slot.order
@@ -46,20 +48,25 @@ Item {
   }
 
   clip: slot.widthFactor < 1.0
-  Layout.preferredWidth: slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor + slot.leadingGap
+  Layout.preferredWidth: Math.round(slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor)
   Layout.fillHeight: true
   z: slot.hovered ? 20 : (slot.growSize > 0 ? 10 : 0)
 
-  // Free space in front of the slot while a file from another application is over the dock.
-  // It is part of the slot width, so the layout and the capsule follow it by themselves.
-  property real leadingGap: slot.dock.gapHolder === slot.slotKey ? slot.dock.gapSize : 0
+  // Slides aside for the gap while a file from another application is over the dock. A transform,
+  // not a layout width: it moves smoothly in sub-pixel steps, and the capsule width stays the same
+  // while the gap moves from one place to another.
+  property real gapOffset: slot.dock.gapShift(slot.sortKey)
 
-  Behavior on leadingGap {
+  Behavior on gapOffset {
     enabled: !slot.dock.dropSnap
     NumberAnimation {
       duration: slot.dock.gapDuration
       easing.type: Easing.OutCubic
     }
+  }
+
+  transform: Translate {
+    x: slot.gapOffset
   }
 
   // ---------------------------------------------------------- magnification
@@ -84,10 +91,11 @@ Item {
     return 0.5 * (1.0 + Math.cos(Math.PI * t));
   }
 
-  // A file dragged over the trash zooms it, like the cursor would
-  readonly property bool dropping: slot.isTrash && dropArea.containsDrag
+  // A file is dragged over the trash or a directory: the slot is dimmed and shows its tooltip,
+  // and the dock stays revealed.
+  readonly property bool dropping: (slot.isTrash || slot.isDir) && dropArea.containsDrag
 
-  property int growSize: Math.round(Math.max(slot.zoomMultiplier, slot.dropping ? 1.0 : 0.0) * slot.dock.zoomPx)
+  property int growSize: Math.round(slot.zoomMultiplier * slot.dock.zoomPx)
   readonly property real iconPx: slot.dock.iconSize + slot.growSize
   // Top edge of the icon in slot coordinates
   readonly property real iconTop: slot.height - slot.dock.iconBottomMargin - slot.iconPx
@@ -103,7 +111,7 @@ Item {
 
   readonly property bool menuTarget: slot.dock.menuOpen && slot.dock.menuFileKey === slot.slotKey
   readonly property bool pressedLeft: mouseArea.pressed && (mouseArea.pressedButtons & Qt.LeftButton) !== 0
-  readonly property bool dimmed: slot.menuTarget || slot.pressedLeft
+  readonly property bool dimmed: slot.menuTarget || slot.pressedLeft || slot.dropping
   readonly property bool desaturate: slot.dock.monochrome && !slot.isPreview
 
   // ---------------------------------------------------------------- icon
@@ -111,7 +119,6 @@ Item {
   DockIcon {
     id: icon
     anchors.horizontalCenter: parent.horizontalCenter
-    anchors.horizontalCenterOffset: slot.leadingGap / 2
     anchors.bottom: parent.bottom
     anchors.bottomMargin: slot.dock.iconBottomMargin
     width: slot.iconPx
@@ -143,7 +150,6 @@ Item {
   MouseArea {
     id: mouseArea
     anchors.fill: parent
-    anchors.leftMargin: slot.leadingGap
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     onClicked: mouse => {
       if (mouse.button === Qt.LeftButton)
@@ -153,13 +159,12 @@ Item {
     }
   }
 
-  // Dropping on the trash moves the files to the trash. Dropping anywhere else on the dock
-  // is handled by the dock window and adds the paths to the config list.
+  // Dropping on the trash moves the files to the trash, dropping on a directory copies them into it.
+  // Dropping anywhere else on the dock is handled by the dock window (pins apps, adds files to the list).
   DropArea {
     id: dropArea
     anchors.fill: parent
-    anchors.leftMargin: slot.leadingGap
-    enabled: slot.isTrash
+    enabled: slot.isTrash || slot.isDir
     keys: ["text/uri-list"]
     onEntered: drag => drag.accept(Qt.CopyAction)
     onDropped: drop => {
@@ -167,7 +172,10 @@ Item {
         return;
       // Copy, so the source file manager never removes the original itself
       drop.accept(Qt.CopyAction);
-      DockFiles.trashUrls(drop.urls);
+      if (slot.isTrash)
+        DockFiles.trashUrls(drop.urls);
+      else
+        DockFiles.copyUrls(drop.urls, slot.itemPath);
     }
   }
 }
