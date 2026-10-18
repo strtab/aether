@@ -138,7 +138,7 @@ TabButton {
         }
       }
       text: buttonText
-      font.pixelSize: 14
+      style: Appearance.font.style.body
       color: Appearance.colors.colOnLayer1
     }
   }

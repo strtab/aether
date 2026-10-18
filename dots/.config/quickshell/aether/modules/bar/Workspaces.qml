@@ -208,12 +208,10 @@ Item {
             z: 3
 
             anchors.centerIn: parent
+            style: Appearance.font.style.callout
+            font.family: Config.options?.bar.workspaces.useNerdFont ? Appearance.font.family.iconNerd : defaultFont
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            font {
-              pixelSize: Appearance.font.pixelSize.small - ((text.length - 1) * (text !== "10") * 2)
-              family: Config.options?.bar.workspaces.useNerdFont ? Appearance.font.family.iconNerd : defaultFont
-            }
             text: Config.options?.bar.workspaces.numberMap[button.workspaceValue - 1] || button.workspaceValue
             elide: Text.ElideRight
             color: (monitor?.activeWorkspace?.id == button.workspaceValue) ? Appearance.m3colors.m3onPrimary : (workspaceOccupied[index] ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer1Inactive)

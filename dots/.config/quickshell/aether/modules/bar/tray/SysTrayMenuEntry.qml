@@ -109,8 +109,8 @@ RippleButton {
 
     StyledText {
       id: label
+      style: Appearance.font.style.footnote
       text: root.menuEntry.text
-      font.pixelSize: Appearance.font.pixelSize.smaller
       Layout.fillWidth: true
     }
 

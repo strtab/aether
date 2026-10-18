@@ -23,9 +23,9 @@ Item {
         width: implicitSize
         height: implicitSize
         StyledText {
+            style: Appearance.font.style.footnote
             anchors.centerIn: parent
             text: Math.round(root.value * 100)
-            font.pixelSize: 12
             font.weight: Font.Medium
         }
     }

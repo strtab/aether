@@ -18,7 +18,6 @@ ColumnLayout {
     Layout.leftMargin: 10
     StyledText {
       text: root.title
-      font.pixelSize: Appearance.font.pixelSize.larger
       color: Appearance.colors.colOnSecondaryContainer
     }
   }

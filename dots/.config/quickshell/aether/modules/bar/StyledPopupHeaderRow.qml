@@ -20,11 +20,8 @@ Row {
 
   StyledText {
     anchors.verticalCenter: parent.verticalCenter
+    style: Appearance.font.style.title2
     text: root.label
-    font {
-      weight: Font.DemiBold
-      pixelSize: Appearance.font.pixelSize.normal
-    }
     color: Appearance.colors.colOnSurfaceVariant
   }
 }

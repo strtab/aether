@@ -167,8 +167,8 @@ TabButton {
             }
             StyledText {
                 id: buttonTextWidget
+                style: Appearance.font.style.callout
                 verticalAlignment: Text.AlignVCenter
-                font.pixelSize: Appearance.font.pixelSize.small
                 color: root.checked ? Appearance.colors.colPrimary : Appearance.colors.colOnLayer1
                 text: buttonText
                 Behavior on color {

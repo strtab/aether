@@ -28,10 +28,10 @@ RippleButton { // Expand button
             anchors.centerIn: parent
             spacing: 3
             StyledText {
+                style: Appearance.font.style.callout
                 Layout.leftMargin: 4
                 visible: root.count > 1
                 text: root.count
-                font.pixelSize: root.fontSize
             }
             MaterialSymbol {
                 text: "keyboard_arrow_down"

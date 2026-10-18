@@ -20,6 +20,7 @@ Column {
         delegate: StyledText {
             required property string modelData
             text: modelData.padStart(2, "0")
+            style: Appearance.font.style.largeTitle
             property bool isAmPm: !text.match(/\d{2}/i)
             property real numberSizeWithoutGlow: isAmPm ? 26 : 68
             property real numberSizeWithGlow: isAmPm ? 20 : 40
@@ -27,11 +28,8 @@ Column {
 
             anchors.horizontalCenter: root.horizontalCenter
             color: root.color
-            font {
-                family: Appearance.font.family.expressive
-                weight: Font.Bold
-                pixelSize: numberSize
-            }
+            font.family: Appearance.font.family.expressive
+            font.weight: Font.Bold
 
             Behavior on numberSize {
                 animation: Appearance.animation.elementResize.numberAnimation.createObject(this)

@@ -191,7 +191,7 @@ Item { // Player instance
         StyledText {
           id: trackTitle
           Layout.fillWidth: true
-          font.pixelSize: Appearance.font.pixelSize.large
+          style: Appearance.font.style.headline
           color: blendedColors.colOnLayer0
           elide: Text.ElideRight
           text: StringUtils.cleanMusicTitle(root.player?.trackTitle) || "Untitled"
@@ -202,7 +202,7 @@ Item { // Player instance
         StyledText {
           id: trackArtist
           Layout.fillWidth: true
-          font.pixelSize: Appearance.font.pixelSize.smaller
+          style: Appearance.font.style.footnote
           color: blendedColors.colSubtext
           elide: Text.ElideRight
           text: root.player?.trackArtist
@@ -219,10 +219,10 @@ Item { // Player instance
 
           StyledText {
             id: trackTime
+            style: Appearance.font.style.callout
             anchors.bottom: sliderRow.top
             anchors.bottomMargin: 5
             anchors.left: parent.left
-            font.pixelSize: Appearance.font.pixelSize.small
             color: blendedColors.colSubtext
             elide: Text.ElideRight
             text: `${StringUtils.friendlyTimeForSeconds(root.player?.position)} / ${StringUtils.friendlyTimeForSeconds(root.player?.length)}`

@@ -45,14 +45,10 @@ Item {
             }
             StyledText {
                 id: quoteStyledText
+                style: Appearance.font.style.title2
                 horizontalAlignment: Text.AlignLeft
                 text: Config.options.background.widgets.clock.quote.text
                 color: Appearance.colors.colOnSecondaryContainer
-                font {
-                    family: Appearance.font.family.main
-                    pixelSize: Appearance.font.pixelSize.large
-                    weight: Font.Normal
-                }
             }
         }
     }

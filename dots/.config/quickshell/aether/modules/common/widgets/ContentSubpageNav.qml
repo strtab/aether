@@ -70,9 +70,9 @@ ColumnLayout {
             }
             StyledText {
               Layout.fillWidth: true
+              style: Appearance.font.style.footnote
               visible: entryButton.modelData.description !== undefined
               color: Appearance.colors.colSubtext
-              font.pixelSize: Appearance.font.pixelSize.smaller
               text: entryButton.modelData.description ?? ""
               wrapMode: Text.WordWrap
             }
@@ -121,7 +121,7 @@ ColumnLayout {
       }
 
       StyledText {
-        font.pixelSize: Appearance.font.pixelSize.larger
+        style: Appearance.font.style.title2
         color: Appearance.colors.colOnLayer1
         text: root.currentSubPage !== -1 ? (root.subPages[root.currentSubPage]?.name ?? "") : ""
       }

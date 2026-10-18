@@ -118,12 +118,9 @@ Item {
 
               StyledText {
                 anchors.centerIn: parent
+                font.pointSize: root.workspaceNumberSize * root.scale
+                font.weight: Font.DemiBold
                 text: workspace.workspaceValue
-                font {
-                  pixelSize: root.workspaceNumberSize * root.scale
-                  weight: Font.DemiBold
-                  family: Appearance.font.family.expressive
-                }
                 color: ColorUtils.transparentize(Appearance.colors.colOnLayer1, 0.8)
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter

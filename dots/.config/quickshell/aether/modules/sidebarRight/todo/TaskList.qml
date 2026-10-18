@@ -134,7 +134,7 @@ Item {
       }
       StyledText {
         Layout.alignment: Qt.AlignHCenter
-        font.pixelSize: Appearance.font.pixelSize.normal
+        style: Appearance.font.style.body
         color: Appearance.m3colors.m3outline
         horizontalAlignment: Text.AlignHCenter
         text: emptyPlaceholderText

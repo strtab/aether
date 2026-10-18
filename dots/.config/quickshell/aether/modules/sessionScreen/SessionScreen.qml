@@ -82,11 +82,7 @@ Scope {
             // Title
             Layout.alignment: Qt.AlignHCenter
             horizontalAlignment: Text.AlignHCenter
-            font {
-              family: Appearance.font.family.title
-              pixelSize: Appearance.font.pixelSize.title
-              variableAxes: Appearance.font.variableAxes.title
-            }
+            style: Appearance.font.style.title1
             text: Translation.tr("Session")
           }
 
@@ -94,7 +90,7 @@ Scope {
             // Small instruction
             Layout.alignment: Qt.AlignHCenter
             horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: Appearance.font.pixelSize.normal
+            style: Appearance.font.style.body
             text: Translation.tr("Arrow keys to navigate, Enter to select\nEsc or click anywhere to cancel")
           }
         }

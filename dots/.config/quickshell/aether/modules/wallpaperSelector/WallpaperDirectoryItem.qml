@@ -116,7 +116,7 @@ MouseArea {
 
         horizontalAlignment: Text.AlignHCenter
         elide: Text.ElideRight
-        font.pixelSize: Appearance.font.pixelSize.smaller
+        style: Appearance.font.style.footnote
         Behavior on color {
           animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
         }

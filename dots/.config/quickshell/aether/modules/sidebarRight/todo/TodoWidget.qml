@@ -177,8 +177,8 @@ Item {
           Layout.leftMargin: 16
           Layout.rightMargin: 16
           Layout.alignment: Qt.AlignLeft
+          style: Appearance.font.style.title2
           color: Appearance.m3colors.m3onSurface
-          font.pixelSize: Appearance.font.pixelSize.larger
           text: Translation.tr("Add task")
         }
 

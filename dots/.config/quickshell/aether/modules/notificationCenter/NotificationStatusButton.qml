@@ -36,8 +36,8 @@ GroupButton {
             }
             StyledText {
                 visible: buttonText !== ""
+                style: Appearance.font.style.callout
                 text: buttonText
-                font.pixelSize: Appearance.font.pixelSize.small
                 color: button.colText
             }
         }

@@ -181,13 +181,13 @@ Scope {
               anchors.centerIn: parent
 
               StyledText {
+                style: Appearance.font.style.headline
                 text: Translation.tr("No active player")
-                font.pixelSize: Appearance.font.pixelSize.large
               }
               StyledText {
+                style: Appearance.font.style.callout
                 color: Appearance.colors.colSubtext
                 text: Translation.tr("Make sure your player has MPRIS support\nor try turning off duplicate player filtering")
-                font.pixelSize: Appearance.font.pixelSize.small
               }
             }
           }

@@ -29,7 +29,7 @@ RippleButton {
         anchors.rightMargin: root.padding
         text: buttonText
         horizontalAlignment: Text.AlignHCenter
-        font.pixelSize: Appearance?.font.pixelSize.small ?? 12
+        style: Appearance.font.style.body
         color: root.enabled ? root.colEnabled : root.colDisabled
 
         Behavior on color {

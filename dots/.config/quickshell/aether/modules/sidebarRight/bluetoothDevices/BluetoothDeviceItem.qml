@@ -48,9 +48,9 @@ DialogListItem {
           text: root.device?.name || Translation.tr("Unknown device")
         }
         StyledText {
+          style: Appearance.font.style.footnote
           visible: (root.device?.connected || root.device?.paired) ?? false
           Layout.fillWidth: true
-          font.pixelSize: Appearance.font.pixelSize.smaller
           color: Appearance.colors.colSubtext
           elide: Text.ElideRight
           text: {

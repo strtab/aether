@@ -38,21 +38,17 @@ Item {
         }
         StyledText {
             id: widgetNameText
+            style: Appearance.font.style.title2
             visible: title !== ""
             Layout.alignment: Qt.AlignHCenter
-            font {
-                family: Appearance.font.family.title
-                pixelSize: Appearance.font.pixelSize.larger
-                variableAxes: Appearance.font.variableAxes.title
-            }
             color: Appearance.m3colors.m3outline
             horizontalAlignment: Text.AlignHCenter
         }
         StyledText {
             id: widgetDescriptionText
+            style: Appearance.font.style.callout
             visible: description !== ""
             Layout.fillWidth: true
-            font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.m3colors.m3outline
             horizontalAlignment: Text.AlignLeft
             wrapMode: Text.Wrap

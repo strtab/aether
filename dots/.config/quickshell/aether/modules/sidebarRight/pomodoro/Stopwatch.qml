@@ -52,7 +52,7 @@ Item {
             spacing: 0
             StyledText {
                 // Layout.preferredWidth: elapsedIndicator.width * 0.6 // Prevent shakiness
-                font.pixelSize: 40
+                style: Appearance.font.style.largeTitle
                 color: Appearance.m3colors.m3onSurface
                 text: {
                     let totalSeconds = Math.floor(TimerService.stopwatchTime) / 100
@@ -63,7 +63,7 @@ Item {
             }
             StyledText {
                 Layout.fillWidth: true
-                font.pixelSize: 40
+                style: Appearance.font.style.largeTitle
                 color: Appearance.colors.colSubtext
                 text: {
                     return `:<sub>${(Math.floor(TimerService.stopwatchTime) % 100).toString().padStart(2, '0')}</sub>`
@@ -113,13 +113,13 @@ Item {
                     }
 
                     StyledText {
-                        font.pixelSize: Appearance.font.pixelSize.small
+                        style: Appearance.font.style.callout
                         color: Appearance.colors.colSubtext
                         text: `${TimerService.stopwatchLaps.length - lapItem.index}.`
                     }
 
                     StyledText {
-                        font.pixelSize: Appearance.font.pixelSize.small
+                        style: Appearance.font.style.callout
                         text: {
                             const lapTime = lapItem.modelData
                             const _10ms = (Math.floor(lapTime) % 100).toString().padStart(2, '0')
@@ -133,7 +133,7 @@ Item {
                     Item { Layout.fillWidth: true }
 
                     StyledText {
-                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        style: Appearance.font.style.footnote
                         color: Appearance.colors.colPrimary
                         text: {
                             const originalIndex = TimerService.stopwatchLaps.length - lapItem.index - 1
@@ -162,17 +162,17 @@ Item {
             RippleButton {
                 Layout.preferredHeight: 35
                 Layout.preferredWidth: 90
-                font.pixelSize: Appearance.font.pixelSize.larger
 
                 onClicked: {
                     TimerService.toggleStopwatch()
                 }
 
-                colBackground: TimerService.stopwatchRunning ? Appearance.colors.colSecondaryContainer : Appearance.colors.colPrimary 
-                colBackgroundHover: TimerService.stopwatchRunning ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colPrimaryHover 
-                colRipple: TimerService.stopwatchRunning ? Appearance.colors.colSecondaryContainerActive : Appearance.colors.colPrimaryActive 
+                colBackground: TimerService.stopwatchRunning ? Appearance.colors.colSecondaryContainer : Appearance.colors.colPrimary
+                colBackgroundHover: TimerService.stopwatchRunning ? Appearance.colors.colSecondaryContainerHover : Appearance.colors.colPrimaryHover
+                colRipple: TimerService.stopwatchRunning ? Appearance.colors.colSecondaryContainerActive : Appearance.colors.colPrimaryActive
 
                 contentItem: StyledText {
+                    style: Appearance.font.style.title2
                     horizontalAlignment: Text.AlignHCenter
                     color: TimerService.stopwatchRunning ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnPrimary
                     text: TimerService.stopwatchRunning ? Translation.tr("Pause") : TimerService.stopwatchTime === 0 ? Translation.tr("Start") : Translation.tr("Resume")
@@ -182,12 +182,11 @@ Item {
             RippleButton {
                 implicitHeight: 35
                 implicitWidth: 90
-                font.pixelSize: Appearance.font.pixelSize.larger
 
                 onClicked: {
-                    if (TimerService.stopwatchRunning) 
+                    if (TimerService.stopwatchRunning)
                         TimerService.stopwatchRecordLap()
-                    else 
+                    else
                         TimerService.stopwatchReset()
                 }
                 enabled: TimerService.stopwatchTime > 0 || Persistent.states.timer.stopwatch.laps.length > 0
@@ -197,6 +196,7 @@ Item {
                 colRipple: TimerService.stopwatchRunning ? Appearance.colors.colLayer2Active : Appearance.colors.colErrorContainerActive
 
                 contentItem: StyledText {
+                    style: Appearance.font.style.title2
                     horizontalAlignment: Text.AlignHCenter
                     text: TimerService.stopwatchRunning ? Translation.tr("Lap") : Translation.tr("Reset")
                     color: TimerService.stopwatchRunning ? Appearance.colors.colOnLayer2 : Appearance.colors.colOnErrorContainer

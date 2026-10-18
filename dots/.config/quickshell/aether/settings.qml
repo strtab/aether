@@ -281,7 +281,7 @@ ApplicationWindow {
             }
             StyledText {
               Layout.fillWidth: true
-              font.pixelSize: Appearance.font.pixelSize.large
+              style: Appearance.font.style.headline
               color: Appearance.colors.colOnLayer1
               text: SettingsNav.subPageOpen ? SettingsNav.subPageTitle : (root.pages[root.currentPage]?.name ?? "")
             }

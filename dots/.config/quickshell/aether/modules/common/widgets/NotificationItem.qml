@@ -155,7 +155,7 @@ Item { // Notification item area
                     id: summaryText
                     Layout.fillWidth: summaryTextMetrics.width >= root.width * root.summaryElideRatio
                     visible: !root.onlyNotification
-                    font.pixelSize: root.fontSize
+                    style: Appearance.font.style.body
                     color: Appearance.colors.colOnLayer3
                     elide: Text.ElideRight
                     text: root.notificationObject.summary || ""
@@ -167,7 +167,7 @@ Item { // Notification item area
                     Behavior on opacity {
                         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
                     }
-                    font.pixelSize: root.fontSize
+                    style: Appearance.font.style.body
                     color: Appearance.colors.colSubtext
                     elide: Text.ElideRight
                     wrapMode: Text.Wrap // Needed for proper eliding????
@@ -191,7 +191,7 @@ Item { // Notification item area
                         animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
                     }
                     Layout.fillWidth: true
-                    font.pixelSize: root.fontSize
+                    style: Appearance.font.style.body
                     color: Appearance.colors.colSubtext
                     wrapMode: Text.Wrap
                     elide: Text.ElideRight

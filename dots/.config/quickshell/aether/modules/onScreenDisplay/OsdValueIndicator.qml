@@ -79,15 +79,15 @@ Item {
                     Layout.rightMargin: valueProgressBar.height / 2 // Align text with progressbar radius curve's left end
 
                     StyledText {
+                        style: Appearance.font.style.callout
                         color: Appearance.colors.colOnLayer0
-                        font.pixelSize: Appearance.font.pixelSize.small
                         Layout.fillWidth: true
                         text: root.name
                     }
 
                     StyledText {
+                        style: Appearance.font.style.callout
                         color: Appearance.colors.colOnLayer0
-                        font.pixelSize: Appearance.font.pixelSize.small
                         Layout.fillWidth: false
                         text: Math.round(root.value * 100)
                     }

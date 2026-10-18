@@ -120,7 +120,7 @@ Rectangle {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: root.blurText
                         color: Appearance.colors.colOnSurface
-                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        style: Appearance.font.style.caption1
                     }
                 }
             }

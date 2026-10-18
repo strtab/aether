@@ -25,13 +25,11 @@ Item {
 
     StyledText {
         id: bubbleText
+        style: Appearance.font.style.largeTitle
+        font.family: Appearance.font.family.expressive
+        font.weight: Font.Black
         z: 6
         anchors.centerIn: parent
         color: root.isMonth ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnTertiaryContainer
-        font {
-            family: Appearance.font.family.expressive
-            pixelSize: 30
-            weight: Font.Black
-        }
     }
 }

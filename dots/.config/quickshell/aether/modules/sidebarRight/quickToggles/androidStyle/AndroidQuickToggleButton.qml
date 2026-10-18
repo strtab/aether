@@ -151,11 +151,11 @@ GroupButton {
         spacing: -2
 
         StyledText {
+          style: Appearance.font.style.footnote
           anchors {
             left: parent.left
             right: parent.right
           }
-          font.pixelSize: Appearance.font.pixelSize.smaller
           font.weight: 600
           color: root.colText
           elide: Text.ElideRight
@@ -163,15 +163,13 @@ GroupButton {
         }
 
         StyledText {
+          style: Appearance.font.style.footnote
           visible: root.statusText
           anchors {
             left: parent.left
             right: parent.right
           }
-          font {
-            pixelSize: Appearance.font.pixelSize.smaller
-            weight: 100
-          }
+          font.weight: 100
           color: root.colText
           elide: Text.ElideRight
           text: root.statusText

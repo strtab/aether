@@ -84,9 +84,9 @@ Rectangle {
         }
 
         StyledText {
+            style: Appearance.font.style.callout
             anchors.horizontalCenter: parent.horizontalCenter
             text: monitor.name
-            font.pixelSize: Math.max(9, Math.min(13, root.width * 0.1))
             font.weight: Font.Medium
             color: monitor.disabled ? Appearance.colors.colSubtext
                 : isSelected ? Appearance.colors.colOnPrimaryContainer
@@ -97,9 +97,9 @@ Rectangle {
         }
 
         StyledText {
+            style: Appearance.font.style.footnote
             anchors.horizontalCenter: parent.horizontalCenter
             text: `${root.logW}x${root.logH}`
-            font.pixelSize: Math.max(8, Math.min(10, root.width * 0.08))
             color: Appearance.colors.colSubtext
             horizontalAlignment: Text.AlignHCenter
         }

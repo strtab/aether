@@ -150,11 +150,8 @@ MouseArea {
                     spacing: 0
 
                     StyledText {
+                        style: Appearance.font.style.title2
                         Layout.margins: 12
-                        font {
-                            pixelSize: Appearance.font.pixelSize.normal
-                            weight: Font.Medium
-                        }
                         text: Translation.tr("Pick a wallpaper")
                     }
                     ListView {

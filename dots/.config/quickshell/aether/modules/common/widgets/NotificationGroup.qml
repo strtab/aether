@@ -195,9 +195,9 @@ MouseArea { // Notification group area
                             text: (topRow.showAppName ?
                                 notificationGroup?.appName :
                                 notificationGroup?.notifications[0]?.summary) || ""
-                            font.pixelSize: topRow.showAppName ?
-                                topRow.fontSize :
-                                Appearance.font.pixelSize.small
+                            style: topRow.showAppName ?
+                                Appearance.font.style.caption1 :
+                                Appearance.font.style.body
                             color: topRow.showAppName ?
                                 Appearance.colors.colSubtext :
                                 Appearance.colors.colOnLayer2
@@ -208,7 +208,7 @@ MouseArea { // Notification group area
                             Layout.rightMargin: 10
                             horizontalAlignment: Text.AlignLeft
                             text: NotificationUtils.getFriendlyNotifTimeString(notificationGroup?.time)
-                            font.pixelSize: topRow.fontSize
+                            style: Appearance.font.style.caption1
                             color: Appearance.colors.colSubtext
                         }
                     }

@@ -32,10 +32,10 @@ Item {
         spacing: 8
 
         StyledText {
+          style: Appearance.font.style.callout
           Layout.fillWidth: true
           text: root.selectedFont || "Select font..."
           font.family: root.selectedFont || Appearance.font.family.main
-          font.pixelSize: Appearance.font.pixelSize.small
           elide: Text.ElideRight
         }
 
@@ -112,12 +112,12 @@ Item {
           colRipple: Appearance.colors.colLayer1Active
 
           contentItem: StyledText {
+            style: Appearance.font.style.callout
             anchors.fill: parent
             anchors.leftMargin: 12
             verticalAlignment: Text.AlignVCenter
             text: modelData
             font.family: modelData
-            font.pixelSize: Appearance.font.pixelSize.small
             elide: Text.ElideRight
             color: modelData === root.selectedFont ? Appearance.m3colors.m3onPrimaryContainer : Appearance.m3colors.m3onSurface
           }

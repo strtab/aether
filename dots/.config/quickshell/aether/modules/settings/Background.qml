@@ -50,7 +50,7 @@ ContentPage {
           // height: parent.height
 
           Layout.margins: 8
-          font.pixelSize: Appearance.font.pixelSize.small
+          style: Appearance.font.style.callout
           text: {
             const path = Config.options.background.wallpaperPath;
             if (!path)

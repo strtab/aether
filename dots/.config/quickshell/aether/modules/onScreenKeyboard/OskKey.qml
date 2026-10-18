@@ -107,10 +107,10 @@ RippleButton {
     contentItem: StyledText {
         id: keyText
         anchors.fill: parent
+        style: root.shape == "fn" ? Appearance.font.style.callout :
+               (isBackspace || isEnter) ? Appearance.font.style.largeTitle :
+               Appearance.font.style.headline
         font.family: (isBackspace || isEnter) ? Appearance.font.family.iconMaterial : Appearance.font.family.main
-        font.pixelSize: root.shape == "fn" ? Appearance.font.pixelSize.small : 
-            (isBackspace || isEnter) ? Appearance.font.pixelSize.huge :
-            Appearance.font.pixelSize.large
         horizontalAlignment: Text.AlignHCenter
         color: root.toggled ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer1
         text: root.isBackspace ? "backspace" : root.isEnter ? "subdirectory_arrow_left" :

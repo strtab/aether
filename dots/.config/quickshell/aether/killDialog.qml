@@ -70,14 +70,12 @@ ApplicationWindow {
     }
 
     StyledText {
+      style: Appearance.font.style.callout
       text: conflictGroup.programs.join(", ")
-      font.pixelSize: Appearance.font.pixelSize.normal
     }
     StyledText {
-      font {
-        pixelSize: Appearance.font.pixelSize.smaller
-        italic: true
-      }
+      style: Appearance.font.style.footnote
+      italic: true
       text: conflictGroup.description
       color: Appearance.colors.colSubtext
     }
@@ -134,13 +132,9 @@ ApplicationWindow {
           verticalCenter: parent.verticalCenter
           leftMargin: 12
         }
+        style: Appearance.font.style.title1
         color: Appearance.colors.colOnLayer0
         text: Translation.tr("Kill conflicting programs?")
-        font {
-          family: Appearance.font.family.title
-          pixelSize: Appearance.font.pixelSize.title
-          variableAxes: Appearance.font.variableAxes.title
-        }
       }
       RowLayout { // Window controls row
         id: windowControlsRow

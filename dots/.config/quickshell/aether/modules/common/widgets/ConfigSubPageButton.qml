@@ -40,9 +40,9 @@ RippleButton {
       }
       StyledText {
         Layout.fillWidth: true
+        style: Appearance.font.style.callout
         visible: root.description.length > 0
         color: Appearance.colors.colSubtext
-        font.pixelSize: Appearance.font.pixelSize.small
         text: root.description
         wrapMode: Text.WordWrap
       }

@@ -113,20 +113,20 @@ ColumnLayout {
       spacing: 6
 
       StyledText {
+        style: Appearance.font.style.callout
         width: 118
         horizontalAlignment: Text.AlignHCenter
         text: Translation.tr("Workspace")
         color: Appearance.colors.colSubtext
-        font.pixelSize: Appearance.font.pixelSize.small
         font.weight: Font.Medium
       }
 
       StyledText {
+        style: Appearance.font.style.callout
         width: 118
         horizontalAlignment: Text.AlignHCenter
         text: Translation.tr("Delay")
         color: Appearance.colors.colSubtext
-        font.pixelSize: Appearance.font.pixelSize.small
         font.weight: Font.Medium
       }
 
@@ -143,8 +143,7 @@ ColumnLayout {
       anchors.verticalCenter: parent.verticalCenter
       text: Translation.tr("App or Command")
       color: Appearance.colors.colSubtext
-      font.pixelSize: Appearance.font.pixelSize.small
-      font.weight: Font.Medium
+      style: Appearance.font.style.caption2
     }
   }
 

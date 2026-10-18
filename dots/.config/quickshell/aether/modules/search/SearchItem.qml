@@ -167,8 +167,8 @@ RippleButton {
     Component {
       id: bigTextComponent
       StyledText {
+        style: Appearance.font.style.title1
         text: root.bigText
-        font.pixelSize: (Config.options.search.fontSize + 2) ?? Appearance.font.pixelSize.larger
         color: Appearance.m3colors.m3onSurface
       }
     }
@@ -218,7 +218,7 @@ RippleButton {
             id: nameText
             Layout.fillWidth: true
             textFormat: Text.StyledText // RichText also works, but StyledText ensures elide work
-            font.pixelSize: (Config.options.search.fontSize - 4) ?? Appearance.font.pixelSize.small
+            style: Appearance.font.style.callout
             font.family: Appearance.font.family[root.fontType]
             color: Appearance.m3colors.m3onSurface
             horizontalAlignment: Text.AlignLeft
@@ -227,8 +227,8 @@ RippleButton {
           }
           StyledText { // Item comment
             Layout.fillWidth: true
+            style: Appearance.font.style.footnote
             visible: text.length > 0
-            font.pixelSize: (Config.options.search.fontSize - 6) ?? Appearance.font.pixelSize.smaller
             color: Appearance.colors.colSubtext
             elide: Text.ElideRight
             text: root.entry?.comment ?? ""

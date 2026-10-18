@@ -258,7 +258,6 @@ Singleton {
   // id is the slot id; it is not always the file stem (see _carryOverId)
   function _makePinnedItem(id, file, toplevels) {
     const rawId = toplevels.length > 0 && toplevels[0].appId ? toplevels[0].appId : file.stem;
-    console.log("Pinned: ", AppSearch.resolveIcon(file.icon.length > 0 ? file.icon : AppSearch.guessIcon(file.stem), "application-x-executable"));
     return {
       appId: id,
       stem: file.stem,
@@ -289,7 +288,6 @@ Singleton {
     // Prefer the real window appId (keeps original casing) over the lowercased key
     const rawId = toplevels.length > 0 && toplevels[0].appId ? toplevels[0].appId : key;
     const entry = AppSearch.lookupDesktopEntry(rawId) ?? AppSearch.lookupDesktopEntry(key);
-    console.log("Running: ", AppSearch.resolveIcon(AppSearch.guessIcon(rawId), "application-x-executable"));
     return {
       appId: id,
       stem: "",
@@ -737,7 +735,6 @@ Singleton {
     for (const t of item.toplevels)
       ids.push(t.appId);
     const unique = (ids.filter((id, i) => id && ids.indexOf(id) === i)).join(' ');
-    console.log("Killing: ", Directories.appKillScriptPath, unique, "\n");
     Quickshell.execDetached(["python3", Directories.appKillScriptPath, unique]);
   }
 

@@ -27,11 +27,9 @@ AbstractBackgroundWidget {
         implicitSize: 200
 
         StyledText {
-            font {
-                pixelSize: 80
-                family: Appearance.font.family.expressive
-                weight: Font.Medium
-            }
+            style: Appearance.font.style.largeTitle
+            font.family: Appearance.font.family.expressive
+            font.weight: Font.Bold
             color: Appearance.colors.colPrimary
             text: Weather.data?.temp.substring(0,Weather.data?.temp.length - 1) ?? "--°"
             anchors {

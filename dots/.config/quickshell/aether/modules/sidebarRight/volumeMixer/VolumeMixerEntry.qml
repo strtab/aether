@@ -41,8 +41,8 @@ Item {
             spacing: -4
 
             StyledText {
+                style: Appearance.font.style.callout
                 Layout.fillWidth: true
-                font.pixelSize: Appearance.font.pixelSize.small
                 color: Appearance.colors.colSubtext
                 elide: Text.ElideRight
                 text: {

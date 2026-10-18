@@ -45,12 +45,12 @@ Item {
 
             StyledText {
                 id: dialogTitle
+                style: Appearance.font.style.title2
                 Layout.topMargin: dialogPadding
                 Layout.leftMargin: dialogPadding
                 Layout.rightMargin: dialogPadding
                 Layout.alignment: Qt.AlignLeft
                 color: Appearance.m3colors.m3onSurface
-                font.pixelSize: Appearance.font.pixelSize.larger
                 text: root.titleText
             }
 

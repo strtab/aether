@@ -36,16 +36,16 @@ RippleButton {
             Layout.rightMargin: 5
             spacing: 0
             StyledText {
+                style: Appearance.font.style.body
                 Layout.fillWidth: true
                 elide: Text.ElideRight
-                font.pixelSize: Appearance.font.pixelSize.normal
                 text: input ? Translation.tr("Input") : Translation.tr("Output")
                 color: Appearance.colors.colOnLayer2
             }
             StyledText {
+                style: Appearance.font.style.footnote
                 Layout.fillWidth: true
                 elide: Text.ElideRight
-                font.pixelSize: Appearance.font.pixelSize.smaller
                 text: (input ? Pipewire.defaultAudioSource?.description : Pipewire.defaultAudioSink?.description) ?? Translation.tr("Unknown")
                 color: Appearance.m3colors.m3outline
                 animateChange: true

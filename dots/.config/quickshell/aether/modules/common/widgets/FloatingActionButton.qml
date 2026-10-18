@@ -54,10 +54,10 @@ RippleButton {
             leftMargin: root.elementSpacing
             verticalCenter: parent.verticalCenter
           }
+          style: Appearance.font.style.callout
+          font.weight: 450
           text: root.buttonText
           color: Appearance.colors.colOnPrimaryContainer
-          font.pixelSize: 14
-          font.weight: 450
         }
       }
     }
