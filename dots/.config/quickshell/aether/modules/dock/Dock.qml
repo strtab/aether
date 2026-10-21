@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 
 Scope {
   id: root
@@ -57,6 +58,17 @@ Scope {
       // Fixed raster size of the icon images, so neither magnification nor resizing reloads them
       readonly property real rasterSize: dockRoot.maxIconSize + dockRoot.zoomPx
       readonly property bool monochrome: Config.options?.dock?.monochromeIcons ?? true
+
+      // Window preview (Config.options.dock.preview). The logic is below, next to hoveredSlot.
+      readonly property bool previewEnabled: Config.options?.dock?.preview?.enable ?? true
+      readonly property int previewDelay: Config.options?.dock?.preview?.delay ?? 400
+      readonly property int previewSwitchDelay: Config.options?.dock?.preview?.switchDelay ?? 120
+      readonly property int previewCloseDelay: Config.options?.dock?.preview?.closeDelay ?? 300
+      readonly property real previewThumbHeight: Config.options?.dock?.preview?.thumbHeight ?? 120
+      readonly property int previewMaxWindows: Config.options?.dock?.preview?.maxWindows ?? 6
+      // Upper bound for the height of the preview panel (thumbnail, title, paddings). The window is
+      // sized for it, so it never resizes when the preview opens.
+      readonly property real previewHeadroom: dockRoot.previewEnabled ? dockRoot.previewThumbHeight + 64 : 0
       // Extra icon size at the cursor. Set Config.options.dock.magnification to false to disable.
       readonly property real zoomPx: (Config.options?.dock?.magnification.enable ?? true) ? (Config.options?.dock?.magnification.strength ?? 30) : 0
       // Magnetism reach in resting slot widths
@@ -66,6 +78,15 @@ Scope {
       readonly property int zoomDelay: Config.options?.dock?.magnification.delay ?? 120
       // Duration of one size step of a slot, ms. Higher = slower size changes.
       readonly property int zoomDuration: Config.options?.dock?.magnification.duration ?? 60
+
+      // Smoothed state of the magnification. Every slot derives its size from these two numbers, so no slot
+      // has an animation of its own that restarts on each pointer event.
+      // zoomCursor follows hoverOffset, zoomLevel follows zoomActive (0 = no zoom, 1 = full zoom).
+      property real zoomCursor: 0
+      property real zoomLevel: 0
+      // Time constants in seconds, derived from the duration of the effect
+      readonly property real zoomCursorTau: Math.max(1, dockRoot.zoomDuration) / 6000
+      readonly property real zoomLevelTau: Math.max(1, dockRoot.zoomDuration) / 2500
 
       // Slot width at rest. A magnified slot is wider in the same proportion as its icon.
       readonly property real slotWidth: dockRoot.iconSize + (dockRoot.iconSize / 4)
@@ -134,7 +155,10 @@ Scope {
 
       // Where the cursor is along the resting capsule: 0 = left end, 1 = right end.
       // The capsule grows away from the cursor: the side the cursor is on stays in place.
-      property real pivot: 0.5
+      readonly property real pivot: {
+        const rest = dockRoot.restCapsuleWidth;
+        return rest > 0 ? Math.max(0, Math.min(1, 0.5 + dockRoot.zoomCursor / rest)) : 0.5;
+      }
       readonly property real tooltipHeadroom: 34
 
       // The window spans the whole screen width and never resizes, so slots coming and going
@@ -143,11 +167,13 @@ Scope {
       anchors.left: true
       anchors.right: true
       anchors.bottom: true
-      implicitHeight: dockRoot.maxIconSize * 1.5 + dockRoot.zoomPx + dockRoot.tooltipHeadroom + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
+      implicitHeight: dockRoot.maxIconSize * 1.5 + dockRoot.zoomPx + dockRoot.tooltipHeadroom + dockRoot.previewHeadroom + Appearance.sizes.elevationMargin + Appearance.sizes.hyprlandGapsOut
       exclusiveZone: root.pinned ? dockRoot.committedIconSize * 1.5 + Appearance.sizes.hyprlandGapsOut * 2 : 0
 
       WlrLayershell.namespace: "quickshell:dock"
       WlrLayershell.layer: Appearance.layers.dock
+      // The preview takes the keyboard while it is shown (Escape closes it, see previewGrab)
+      WlrLayershell.keyboardFocus: dockRoot.previewShown ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
       color: "transparent"
 
       // Cursor offset from the center of the resting capsule, in px. It is a physical offset, so
@@ -227,9 +253,49 @@ Scope {
         onTriggered: dockRoot.zoomArmed = true
       }
 
+      onZoomActiveChanged: {
+        // A new hover starts at the pointer, not where the last one ended
+        if (dockRoot.zoomActive && dockRoot.zoomLevel < 0.01)
+          dockRoot.zoomCursor = dockRoot.hoverOffset;
+      }
+
+      // Exponential smoothing, independent of the frame rate. The cursor is smoothed lightly (it only
+      // softens big jumps), the level is smoothed more (it is the zoom coming in and going out).
+      FrameAnimation {
+        id: zoomFrames
+        running: dockRoot.zoomActive || dockRoot.zoomLevel > 0
+        onTriggered: {
+          const dt = Math.min(zoomFrames.frameTime, 0.05);
+          if (dockRoot.zoomActive)
+            dockRoot.zoomCursor += (dockRoot.hoverOffset - dockRoot.zoomCursor) * (1 - Math.exp(-dt / dockRoot.zoomCursorTau));
+          const target = dockRoot.zoomActive ? 1 : 0;
+          let level = dockRoot.zoomLevel + (target - dockRoot.zoomLevel) * (1 - Math.exp(-dt / dockRoot.zoomLevelTau));
+          if (Math.abs(target - level) < 0.001)
+            level = target;
+          dockRoot.zoomLevel = level;
+        }
+      }
+
+      // The zoom is kept while a menu or the preview is open. When they close, the pointer is usually
+      // still over the dock, but the hover handler reports it a moment later. Switching the zoom off at
+      // once would play the zoom-out and then the zoom-in, so the check waits for the hover to settle.
+      function releaseHoverLater() {
+        hoverReleaseTimer.restart();
+      }
+
+      Timer {
+        id: hoverReleaseTimer
+        interval: 200
+        repeat: false
+        onTriggered: {
+          if (!dockRoot.menuOpen && !dockRoot.previewOpen && !rowHover.hovered)
+            dockRoot.hoverActive = false;
+        }
+      }
+
       onMenuOpenChanged: {
-        if (!dockRoot.menuOpen && !rowHover.hovered)
-          dockRoot.hoverActive = false;
+        if (!dockRoot.menuOpen)
+          dockRoot.releaseHoverLater();
       }
 
       // The pointer is over the dock. rowHover is checked as well as hitArea: a HoverHandler blocks
@@ -238,7 +304,7 @@ Scope {
       readonly property bool dockHovered: hitArea.containsMouse || rowHover.hovered
 
       // A drag from another application sends no pointer hover events, so dropHover keeps the dock open
-      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal?.enable && dockRoot.dockHovered) || dockRoot.menuOpen || dockRoot.dropHover || dockRoot.slotDropHover || dockRoot.resizing || (!ToplevelManager.activeToplevel?.activated)
+      property bool reveal: root.pinned || (Config.options?.dock?.hoverToReveal?.enable && dockRoot.dockHovered) || dockRoot.menuOpen || dockRoot.dropHover || dockRoot.slotDropHover || dockRoot.resizing || dockRoot.previewOpen || (!ToplevelManager.activeToplevel?.activated)
 
       // Where the capsule slides to, and whether it has actually arrived in the revealed position.
       // Tooltips wait for that: a popup created while the capsule is still sliding up sits in a
@@ -284,11 +350,9 @@ Scope {
       }
 
       function updateHover() {
-        // Offset from the live capsule center, corrected by the capsule shift
-        const local = rowHover.point.position.x - dockRow.width / 2;
-        dockRoot.hoverOffset = local + dockRoot.capsuleOffset;
-        const rest = dockRoot.restCapsuleWidth;
-        dockRoot.pivot = rest > 0 ? Math.max(0, Math.min(1, 0.5 + dockRoot.hoverOffset / rest)) : 0.5;
+        // The pointer in window coordinates. The row itself moves under the pointer while the dock grows,
+        // so its own coordinates would feed the movement back into the magnification.
+        dockRoot.hoverOffset = rowHover.point.scenePosition.x - dockRoot.width / 2;
         dockRoot.hoverActive = true;
       }
 
@@ -445,6 +509,207 @@ Scope {
       }
       readonly property Item hoveredSlot: dockRoot.findHoveredSlot()
 
+      // Top edge of a slot icon at rest (no magnification) in window coordinates. The preview is placed
+      // against it, so it stays put while the icons grow and shrink.
+      readonly property real iconRestTop: capsule.y + dockRoot.iconBottomMargin
+
+      // ------------------------------------------------------------ focus
+
+      // Window that has the focus. While the preview is shown the dock holds the keyboard (focus grab) and the
+      // compositor reports no active window, so the last one is kept for the dots and the preview highlight.
+      property var focusedToplevel: null
+
+      function syncFocused() {
+        const active = ToplevelManager.activeToplevel;
+        if (active) {
+          focusClearTimer.stop();
+          dockRoot.focusedToplevel = active;
+        } else if (!dockRoot.previewOpen) {
+          // The focus usually comes back a moment later, so a short wait avoids a flicker of the dots
+          focusClearTimer.restart();
+        }
+      }
+
+      Timer {
+        id: focusClearTimer
+        interval: 200
+        repeat: false
+        onTriggered: {
+          if (!ToplevelManager.activeToplevel && !dockRoot.previewOpen)
+            dockRoot.focusedToplevel = null;
+        }
+      }
+
+      Connections {
+        target: ToplevelManager
+        function onActiveToplevelChanged() {
+          dockRoot.syncFocused();
+        }
+      }
+
+      Component.onCompleted: dockRoot.syncFocused()
+
+      // ------------------------------------------------------------ window preview
+
+      // Slot the preview is shown for. Kept after the preview closed, so it fades out in place.
+      property Item previewSlot: null
+      // The preview is open. It becomes visible once the dock has arrived (see previewShown).
+      property bool previewOpen: false
+      // Slot the open delay is running for. Its windows are captured while it waits.
+      property Item previewPending: null
+      // Slot that was pressed or dismissed. It gets no preview until the cursor has left it.
+      property Item previewBlockedSlot: null
+      // A slot is pressed while the preview is open. The grab stays until the button is released: dropping
+      // it in the middle of a click re-focuses the pointer and the release never reaches the slot.
+      property bool previewPressHold: false
+
+      onPreviewPressHoldChanged: {
+        if (dockRoot.previewPressHold)
+          previewHoldTimer.restart();
+        else
+          previewHoldTimer.stop();
+      }
+
+      // Safety net: never keep the grab forever if a release gets lost
+      Timer {
+        id: previewHoldTimer
+        interval: 10000
+        repeat: false
+        onTriggered: dockRoot.previewPressHold = false
+      }
+
+      readonly property bool previewAllowed: dockRoot.previewEnabled && dockRoot.dragSourceIndex === -1 && !dockRoot.resizing && !dockRoot.dropHover && !dockRoot.menuOpen
+
+      // App slot under the cursor that has at least one window. File slots have no app.
+      readonly property Item previewCandidate: {
+        const slot = dockRoot.hoveredSlot;
+        if (!slot || slot.leaving)
+          return null;
+        return (slot.app?.toplevels?.length ?? 0) > 0 ? slot : null;
+      }
+
+      // Slot the panel is placed on. While the open delay runs, the pending slot is already used,
+      // so its thumbnails are ready when the panel appears.
+      readonly property Item previewTarget: dockRoot.previewOpen ? dockRoot.previewSlot : (dockRoot.previewPending ?? dockRoot.previewSlot)
+
+      // Tooltips wait for the capsule to arrive, and so does the preview
+      readonly property bool previewShown: dockRoot.previewOpen && dockRoot.previewAllowed && dockRoot.fullyRevealed && (dockRoot.previewSlot?.app?.toplevels?.length ?? 0) > 0
+      readonly property bool previewWarm: !dockRoot.previewOpen && dockRoot.previewPending !== null && dockRoot.previewAllowed && dockRoot.fullyRevealed
+
+      // The pointer is on the panel, or on the dock over an app that has windows. When it is neither,
+      // the preview is on its way out. The zoom stays while the preview is open, so the candidate
+      // stays too while the pointer is on its way to the panel.
+      readonly property bool previewKeep: dockPreview.hovered || (rowHover.hovered && dockRoot.previewCandidate !== null)
+
+      onPreviewCandidateChanged: dockRoot.updatePreview()
+      onPreviewAllowedChanged: dockRoot.updatePreview()
+      onPreviewKeepChanged: dockRoot.syncPreviewClose()
+
+      onPreviewOpenChanged: {
+        if (!dockRoot.previewOpen)
+          dockRoot.releaseHoverLater();
+        dockRoot.syncPreviewClose();
+        dockRoot.syncFocused();
+      }
+
+      function updatePreview() {
+        if (!dockRoot.previewAllowed) {
+          dockRoot.closePreview();
+          return;
+        }
+        const slot = dockRoot.previewCandidate;
+        // A pressed slot gets no preview until the cursor has left it
+        if (slot !== null && slot === dockRoot.previewBlockedSlot) {
+          previewOpenTimer.stop();
+          dockRoot.previewPending = null;
+          return;
+        }
+        dockRoot.previewBlockedSlot = null;
+        if (slot === null || (dockRoot.previewOpen && slot === dockRoot.previewSlot)) {
+          // Nothing to open, or the preview already shows this app. Closing is up to previewKeep.
+          previewOpenTimer.stop();
+          dockRoot.previewPending = null;
+          return;
+        }
+        dockRoot.previewPending = slot;
+        // Moving from app to app while the preview is open is quicker than opening it
+        previewOpenTimer.interval = dockRoot.previewOpen ? dockRoot.previewSwitchDelay : dockRoot.previewDelay;
+        previewOpenTimer.restart();
+      }
+
+      function syncPreviewClose() {
+        if (dockRoot.previewOpen && !dockRoot.previewKeep)
+          previewCloseTimer.restart();
+        else
+          previewCloseTimer.stop();
+      }
+
+      function closePreview() {
+        previewOpenTimer.stop();
+        previewCloseTimer.stop();
+        dockRoot.previewPending = null;
+        dockRoot.previewOpen = false;
+      }
+
+      // Closes the preview and keeps it closed until the cursor has left the slot
+      function dismissPreview() {
+        dockRoot.previewBlockedSlot = dockRoot.hoveredSlot;
+        dockRoot.closePreview();
+      }
+
+      Timer {
+        id: previewOpenTimer
+        repeat: false
+        onTriggered: {
+          const slot = dockRoot.previewPending;
+          // Order matters: the target slot must never fall back to the old one in between
+          if (slot !== null && slot === dockRoot.previewCandidate) {
+            dockRoot.previewSlot = slot;
+            dockRoot.previewOpen = true;
+          }
+          dockRoot.previewPending = null;
+        }
+      }
+
+      Timer {
+        id: previewCloseTimer
+        interval: dockRoot.previewCloseDelay
+        repeat: false
+        onTriggered: {
+          if (!dockRoot.previewKeep)
+            dockRoot.previewOpen = false;
+        }
+      }
+
+      // While the preview is shown it holds the keyboard and the pointer: a click outside of the dock
+      // clears the grab and closes the preview
+      HyprlandFocusGrab {
+        id: previewGrab
+        windows: [dockRoot]
+        active: dockRoot.previewShown || dockRoot.previewPressHold
+        onCleared: {
+          if (dockRoot.previewOpen)
+            dockRoot.dismissPreview();
+        }
+      }
+
+      Item {
+        id: previewKeys
+        focus: dockRoot.previewShown
+
+        Keys.onPressed: event => {
+          const modifiers = [Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt, Qt.Key_AltGr, Qt.Key_Meta, Qt.Key_Super_L, Qt.Key_Super_R, Qt.Key_CapsLock, Qt.Key_NumLock];
+          if (event.key === Qt.Key_Escape) {
+            dockRoot.dismissPreview();
+            event.accepted = true;
+          } else if (!modifiers.includes(event.key)) {
+            // The dock has the keyboard only because of the preview. Give it back at the first key,
+            // so the typing that goes on in the focused window is not swallowed.
+            dockRoot.dismissPreview();
+          }
+        }
+      }
+
       function openSlotMenu(slot) {
         fileMenu.dismiss();
         separatorMenu.dismiss();
@@ -466,6 +731,10 @@ Scope {
       // Only the hover area receives input; it follows the capsule and grows while the dock is revealed
       mask: Region {
         item: hitArea
+        // The preview panel sits above the capsule, outside of the hover area
+        Region {
+          item: previewHitBox
+        }
       }
 
       MouseArea {
@@ -550,8 +819,8 @@ Scope {
         id: capsule
         width: dockRoot.capsuleWidth
         height: dockRoot.capsuleHeight
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.horizontalCenterOffset: dockRoot.capsuleOffset
+        // Whole pixels: a capsule edge on a fractional position shimmers while the dock grows
+        x: Math.round((dockRoot.width - capsule.width) / 2 + dockRoot.capsuleOffset)
         anchors.bottom: parent.bottom
         // Slides below the screen edge when hidden
         anchors.bottomMargin: dockRoot.capsuleBottomTarget
@@ -738,11 +1007,29 @@ Scope {
             onHoveredChanged: {
               if (rowHover.hovered)
                 dockRoot.updateHover();
-              else if (!dockRoot.menuOpen)
+              else if (!dockRoot.menuOpen && !dockRoot.previewOpen)
                 dockRoot.hoverActive = false;
             }
           }
         }
+      }
+
+      // Input area of the preview. A plain item of the window with its own geometry, so the input mask
+      // follows the panel while it moves.
+      Item {
+        id: previewHitBox
+        x: dockPreview.x
+        y: dockPreview.y
+        width: dockRoot.previewShown ? dockPreview.width : 0
+        height: dockRoot.previewShown ? dockPreview.height : 0
+      }
+
+      DockPreview {
+        id: dockPreview
+        dock: dockRoot
+        slot: dockRoot.previewTarget
+        shown: dockRoot.previewShown
+        warm: dockRoot.previewWarm
       }
 
       // Tooltip drawn inside the dock window. A popup window is a separate Wayland surface, and
@@ -751,7 +1038,7 @@ Scope {
       Item {
         id: tooltip
 
-        readonly property bool shown: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen
+        readonly property bool shown: dockRoot.hoveredSlot !== null && dockRoot.fullyRevealed && !dockRoot.menuOpen && !dockRoot.previewShown
         // Distance between the icon top and the tooltip, px
         readonly property real gap: dockRoot.popupGap
         // Last hovered slot, kept so the tooltip fades out in place

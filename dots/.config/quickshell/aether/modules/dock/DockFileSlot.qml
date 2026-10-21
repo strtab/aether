@@ -50,7 +50,7 @@ Item {
   clip: slot.widthFactor < 1.0
   Layout.preferredWidth: Math.round(slot.dock.slotWidth * (slot.iconPx / slot.dock.iconSize) * slot.widthFactor)
   Layout.fillHeight: true
-  z: slot.hovered ? 20 : (slot.growSize > 0 ? 10 : 0)
+  z: slot.hovered ? 20 : (slot.growSize > 0.01 ? 10 : 0)
 
   // Slides aside for the gap while a file from another application is over the dock. A transform,
   // not a layout width: it moves smoothly in sub-pixel steps, and the capsule width stays the same
@@ -71,7 +71,8 @@ Item {
 
   // ---------------------------------------------------------- magnification
 
-  // Same math as DockSlot: computed against the resting layout, so the zoom does not feed back
+  // Same math as DockSlot: computed against the resting layout, so the zoom does not feed back.
+  // distanceToCursor follows the pointer at once (hover), the size comes from the smoothed state of the dock.
   readonly property real restCenter: slot.dock.restCenters[slot.slotKey] ?? 0
   readonly property real distanceToCursor: slot.dock.zoomActive ? Math.abs(slot.dock.hoverOffset - slot.restCenter) / slot.dock.slotWidth : -1
   readonly property bool hovered: slot.distanceToCursor >= 0 && slot.distanceToCursor < 0.5
@@ -80,32 +81,26 @@ Item {
   readonly property real zoomPlateau: slot.dock.zoomPlateau
 
   readonly property real zoomMultiplier: {
-    const d = slot.distanceToCursor;
-    if (d < 0)
+    const level = slot.dock.zoomLevel;
+    if (level <= 0)
       return 0.0;
+    const d = Math.abs(slot.dock.zoomCursor - slot.restCenter) / slot.dock.slotWidth;
     if (d <= slot.zoomPlateau)
-      return 1.0;
+      return level;
     if (d >= slot.zoomRadius)
       return 0.0;
     const t = (d - slot.zoomPlateau) / (slot.zoomRadius - slot.zoomPlateau);
-    return 0.5 * (1.0 + Math.cos(Math.PI * t));
+    return level * 0.5 * (1.0 + Math.cos(Math.PI * t));
   }
 
   // A file is dragged over the trash or a directory: the slot is dimmed and shows its tooltip,
   // and the dock stays revealed.
   readonly property bool dropping: (slot.isTrash || slot.isDir) && dropArea.containsDrag
 
-  property int growSize: Math.round(slot.zoomMultiplier * slot.dock.zoomPx)
+  readonly property real growSize: slot.zoomMultiplier * slot.dock.zoomPx
   readonly property real iconPx: slot.dock.iconSize + slot.growSize
   // Top edge of the icon in slot coordinates
   readonly property real iconTop: slot.height - slot.dock.iconBottomMargin - slot.iconPx
-
-  Behavior on growSize {
-    NumberAnimation {
-      duration: slot.dock.zoomDuration
-      easing.type: Easing.InOutQuad
-    }
-  }
 
   // ---------------------------------------------------------------- state
 
@@ -121,8 +116,10 @@ Item {
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.bottom: parent.bottom
     anchors.bottomMargin: slot.dock.iconBottomMargin
-    width: slot.iconPx
-    height: slot.iconPx
+    // Resting size, scaled for the magnification (see DockSlot)
+    width: slot.dock.iconSize
+    height: slot.dock.iconSize
+    scale: slot.iconPx / slot.dock.iconSize
     transformOrigin: Item.Bottom
     iconSource: slot.iconSource
     fallbackSource: slot.fallbackSource
@@ -131,6 +128,8 @@ Item {
     sourceSize: Qt.size(slot.dock.rasterSize, slot.dock.rasterSize)
 
     layer.smooth: true
+    layer.mipmap: true
+    layer.textureSize: Qt.size(slot.dock.rasterSize, slot.dock.rasterSize)
     layer.enabled: slot.desaturate || slot.dimmed
     layer.effect: MultiEffect {
       saturation: slot.desaturate ? -1 : 0

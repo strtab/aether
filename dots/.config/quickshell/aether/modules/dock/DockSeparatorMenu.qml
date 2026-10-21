@@ -16,6 +16,14 @@ PopupMenu {
   // Auto-hide is the inverse of the "pinned" option: a pinned dock is always visible
   readonly property bool autoHide: !(Config.options?.dock?.pinnedOnStartup ?? false)
 
+  readonly property bool preview: Config.options?.dock?.preview?.enable ?? true
+
+  PopupMenuToggle {
+    label: Translation.tr("Preview")
+    checked: root.preview
+    onTriggered: Config.options.dock.preview.enable = !root.preview
+  }
+
   PopupMenuToggle {
     label: Translation.tr("Magnification")
     checked: root.magnification

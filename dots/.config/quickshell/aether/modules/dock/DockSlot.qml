@@ -98,7 +98,7 @@ Item {
     x: (slot.index === slot.dock.dragSourceIndex ? slot.dragXOffset : slot.shiftOffset) + slot.gapOffset
   }
 
-  z: slot.index === slot.dock.dragSourceIndex ? 100 : (slot.hovered ? 20 : (slot.growSize > 0 ? 10 : 0))
+  z: slot.index === slot.dock.dragSourceIndex ? 100 : (slot.hovered ? 20 : (slot.growSize > 0.01 ? 10 : 0))
 
   // ---------------------------------------------------------- magnification
 
@@ -107,7 +107,8 @@ Item {
   // changes with the zoom itself, which would feed back into the zoom and make it jitter.
   // The resting layout uses the slot widths without zoom, so a collapsed slot takes no room.
   readonly property real restCenter: slot.dock.restCenters[slot.appId] ?? 0
-  // Distance from the cursor to the resting slot center, in resting slot widths
+  // Distance from the pointer to the resting slot center, in resting slot widths. It follows the pointer
+  // at once, it decides which slot is hovered (tooltip, preview).
   readonly property real distanceToCursor: slot.dock.zoomActive ? Math.abs(slot.dock.hoverOffset - slot.restCenter) / slot.dock.slotWidth : -1
   readonly property bool hovered: slot.distanceToCursor >= 0 && slot.distanceToCursor < 0.5
 
@@ -116,37 +117,34 @@ Item {
   // Distance around the cursor where the slot gets the full zoom
   readonly property real zoomPlateau: slot.dock.zoomPlateau
 
+  // The size comes from the smoothed cursor and the smoothed level of the dock. There is no animation
+  // and no rounding here: both would restart or jump with every pointer event.
   readonly property real zoomMultiplier: {
-    const d = slot.distanceToCursor;
-    if (d < 0)
+    const level = slot.dock.zoomLevel;
+    if (level <= 0)
       return 0.0;
+    const d = Math.abs(slot.dock.zoomCursor - slot.restCenter) / slot.dock.slotWidth;
     if (d <= slot.zoomPlateau)
-      return 1.0;
+      return level;
     if (d >= slot.zoomRadius)
       return 0.0;
     // Smooth cosine falloff from 1 at the plateau edge to 0 at the radius
     const t = (d - slot.zoomPlateau) / (slot.zoomRadius - slot.zoomPlateau);
-    return 0.5 * (1.0 + Math.cos(Math.PI * t));
+    return level * 0.5 * (1.0 + Math.cos(Math.PI * t));
   }
 
-  property int growSize: Math.round(slot.zoomMultiplier * slot.dock.zoomPx)
+  readonly property real growSize: slot.zoomMultiplier * slot.dock.zoomPx
   readonly property real iconPx: slot.dock.iconSize + slot.growSize
   // Top edge of the icon in slot coordinates. The bounce offset is left out on purpose,
   // so the tooltip and the menu do not jitter during a launch bounce.
   readonly property real iconTop: slot.height - slot.dock.iconBottomMargin - slot.iconPx
 
-  Behavior on growSize {
-    NumberAnimation {
-      duration: slot.dock.zoomDuration
-      easing.type: Easing.InOutQuad
-    }
-  }
-
   // ---------------------------------------------------------------- state
 
   readonly property bool running: slot.app.running
-  readonly property bool isActive: slot.app.toplevels.some(t => t.activated === true)
-  readonly property int focusedIndex: slot.app.toplevels.findIndex(t => t.activated === true)
+  // The dock tracks the focused window itself: while the preview is open the compositor reports none
+  readonly property bool isActive: slot.app.toplevels.some(t => t === slot.dock.focusedToplevel)
+  readonly property int focusedIndex: slot.app.toplevels.findIndex(t => t === slot.dock.focusedToplevel)
   readonly property bool menuTarget: slot.dock.menuOpen && slot.dock.menuAppId === slot.app.appId
   readonly property bool pressed: mouseArea.pressed && (mouseArea.pressedButtons & Qt.LeftButton) !== 0 && !mouseArea.isDragging
   readonly property bool dimmed: slot.menuTarget || slot.pressed
@@ -246,8 +244,11 @@ Item {
     anchors.bottomMargin: slot.dock.iconBottomMargin + slot.bounceLift
     asynchronous: true
     sourceComponent: DockIcon {
-      width: slot.iconPx
-      height: slot.iconPx
+      // The icon keeps its resting size and is scaled for the magnification. A scale is only a transform:
+      // neither the image nor the layer below is rebuilt while the icon grows and shrinks.
+      width: slot.dock.iconSize
+      height: slot.dock.iconSize
+      scale: slot.iconPx / slot.dock.iconSize
       transformOrigin: Item.Bottom
       iconSource: slot.app.icon
       resetToken: DockApps.iconEpoch
@@ -255,6 +256,8 @@ Item {
       sourceSize: Qt.size(slot.dock.rasterSize, slot.dock.rasterSize)
 
       layer.smooth: true
+      layer.mipmap: true
+      layer.textureSize: Qt.size(slot.dock.rasterSize, slot.dock.rasterSize)
       layer.enabled: slot.dock.monochrome || slot.dimmed
       layer.effect: MultiEffect {
         saturation: slot.dock.monochrome ? -1 : 0
@@ -363,6 +366,11 @@ Item {
     }
 
     onPressed: mouse => {
+      // Any press closes the preview, it opens again after the cursor has left the slot.
+      // The dock keeps its focus grab until the button is released (see Dock.previewPressHold).
+      if (slot.dock.previewOpen)
+        slot.dock.previewPressHold = true;
+      slot.dock.dismissPreview();
       if (mouse.button !== Qt.LeftButton)
         return;
       pressPos = Qt.point(mouse.x, mouse.y);
@@ -393,6 +401,7 @@ Item {
     }
 
     onReleased: mouse => {
+      slot.dock.previewPressHold = false;
       if (mouse.button !== Qt.LeftButton || !isDragging)
         return;
       const source = slot.dock.dragSourceIndex;
@@ -405,6 +414,7 @@ Item {
     }
 
     onCanceled: {
+      slot.dock.previewPressHold = false;
       endDrag();
       dragOccurred = false;
     }
