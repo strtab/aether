@@ -325,9 +325,11 @@ Singleton {
         property JsonObject preview: JsonObject {
           property bool enable: true // Window thumbnails above an app with windows, shown on hover
           property int delay: 400 // ms the cursor must rest on an app before the preview opens
+          property int switchDelay: 120 // ms before an open preview moves to another app
           property int closeDelay: 300 // ms before the preview closes after the cursor left
           property int thumbHeight: 120 // Max thumbnail height, px
-          property int maxWindows: 6 // Windows shown per app
+          property int maxColumns: 4 // Windows per line of the preview
+          property int maxRows: 2 // Lines of the preview. Windows beyond maxColumns * maxRows are not shown
         }
         property bool pinnedOnStartup: true
         property list<string> pinnedOrder: []
@@ -337,7 +339,7 @@ Singleton {
           property int duration: 420
         }
         property JsonObject files: JsonObject {
-          property bool enable: true
+          property bool enable: true // macOS-style section after the apps: links and trash
           property bool showTrash: true
           property bool showPreviews: true // Images are shown as their own picture
           property string openTrashCommand: "gio open trash:///"
@@ -345,10 +347,10 @@ Singleton {
         }
         property JsonObject magnification: JsonObject {
           property bool enable: true
-          property real strength: 20
+          property real strength: 15
           property real radius: 2.5
           property int delay: 120 // ms before the magnification starts after the cursor enters the dock
-          property int duration: 180 // ms per size step, higher is slower
+          property int duration: 80 // ms per size step, higher is slower
         }
         property JsonObject hoverToReveal: JsonObject {
           property bool enable: true // When false, only reveals on empty workspace

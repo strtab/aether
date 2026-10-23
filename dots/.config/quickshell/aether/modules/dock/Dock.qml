@@ -65,10 +65,11 @@ Scope {
       readonly property int previewSwitchDelay: Config.options?.dock?.preview?.switchDelay ?? 120
       readonly property int previewCloseDelay: Config.options?.dock?.preview?.closeDelay ?? 300
       readonly property real previewThumbHeight: Config.options?.dock?.preview?.thumbHeight ?? 120
-      readonly property int previewMaxWindows: Config.options?.dock?.preview?.maxWindows ?? 6
+      readonly property int previewMaxColumns: Math.max(1, Config.options?.dock?.preview?.maxColumns ?? 4)
+      readonly property int previewMaxRows: Math.max(1, Config.options?.dock?.preview?.maxRows ?? 2)
       // Upper bound for the height of the preview panel (thumbnail, title, paddings). The window is
       // sized for it, so it never resizes when the preview opens.
-      readonly property real previewHeadroom: dockRoot.previewEnabled ? dockRoot.previewThumbHeight + 64 : 0
+      readonly property real previewHeadroom: dockRoot.previewEnabled ? dockRoot.previewMaxRows * (dockRoot.previewThumbHeight + 30) + (dockRoot.previewMaxRows - 1) * 14 + 28 + 64 : 0
       // Extra icon size at the cursor. Set Config.options.dock.magnification to false to disable.
       readonly property real zoomPx: (Config.options?.dock?.magnification.enable ?? true) ? (Config.options?.dock?.magnification.strength ?? 30) : 0
       // Magnetism reach in resting slot widths

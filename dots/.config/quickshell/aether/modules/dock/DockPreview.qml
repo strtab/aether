@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import qs.services
@@ -8,10 +9,11 @@ import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.widgets
 
-// Window preview of an app slot: a live thumbnail per window of the app.
+// Window preview of an app slot: a live thumbnail per window of the app, a title under each one.
 // It is drawn inside the dock window. A popup window would be a separate Wayland surface, and
 // creating one under the pointer while the dock auto-hides interferes with the reveal.
 //
+// - The windows are laid out in a grid: at most maxColumns per line and maxRows lines.
 // - The layout is plain arithmetic, no positioner and no implicit sizes: the size of the panel is known
 //   in the same moment as the number of windows, so there is no frame with a half-built panel.
 // - The panel is placed against the resting layout of the dock (Dock.restCenters), so it does not move
@@ -36,26 +38,28 @@ Item {
   readonly property bool hovered: panelArea.containsMouse
 
   readonly property var app: root.slot?.app ?? null
-  readonly property var toplevels: Array.from(root.app?.toplevels ?? []).slice(0, root.dock.previewMaxWindows)
+  readonly property var toplevels: Array.from(root.app?.toplevels ?? []).slice(0, root.dock.previewMaxColumns * root.dock.previewMaxRows)
   readonly property int count: root.toplevels.length
+  readonly property int columns: Math.max(1, Math.min(root.count, root.dock.previewMaxColumns))
+  readonly property int rows: root.count > 0 ? Math.ceil(root.count / root.columns) : 1
 
-  readonly property real padding: 6
-  readonly property real spacing: 6
-  // Space between the frame of a card and its thumbnail
-  readonly property real inset: 3
+  readonly property real padding: 14
+  readonly property real spacing: 14
+  readonly property real rowSpacing: 12
   readonly property real screenMargin: 8
-  readonly property real cardHeight: root.dock.previewThumbHeight
+  readonly property real thumbHeight: root.dock.previewThumbHeight
+  readonly property real titleGap: 6
+  readonly property real titleHeight: 18
+  readonly property real cardHeight: root.thumbHeight + root.titleGap + root.titleHeight
   // Cards have a fixed size and the thumbnail is fitted into them, so a window that is still
-  // loading or changes its shape never moves the layout. Many windows make the cards narrower.
+  // loading or changes its shape never moves the layout. Many columns make the cards narrower.
   readonly property real cardWidth: {
-    if (root.count === 0)
-      return 0;
-    const natural = Math.round(root.cardHeight * 16 / 9);
-    const available = Math.floor((root.dock.width - root.screenMargin * 2 - root.padding * 2 - root.spacing * (root.count - 1)) / root.count);
-    return Math.max(60, Math.min(natural, available));
+    const natural = Math.round(root.thumbHeight * 16 / 9);
+    const available = Math.floor((root.dock.width - root.screenMargin * 2 - root.padding * 2 - root.spacing * (root.columns - 1)) / root.columns);
+    return Math.max(80, Math.min(natural, available));
   }
-  readonly property real panelWidth: root.count * root.cardWidth + Math.max(0, root.count - 1) * root.spacing + root.padding * 2
-  readonly property real panelHeight: root.cardHeight + root.padding * 2
+  readonly property real panelWidth: root.columns * root.cardWidth + (root.columns - 1) * root.spacing + root.padding * 2
+  readonly property real panelHeight: root.rows * root.cardHeight + (root.rows - 1) * root.rowSpacing + root.padding * 2
 
   // The panel is above the icon at rest. The gap also clears an icon magnified to the full strength.
   readonly property real gap: root.dock.popupGap + root.dock.zoomPx
@@ -99,7 +103,7 @@ Item {
     id: panel
     width: root.panelWidth
     height: root.panelHeight
-    color: Appearance.colors.colLayer0
+    color: Appearance.colors.colLayer1
     border.width: 1
     border.color: Appearance.colors.colLayer0Border
     radius: Appearance.rounding.normal
@@ -127,6 +131,10 @@ Item {
         // (a fatal "invalid object" error of the Wayland connection).
         property bool closing: false
 
+        x: root.padding + (card.index % root.columns) * (root.cardWidth + root.spacing)
+        y: root.padding + Math.floor(card.index / root.columns) * (root.cardHeight + root.rowSpacing)
+        width: root.cardWidth
+        height: root.cardHeight
         opacity: card.closing ? 0 : 1
 
         Behavior on opacity {
@@ -143,6 +151,11 @@ Item {
           closeTimer.restart();
         }
 
+        // The point is in card coordinates
+        function hitClose(p) {
+          return closeButton.opacity > 0 && p.x >= closeButton.x && p.x < closeButton.x + closeButton.width && p.y >= closeButton.y && p.y < closeButton.y + closeButton.height;
+        }
+
         Timer {
           id: closeTimer
           interval: 150
@@ -150,35 +163,19 @@ Item {
           onTriggered: card.toplevel?.close()
         }
 
-        x: root.padding + card.index * (root.cardWidth + root.spacing)
-        y: root.padding
-        width: root.cardWidth
-        height: root.cardHeight
-
-        // The point is in card coordinates
-        function hitClose(p) {
-          return closeButton.opacity > 0 && p.x >= closeButton.x && p.x < closeButton.x + closeButton.width && p.y >= closeButton.y && p.y < closeButton.y + closeButton.height;
-        }
-
-        Rectangle {
-          anchors.fill: parent
-          radius: Appearance.rounding.verysmall
-          color: ColorUtils.transparentize(Appearance.colors.colOnLayer0, card.hovered ? 0.86 : 0.95)
-          border.width: card.active ? 1 : 0
-          border.color: ColorUtils.transparentize(Appearance.colors.colPrimary, 0.3)
-
-          Behavior on color {
-            animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-          }
-        }
-
+        // Thumbnail with rounded corners
         Item {
           id: thumb
-          x: root.inset
-          y: root.inset
-          width: card.width - root.inset * 2
-          height: card.height - root.inset * 2
-          clip: true
+          width: card.width
+          height: root.thumbHeight
+
+          layer.enabled: true
+          layer.effect: MultiEffect {
+            maskEnabled: true
+            maskSource: thumbMask
+            maskThresholdMin: 0.5
+            maskSpreadAtMin: 1.0
+          }
 
           Rectangle {
             anchors.fill: parent
@@ -225,57 +222,71 @@ Item {
               }
             }
           }
+        }
 
-          // Window title, only while the card is hovered
+        Item {
+          id: thumbMask
+          width: thumb.width
+          height: thumb.height
+          visible: false
+          layer.enabled: true
+
           Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            height: 30
-            opacity: card.hovered ? 1 : 0
-            visible: opacity > 0
+            anchors.fill: parent
+            radius: Appearance.rounding.small
+            color: "black"
+          }
+        }
 
-            gradient: Gradient {
-              GradientStop {
-                position: 0.0
-                color: Qt.rgba(0, 0, 0, 0)
-              }
-              GradientStop {
-                position: 1.0
-                color: Qt.rgba(0, 0, 0, 0.7)
-              }
-            }
+        // Ring around the thumbnail: the hovered window, or the focused one
+        Rectangle {
+          width: thumb.width
+          height: thumb.height
+          radius: Appearance.rounding.small
+          color: "transparent"
 
-            Behavior on opacity {
-              NumberAnimation {
-                duration: Appearance.animation.hover.duration
-                easing.type: Easing.OutQuad
-              }
-            }
-
-            StyledText {
-              anchors.left: parent.left
-              anchors.right: parent.right
-              anchors.bottom: parent.bottom
-              anchors.margins: 6
-              elide: Text.ElideRight
-              text: card.toplevel?.title ?? ""
-              color: "#ffffff"
-              font.pixelSize: Appearance.font.pixelSize.smaller
+          Behavior on border.width {
+            NumberAnimation {
+              duration: Appearance.animation.hover.duration
+              easing.type: Easing.OutQuad
             }
           }
         }
 
+        // Title with the icon of the app
+        DockIcon {
+          x: 2
+          y: root.thumbHeight + root.titleGap + (root.titleHeight - height) / 2
+          width: 16
+          height: 16
+          iconSource: root.app?.icon ?? ""
+          resetToken: DockApps.iconEpoch
+          sourceSize: Qt.size(32, 32)
+        }
+
+        StyledText {
+          x: 24
+          y: root.thumbHeight + root.titleGap
+          width: card.width - 24 - 2
+          height: root.titleHeight
+          verticalAlignment: Text.AlignVCenter
+          elide: Text.ElideRight
+          text: card.toplevel?.title ?? ""
+          color: Appearance.colors.colOnLayer0
+          font.pixelSize: Appearance.font.pixelSize.smaller
+        }
+
+        // Gray close button in the top left corner of the thumbnail, only while the card is hovered
         Rectangle {
           id: closeButton
-          x: card.width - root.inset - 6 - width
-          y: root.inset + 6
+          x: -6
+          y: -6
           width: 20
           height: 20
           radius: width / 2
           opacity: card.hovered ? 1 : 0
           visible: opacity > 0
-          color: card.closeHot ? Appearance.colors.colErrorContainer : ColorUtils.transparentize(Appearance.colors.colLayer0, 0.1)
+          color: card.hovered ? Appearance.m3colors.m3surfaceContainerHigh : "transparent"
 
           Behavior on opacity {
             NumberAnimation {
@@ -287,8 +298,8 @@ Item {
           MaterialSymbol {
             anchors.centerIn: parent
             text: "close"
-            iconSize: 13
-            color: card.closeHot ? Appearance.colors.colOnErrorContainer : Appearance.colors.colOnLayer0
+            iconSize: 11
+            color: Appearance.m3colors.m3onSurfaceVariant
           }
         }
       }
