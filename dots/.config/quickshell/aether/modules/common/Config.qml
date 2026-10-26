@@ -390,9 +390,6 @@ Singleton {
           property string to: "08:30"   // Format: "HH:mm", 24-hour time
           property int colorTemperature: 5000
         }
-        property JsonObject antiFlashbang: JsonObject {
-          property bool enable: false
-        }
       }
 
       property JsonObject lock: JsonObject {

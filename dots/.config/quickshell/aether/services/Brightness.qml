@@ -101,7 +101,7 @@ Singleton {
     property int rawMaxBrightness: 100
     property real brightness
     property real brightnessMultiplier: 1.0
-    property real multipliedBrightness: Math.max(0, Math.min(1, brightness * (Config.options.light.antiFlashbang.enable ? brightnessMultiplier : 1)))
+    property real multipliedBrightness: Math.max(0, Math.min(1, brightness))
     property bool ready: false
     property bool animateChanges: !monitor.isDdc
 
@@ -188,10 +188,8 @@ Singleton {
     BrightnessMonitor {}
   }
 
-  // Anti-flashbang
   property int workspaceAnimationDelay: 500
   property int contentSwitchDelay: 30
-  property string screenshotDir: "/tmp/quickshell/brightness/antiflashbang"
   function brightnessMultiplierForLightness(x: real): real {
     // I hand picked some values and fitted an exponential curve for this
     // 6.600135 + 216.360356 * e^(-0.0811129189x)
@@ -205,19 +203,6 @@ Singleton {
       required property var modelData
       property string screenName: modelData.name
       property string screenshotPath: `${root.screenshotDir}/screenshot-${screenName}.png`
-      Connections {
-        enabled: Config.options.light.antiFlashbang.enable && Appearance.m3colors.darkmode
-        target: Hyprland
-        function onRawEvent(event) {
-          if (["activewindowv2", "windowtitlev2"].includes(event.name)) {
-            screenshotTimer.interval = root.contentSwitchDelay;
-            screenshotTimer.restart();
-          } else if (["workspacev2"].includes(event.name)) {
-            screenshotTimer.interval = root.workspaceAnimationDelay;
-            screenshotTimer.restart();
-          }
-        }
-      }
 
       Timer {
         id: screenshotTimer
