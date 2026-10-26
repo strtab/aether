@@ -184,53 +184,6 @@ Singleton {
 
       property JsonObject background: JsonObject {
         property bool enable: true
-        property JsonObject widgets: JsonObject {
-          property JsonObject clock: JsonObject {
-            property bool enable: true
-            property bool showOnlyWhenLocked: false
-            property string placementStrategy: "leastBusy" // "free", "leastBusy", "mostBusy"
-            property real x: 100
-            property real y: 100
-            property string style: "cookie"        // Options: "cookie", "digital"
-            property string styleLocked: "digital"  // Options: "cookie", "digital"
-            property JsonObject cookie: JsonObject {
-              property int sides: 14
-              property string dialNumberStyle: "full"   // Options: "dots" , "numbers", "full" , "none"
-              property string hourHandStyle: "fill"     // Options: "classic", "fill", "hollow", "hide"
-              property string minuteHandStyle: "medium" // Options: "classic", "thin", "medium", "bold", "hide"
-              property string secondHandStyle: "dot"    // Options: "dot", "line", "classic", "hide"
-              property string dateStyle: "hide"         // Options: "border", "rect", "bubble" , "hide"
-              property bool timeIndicators: true
-              property bool hourMarks: false
-              property bool dateInClock: true
-              property bool constantlyRotate: false
-              property bool useSineCookie: false
-            }
-            property JsonObject digital: JsonObject {
-              property bool adaptiveAlignment: true
-              property bool showDate: true
-              property bool animateChange: true
-              property bool vertical: false
-              property JsonObject font: JsonObject {
-                property string family: "Google Sans Flex"
-                property real weight: 855
-                property real size: 100
-                property real width: 105
-                property real roundness: 85
-              }
-            }
-            property JsonObject quote: JsonObject {
-              property bool enable: false
-              property string text: ""
-            }
-          }
-          property JsonObject weather: JsonObject {
-            property bool enable: false
-            property string placementStrategy: "free" // "free", "leastBusy", "mostBusy"
-            property real x: 400
-            property real y: 100
-          }
-        }
         property string wallpaperPath: FileUtils.trimFileProtocol(`${Directories.assetsPath}/images/default_wallpaper.jpg`)
         property string thumbnailPath: ""
         property bool hideWhenFullscreen: false
