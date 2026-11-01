@@ -1078,6 +1078,18 @@ Scope {
           verticalPadding: 5
         }
       }
+      Loader {
+        id: resizeCursorOverlay
+        anchors.fill: parent
+        z: 10000
+        active: dockRoot.resizing
+
+        sourceComponent: MouseArea {
+          hoverEnabled: false
+          acceptedButtons: Qt.NoButton
+          cursorShape: Qt.SizeVerCursor
+        }
+      }
     }
   }
 }
