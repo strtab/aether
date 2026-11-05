@@ -1033,9 +1033,6 @@ Scope {
         warm: dockRoot.previewWarm
       }
 
-      // Tooltip drawn inside the dock window. A popup window is a separate Wayland surface, and
-      // creating one under the pointer while the dock auto-hides interferes with the reveal.
-      // The window already has headroom above the capsule for this.
       Item {
         id: tooltip
 
@@ -1078,6 +1075,7 @@ Scope {
           verticalPadding: 5
         }
       }
+
       Loader {
         id: resizeCursorOverlay
         anchors.fill: parent

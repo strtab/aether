@@ -300,10 +300,10 @@ Singleton {
         }
         property JsonObject magnification: JsonObject {
           property bool enable: true
-          property real strength: 15
-          property real radius: 2.5
+          property real strength: 20
+          property real radius: 3
           property int delay: 120 // ms before the magnification starts after the cursor enters the dock
-          property int duration: 80 // ms per size step, higher is slower
+          property int duration: 230 // ms per size step, higher is slower
         }
         property JsonObject hoverToReveal: JsonObject {
           property bool enable: true // When false, only reveals on empty workspace
