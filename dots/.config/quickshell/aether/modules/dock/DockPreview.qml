@@ -9,7 +9,8 @@ import qs.modules.common
 import qs.modules.common.functions
 import qs.modules.common.widgets
 
-// Window preview of an app slot: a live thumbnail per window of the app, a title under each one.
+// Window preview of an app slot: a live thumbnail per window of the app.
+// A single header with the icon and the name of the app sits at the top of the panel.
 // It is drawn inside the dock window. A popup window would be a separate Wayland surface, and
 // creating one under the pointer while the dock auto-hides interferes with the reveal.
 //
@@ -47,10 +48,15 @@ Item {
   readonly property real spacing: 14
   readonly property real rowSpacing: 12
   readonly property real screenMargin: 8
+
   readonly property real thumbHeight: root.dock.previewThumbHeight
-  readonly property real titleGap: 6
-  readonly property real titleHeight: 18
-  readonly property real cardHeight: root.thumbHeight + root.titleGap + root.titleHeight
+  // Header with the app icon and name, shared by all windows
+  readonly property real headerHeight: 20
+  readonly property real headerGap: 10
+  readonly property real headerIconSize: 21
+  // Top edge of the card grid
+  readonly property real gridTop: root.padding + root.headerHeight + root.headerGap
+  readonly property real cardHeight: root.thumbHeight
   // Cards have a fixed size and the thumbnail is fitted into them, so a window that is still
   // loading or changes its shape never moves the layout. Many columns make the cards narrower.
   readonly property real cardWidth: {
@@ -59,7 +65,7 @@ Item {
     return Math.max(80, Math.min(natural, available));
   }
   readonly property real panelWidth: root.columns * root.cardWidth + (root.columns - 1) * root.spacing + root.padding * 2
-  readonly property real panelHeight: root.rows * root.cardHeight + (root.rows - 1) * root.rowSpacing + root.padding * 2
+  readonly property real panelHeight: root.gridTop + root.rows * root.cardHeight + (root.rows - 1) * root.rowSpacing + root.padding
 
   // The panel is above the icon at rest. The gap also clears an icon magnified to the full strength.
   readonly property real gap: root.dock.popupGap + root.dock.zoomPx
@@ -67,14 +73,6 @@ Item {
   // Center of the slot at rest in window coordinates. The panel slides to it when it moves to another app.
   readonly property real targetCenter: root.slot ? root.dock.width / 2 + (root.dock.restCenters[root.slot.appId] ?? 0) : 0
   property real center: root.targetCenter
-
-  Behavior on center {
-    enabled: root.shown && root.opacity > 0.99
-    NumberAnimation {
-      duration: 160
-      easing.type: Easing.OutCubic
-    }
-  }
 
   width: root.panelWidth
   height: root.panelHeight
@@ -95,6 +93,17 @@ Item {
     }
   }
 
+  // Vertical offset of the slide: the panel rises from below by this many pixels when it appears
+  readonly property real slideDistance: 10
+  property real slideOffset: root.shown ? 0 : root.slideDistance
+
+  Behavior on slideOffset {
+    NumberAnimation {
+      duration: 180
+      easing.type: Easing.OutCubic
+    }
+  }
+
   StyledRectangularShadow {
     target: panel
   }
@@ -107,6 +116,40 @@ Item {
     border.width: 1
     border.color: Appearance.colors.colLayer0Border
     radius: Appearance.rounding.normal
+
+    // Header: one icon and the name of the app for all windows
+    Item {
+      id: header
+      x: root.padding
+      y: root.padding
+      width: root.panelWidth - root.padding * 2
+      height: root.headerHeight
+
+      DockIcon {
+        id: headerIcon
+        x: 0
+        y: (header.height - height) / 2
+        width: root.headerIconSize
+        height: root.headerIconSize
+        iconSource: root.app?.icon ?? ""
+        resetToken: DockApps.iconEpoch
+        sourceSize: Qt.size(42, 42)
+      }
+      StyledRectangularShadow {
+        target: headerIcon
+      }
+
+      StyledText {
+        x: root.headerIconSize + 8
+        width: header.width - root.headerIconSize - 8
+        height: header.height
+        verticalAlignment: Text.AlignVCenter
+        elide: Text.ElideRight
+        text: root.slot?.app?.name ?? ""
+        color: Appearance.colors.colOnLayer0
+        style: Appearance.font.style.caption1
+      }
+    }
 
     Repeater {
       id: cards
@@ -132,7 +175,7 @@ Item {
         property bool closing: false
 
         x: root.padding + (card.index % root.columns) * (root.cardWidth + root.spacing)
-        y: root.padding + Math.floor(card.index / root.columns) * (root.cardHeight + root.rowSpacing)
+        y: root.gridTop + Math.floor(card.index / root.columns) * (root.cardHeight + root.rowSpacing)
         width: root.cardWidth
         height: root.cardHeight
         opacity: card.closing ? 0 : 1
@@ -180,25 +223,6 @@ Item {
           Rectangle {
             anchors.fill: parent
             color: Appearance.m3colors.m3surfaceContainerLowest
-          }
-
-          // Shown until the first frame arrives, then the thumbnail fades in over it
-          DockIcon {
-            anchors.centerIn: parent
-            width: Math.min(48, thumb.height * 0.45)
-            height: width
-            opacity: view.hasContent ? 0 : 0.7
-            visible: opacity > 0
-            iconSource: root.app?.icon ?? ""
-            resetToken: DockApps.iconEpoch
-            sourceSize: Qt.size(96, 96)
-
-            Behavior on opacity {
-              NumberAnimation {
-                duration: 160
-                easing.type: Easing.OutQuad
-              }
-            }
           }
 
           // The thumbnail is fitted into the card with the shape the frame itself reports
@@ -253,29 +277,6 @@ Item {
           }
         }
 
-        // Title with the icon of the app
-        DockIcon {
-          x: 2
-          y: root.thumbHeight + root.titleGap + (root.titleHeight - height) / 2
-          width: 16
-          height: 16
-          iconSource: root.app?.icon ?? ""
-          resetToken: DockApps.iconEpoch
-          sourceSize: Qt.size(32, 32)
-        }
-
-        StyledText {
-          x: 24
-          y: root.thumbHeight + root.titleGap
-          width: card.width - 24 - 2
-          height: root.titleHeight
-          verticalAlignment: Text.AlignVCenter
-          elide: Text.ElideRight
-          text: card.toplevel?.title ?? ""
-          color: Appearance.colors.colOnLayer0
-          font.pixelSize: Appearance.font.pixelSize.smaller
-        }
-
         // Gray close button in the top left corner of the thumbnail, only while the card is hovered
         Rectangle {
           id: closeButton
@@ -299,6 +300,7 @@ Item {
             anchors.centerIn: parent
             text: "close"
             iconSize: 11
+            font.weight: Font.DemiBold
             color: Appearance.m3colors.m3onSurfaceVariant
           }
         }

@@ -277,12 +277,12 @@ Singleton {
         property real iconSize: 45
         property JsonObject preview: JsonObject {
           property bool enable: true // Window thumbnails above an app with windows, shown on hover
+          property int thumbHeight: 200 // Max thumbnail height, px
+          property int maxColumns: 4 // Windows per line of the preview
+          property int maxRows: 2 // Lines of the preview. Windows beyond maxColumns * maxRows are not shown
           property int delay: 400 // ms the cursor must rest on an app before the preview opens
           property int switchDelay: 120 // ms before an open preview moves to another app
           property int closeDelay: 300 // ms before the preview closes after the cursor left
-          property int thumbHeight: 120 // Max thumbnail height, px
-          property int maxColumns: 4 // Windows per line of the preview
-          property int maxRows: 2 // Lines of the preview. Windows beyond maxColumns * maxRows are not shown
         }
         property bool pinnedOnStartup: true
         property list<string> pinnedOrder: []
