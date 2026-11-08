@@ -35,19 +35,6 @@ in
       };
     };
 
-    hyprland = {
-      package = lib.mkOption {
-        type = lib.types.package;
-        default = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-        description = "Hyprland package";
-      };
-      portalPackage = lib.mkOption {
-        type = lib.types.package;
-        default = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
-        description = "xdg-desktop-portal package for Hyprland";
-      };
-    };
-
     theme = {
       enable = mkEnableOption "Whether to enable overwriting theme name" // {
         default = true;

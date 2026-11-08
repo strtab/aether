@@ -7,10 +7,6 @@ inputs:
 }:
 let
   cfg = config.programs.aether;
-
-  hypr = cfg.hyprland.package;
-  hypr-xdg = cfg.hyprland.portalPackage;
-
   dotfiles = inputs.dotfiles;
 in
 {
@@ -21,11 +17,20 @@ in
     ];
 
     wayland.windowManager.hyprland = {
+
+      package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+      portalPackage =
+        inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+
+      plugins = [
+        inputs.hyblock.packages.${pkgs.stdenv.hostPlatform.system}.hyblock
+        inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system}.borders-plus-plus
+      ];
+
       enable = true;
       systemd.enable = false;
       xwayland.enable = true;
-      package = hypr;
-      portalPackage = hypr-xdg;
+
       configType = "lua";
 
       extraConfig = ''
