@@ -48,12 +48,14 @@ hl.config({
 
 	general = {
 		gaps_workspaces = 50,
+		gaps_in = 0,
+		gaps_out = 1,
 
 		border_size = 1,
 
 		col = {
-			active_border = "rgba(0DB7D455)",
-			inactive_border = "rgba(31313600)",
+			active_border = "#333333",
+			inactive_border = "#333333",
 		},
 
 		resize_on_border = true,
@@ -70,8 +72,10 @@ hl.config({
 		},
 	},
 	decoration = {
-		rounding_power = 4,
-		rounding = 14,
+		rounding_power = 3,
+		rounding = 16,
+
+		border_part_of_window = true,
 
 		blur = {
 			enabled = false,
@@ -90,16 +94,18 @@ hl.config({
 			input_methods = true,
 			input_methods_ignorealpha = 0.8,
 		},
+
 		shadow = {
 			enabled = true,
 			range = 40,
-			offset = { 0, 0 },
+			offset = { 0, 12 },
 			render_power = 2,
 			color = "rgba(00000040)",
 		},
+
 		-- Dim
 		dim_inactive = true,
-		dim_strength = 0.25,
+		dim_strength = 0.1,
 		dim_special = 0.2,
 	},
 	render = {
@@ -127,7 +133,7 @@ hl.config({
 		repeat_delay = 250,
 		repeat_rate = 35,
 
-		follow_mouse = 1,
+		follow_mouse = 0,
 		off_window_axis_events = 2,
 
 		touchpad = {
@@ -148,15 +154,20 @@ hl.config({
 		animate_mouse_windowdragging = true,
 		enable_swallow = false,
 		swallow_regex = "(foot|kitty|allacritty|Alacritty)",
-		on_focus_under_fullscreen = 2,
+		on_focus_under_fullscreen = 1,
 		allow_session_lock_restore = true,
 		session_lock_xray = true,
 		initial_workspace_tracking = false,
 		focus_on_activate = true,
+
+		enable_anr_dialog = false,
+		disable_xdg_env_checks = true,
+		disable_hyprland_guiutils_check = true,
 	},
 
 	binds = {
 		scroll_event_delay = 0,
+		workspace_center_on = false,
 		hide_special_on_workspace_change = true,
 	},
 
