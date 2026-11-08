@@ -20,16 +20,10 @@
   };
 
   outputs =
-    {
+    inputs@{
       self,
-      quickshell,
-      dotfiles,
-      hyprland,
       ...
     }:
-    let
-      flakeInputs = { inherit quickshell dotfiles hyprland; };
-    in
     {
       # Home-manager module for user configuration
       homeManagerModules.default =
@@ -40,8 +34,12 @@
           ...
         }:
         (import ./home.nix) {
-          inherit config lib pkgs;
-          inputs = flakeInputs;
+          inherit
+            config
+            lib
+            pkgs
+            inputs
+            ;
         };
       homeManagerModules.illogical-flake = self.homeManagerModules.default;
     };
