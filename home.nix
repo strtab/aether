@@ -49,7 +49,7 @@ in
     };
 
     theme = {
-      enable = mkEnableOption "Enable automatic overwriting theme name" // {
+      enable = mkEnableOption "Whether to enable overwriting theme name" // {
         default = true;
       };
       name = mkOption {
@@ -65,7 +65,7 @@ in
     };
 
     icons = {
-      enable = mkEnableOption "" // {
+      enable = mkEnableOption "Whether to enable overwriting icons theme name" // {
         default = true;
       };
       dark = mkOption {
