@@ -157,6 +157,7 @@ in
           copyIfNotExist "hypr/hyprlock/colors.conf"
 
           copyIfNotExist "kdeglobals"
+          copyIfNotExist "dolphinrc"
 
           ${lib.optionalString cfg.qs.overwriting ''
             # Quickshell separately (patched derivation)
