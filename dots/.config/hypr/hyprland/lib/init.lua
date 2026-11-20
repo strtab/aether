@@ -25,3 +25,33 @@ function workspace_in_group(i)
     -- hl.notification.create({ text = "curr " .. curr .. " floor " .. math.floor(curr / 10) .. " new " .. newVal, duration = 5000 })
     return newVal
 end
+
+local function shell_quote(s)
+  return "'" .. tostring(s):gsub("'", "'\\''") .. "'"
+end
+
+function exec_tray_cmd(cmd, timeout)
+  if type(cmd) ~= "string" or cmd == "" then
+    return
+  end
+
+  local limit = tonumber(timeout) or 15
+  if limit < 0 then
+    limit = 0
+  end
+
+  local wait_script = string.format(
+    "deadline=$((SECONDS + %d)); " ..
+    "while (( SECONDS < deadline )); do " ..
+      "if busctl --user list --no-legend 2>/dev/null | grep -qE '^org\\.kde\\.StatusNotifierHost'; then " ..
+        "break; " ..
+      "fi; " ..
+      "sleep 0.25; " ..
+    "done; " ..
+    "exec sh -c %s",
+    math.floor(limit),
+    shell_quote(cmd)
+  )
+
+  hl.exec_cmd(wait_script)
+end
