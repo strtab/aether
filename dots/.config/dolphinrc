@@ -1,41 +1,33 @@
 MenuBar=Disabled
 
-[CompactMode]
-PreviewSize=80
-
 [ContentDisplay]
 UsePermissionsFormat=NumericFormat
-UseShortRelativeDates=false
 
 [ContextMenu]
 ShowAddToPlaces=false
-ShowCopyLocation=false
-ShowCopyToOtherSplitView=false
-ShowDuplicateHere=false
-ShowMoveToOtherSplitView=false
 ShowOpenInSplitView=false
 ShowViewMode=false
 
 [DetailsMode]
 ExpandableFolders=false
+IconSize=48
 LeftPadding=0
 PreviewSize=16
 RightPadding=0
-UseSystemFont=false
-ViewFont=Inter,12,-1,5,500,0,0,0,0,0,0,0,0,0,0,1,Medium,0,0
 
 [ExtractDialog]
 1920x1080 screen: Window-Maximized=true
-DirHistory[$e]=$HOME/Documents/Biblia/artists/eatWaffles,$HOME/.local/bin/lastland/,$HOME/Downloads/
+DirHistory[$e]=$HOME/Documents/Biblia/games/
 
 [General]
 BrowseThroughArchives=true
+DynamicView=true
 HideXTrashFile=true
 RememberOpenedTabs=false
-ShowFullPath=true
-ShowSelectionToggle=false
+TabStyle=FixedSize
 TerminalApplication=kitty
 Version=202
+ViewPropsTimestamp=2026,11,11,1,58,50.017
 
 [IconsMode]
 IconSize=80
@@ -51,12 +43,8 @@ Places Icons Static Size=16
 [MainWindow]
 MenuBar=Disabled
 
-[Notification Messages]
-ConfirmRenameFileType=false
-warnAboutRisksBeforeActingAsAdmin=false
-
 [PlacesPanel]
 IconSize=16
 
 [PreviewSettings]
-Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,windowsexethumbnail,windowsimagethumbnail,mobithumbnail,opendocumentthumbnail,gsthumbnail,rawthumbnail,svgthumbnail,textthumbnail,ffmpegthumbs
+Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,cursorthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,windowsexethumbnail,windowsimagethumbnail,mobithumbnail,gsthumbnail,rawthumbnail,svgthumbnail,ffmpegthumbs
