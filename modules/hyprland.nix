@@ -34,6 +34,9 @@ in
       configType = "lua";
 
       extraConfig = ''
+        -- Hide startup notifications -- 
+        hl.exec_cmd("hyprctl dismissnotify")
+
         -- Internal stuff --
         require("hyprland.lib")
         require("hyprland.services")
